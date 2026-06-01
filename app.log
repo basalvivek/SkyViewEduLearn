@@ -1,0 +1,44 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -------------------< com.edulearn:edulearn-platform >-------------------
+[INFO] Building EduLearn Platform 1.0.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.2.5:run (default-cli) > test-compile @ edulearn-platform >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ edulearn-platform ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 9 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ edulearn-platform ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ edulearn-platform ---
+[INFO] skip non existing resourceDirectory C:\Users\VB\Downloads\00_AI_Projects\Claude\SkyViewEduLearn\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.11.0:testCompile (default-testCompile) @ edulearn-platform ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] <<< spring-boot:3.2.5:run (default-cli) < test-compile @ edulearn-platform <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.2.5:run (default-cli) @ edulearn-platform ---
+[INFO] Attaching agents: []
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.5)
+
+2026-06-01T19:54:22.285+01:00  INFO 7800 --- [  restartedMain] com.edulearn.EduLearnApplication         : Starting EduLearnApplication using Java 17.0.12 with PID 7800 (C:\Users\VB\Downloads\00_AI_Projects\Claude\SkyViewEduLearn\target\classes started by VB in C:\Users\VB\Downloads\00_AI_Projects\Claude\SkyViewEduLearn)
+2026-06-01T19:54:22.285+01:00  INFO 7800 --- [  restartedMain] com.edulearn.EduLearnApplication         : No active profile set, falling back to 1 default profile: "default"
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+2026-06-01T19:54:23.764+01:00  WARN 7800 --- [  restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-01T19:54:25.686+01:00  WARN 7800 --- [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : Unable to start LiveReload server
+2026-06-01T19:54:25.712+01:00  INFO 7800 --- [  restartedMain] com.edulearn.EduLearnApplication         : Started EduLearnApplication in 3.667 seconds (process running for 3.94)

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EduLearn — Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --nav:#1a3a5c;--nav-hover:rgba(255,255,255,0.1);--nav-active:rgba(255,255,255,0.18);
+  --accent:#2563a8;--accent-light:#e8f0fc;
+  --green:#0f5940;--green-light:#e4f5ee;
+  --amber:#92400e;--amber-light:#fef3c7;
+  --purple:#4c1d95;--purple-light:#ede9fe;
+  --surface:#ffffff;--bg:#f4f6fa;--border:#e2e6ee;
+  --text:#1a1f2e;--muted:#6b7385;--small:#9399a8;
+  --radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);display:flex;height:100vh;overflow:hidden;}
+
+/* NAV */
+nav{width:220px;background:var(--nav);display:flex;flex-direction:column;flex-shrink:0;height:100vh;}
+.nav-brand{display:flex;align-items:center;gap:10px;padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.nav-brand svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.8;}
+.nav-brand span{font-family:'DM Serif Display',serif;font-size:18px;color:#fff;}
+.nav-section{padding:16px 14px 5px;font-size:10px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.35);}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 14px;margin:1px 8px;border-radius:9px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.65);border:none;background:transparent;width:calc(100% - 16px);text-align:left;font-family:'DM Sans',sans-serif;transition:background 0.15s,color 0.15s;}
+.nav-item svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;flex-shrink:0;}
+.nav-item:hover{background:var(--nav-hover);color:#fff;}
+.nav-item.active{background:var(--nav-active);color:#fff;font-weight:500;}
+.nav-badge{margin-left:auto;background:rgba(255,255,255,0.18);color:#fff;font-size:10px;padding:2px 7px;border-radius:999px;font-weight:600;}
+.nav-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.08);}
+.nav-user{display:flex;align-items:center;gap:10px;}
+.avatar{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;}
+.nav-name{font-size:12px;color:#fff;font-weight:500;}
+.nav-email{font-size:11px;color:rgba(255,255,255,0.45);}
+.nav-logout{margin-left:auto;background:transparent;border:none;cursor:pointer;color:rgba(255,255,255,0.4);padding:4px;}
+.nav-logout:hover{color:#fff;}
+.nav-logout svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:var(--surface);border-bottom:1px solid var(--border);}
+.breadcrumb{font-size:13px;color:var(--muted);}
+.breadcrumb b{color:var(--text);font-weight:500;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.topbar-btn{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-family:'DM Sans',sans-serif;padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;transition:background 0.15s;}
+.topbar-btn:hover{background:var(--bg);}
+.topbar-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;}
+
+/* CONTENT PAGES */
+.content{flex:1;overflow:hidden;display:flex;}
+.page{display:none;flex:1;}
+.page.active{display:flex;}
+
+/* DASHBOARD */
+.db{flex:1;overflow-y:auto;padding:28px;}
+.page-heading{font-family:'DM Serif Display',serif;font-size:22px;color:var(--text);margin-bottom:4px;}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:24px;}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;}
+.stat-lbl{font-size:11px;font-weight:600;letter-spacing:0.3px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;}
+.stat-val{font-size:28px;font-weight:600;color:var(--text);line-height:1;}
+.stat-sub{font-size:12px;color:var(--small);margin-top:5px;}
+.stat-sub.warn{color:var(--amber);}
+.section-hd{font-size:14px;font-weight:600;color:var(--text);margin-bottom:12px;}
+.pending-list{display:flex;flex-direction:column;gap:8px;margin-bottom:28px;}
+.pending-row{display:flex;align-items:center;gap:14px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;}
+.pending-row svg{width:16px;height:16px;fill:none;stroke:var(--amber);stroke-width:2;flex-shrink:0;}
+.pr-label{font-size:13px;font-weight:500;color:var(--text);}
+.pr-sub{font-size:11px;color:var(--small);}
+.pr-info{flex:1;}
+.pr-btn{font-size:12px;font-family:'DM Sans',sans-serif;font-weight:500;padding:5px 14px;border-radius:8px;border:1.5px solid var(--accent);color:var(--accent);background:transparent;cursor:pointer;transition:background 0.15s;}
+.pr-btn:hover{background:var(--accent-light);}
+.qa-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.qa-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:border-color 0.15s,box-shadow 0.15s;}
+.qa-card:hover{border-color:#b8c5d8;box-shadow:0 4px 12px rgba(0,0,0,0.06);}
+.qa-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.qa-icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;}
+.qa-title{font-size:13px;font-weight:600;color:var(--text);}
+.qa-sub{font-size:12px;color:var(--small);}
+
+/* TREE LAYOUT */
+.tree-layout{display:flex;flex:1;overflow:hidden;}
+.tree-sidebar{width:260px;border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--surface);}
+.ts-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.ts-title{font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--muted);}
+.add-btn{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-family:'DM Sans',sans-serif;padding:5px 10px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:background 0.15s;}
+.add-btn:hover{background:var(--bg);}
+.add-btn svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;}
+.tree-scroll{flex:1;overflow-y:auto;padding:8px 0;}
+.t-node{user-select:none;}
+.t-row{display:flex;align-items:center;padding:5px 8px 5px 0;cursor:pointer;border-radius:8px;margin:1px 6px;transition:background 0.12s;}
+.t-row:hover{background:var(--bg);}
+.t-row.sel{background:var(--accent-light);}
+.t-chevron{width:18px;height:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--small);transition:transform 0.15s;}
+.t-chevron.open{transform:rotate(90deg);}
+.t-chevron svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.5;}
+.t-spacer{width:18px;flex-shrink:0;}
+.t-icon{font-size:14px;margin:0 5px;flex-shrink:0;}
+.t-label{font-size:12px;color:var(--text);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.t-badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:999px;flex-shrink:0;}
+.tb-pending{background:var(--amber-light);color:var(--amber);}
+.t-actions{display:none;gap:2px;flex-shrink:0;}
+.t-row:hover .t-actions,.t-row.sel .t-actions{display:flex;}
+.t-action{width:22px;height:22px;border:none;background:transparent;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--small);}
+.t-action:hover{background:var(--bg);color:var(--text);}
+.t-action.del:hover{color:#b91c1c;}
+.t-action svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;}
+
+/* DETAIL PANEL */
+.detail-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--surface);}
+.dp-header{padding:16px 24px;border-bottom:1px solid var(--border);}
+.dp-title{font-size:15px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px;}
+.dp-title svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;}
+.dp-path{font-size:11px;color:var(--small);margin-top:3px;}
+.dp-body{flex:1;overflow-y:auto;padding:24px;}
+.dp-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--small);gap:10px;}
+.dp-empty svg{width:32px;height:32px;fill:none;stroke:var(--border);stroke-width:1.5;}
+.dp-empty p{font-size:13px;}
+.form-group{margin-bottom:16px;}
+.form-label{font-size:12px;font-weight:500;color:var(--muted);display:block;margin-bottom:6px;}
+.form-input{width:100%;height:38px;padding:0 12px;font-size:13px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:9px;background:var(--bg);color:var(--text);outline:none;transition:border-color 0.15s;}
+.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,168,0.08);}
+.form-input:disabled{opacity:0.5;cursor:not-allowed;}
+.form-textarea{width:100%;padding:10px 12px;font-size:13px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:9px;background:var(--bg);color:var(--text);outline:none;resize:vertical;min-height:80px;transition:border-color 0.15s;}
+.form-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,168,0.08);}
+.form-textarea:disabled{opacity:0.5;cursor:not-allowed;}
+.form-select{width:100%;height:38px;padding:0 12px;font-size:13px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:9px;background:var(--bg);color:var(--text);outline:none;}
+.q-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;}
+.q-type{border:1.5px solid var(--border);border-radius:9px;padding:8px 10px;cursor:pointer;display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);transition:all 0.15s;}
+.q-type:hover,.q-type.sel{border-color:var(--accent);background:var(--accent-light);color:var(--accent);}
+.q-type svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;}
+.btn-row{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap;}
+.btn-primary{padding:8px 20px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;border:none;border-radius:9px;cursor:pointer;color:#fff;background:var(--accent);transition:opacity 0.15s;}
+.btn-primary:hover{opacity:0.88;}
+.btn-approve{background:var(--green);}
+.btn-secondary{padding:8px 16px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;border:1.5px solid var(--border);border-radius:9px;background:transparent;color:var(--muted);cursor:pointer;transition:background 0.15s;}
+.btn-secondary:hover{background:var(--bg);}
+.banner{display:flex;align-items:flex-start;gap:10px;border-radius:9px;padding:10px 14px;margin-bottom:16px;}
+.banner svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;flex-shrink:0;margin-top:1px;}
+.banner p{font-size:12px;line-height:1.6;}
+.banner.approve{background:var(--green-light);color:var(--green);}
+.divider-lbl{font-size:10px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--small);margin:14px 0 8px;}
+.status-dot::before{content:'⬤ ';font-size:9px;}
+.status-pending{color:var(--amber);}
+.status-approved{color:var(--green);}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <svg viewBox="0 0 24 24"><path d="M12 3L2 8l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+    <span>EduLearn</span>
+  </div>
+  <div class="nav-section">Main</div>
+  <button class="nav-item active" id="nav-dashboard" onclick="go('dashboard')">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
+  </button>
+  <button class="nav-item" id="nav-courses" onclick="go('courses')">
+    <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Courses<span class="nav-badge">12</span>
+  </button>
+  <button class="nav-item" id="nav-approvals" onclick="go('dashboard')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Approvals<span class="nav-badge">2</span>
+  </button>
+  <div class="nav-section">Manage</div>
+  <button class="nav-item" onclick="go('dashboard')"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Teachers</button>
+  <button class="nav-item" onclick="go('dashboard')"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Students</button>
+  <button class="nav-item" onclick="go('dashboard')"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Reports</button>
+  <div class="nav-section">System</div>
+  <button class="nav-item" onclick="go('dashboard')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>Settings</button>
+  <div class="nav-footer">
+    <div class="nav-user">
+      <div class="avatar">AD</div>
+      <div><div class="nav-name">Admin User</div><div class="nav-email">admin@localhost</div></div>
+      <button class="nav-logout" onclick="window.location.href='/login.html'" title="Sign out"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+    </div>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <div class="breadcrumb" id="bc">Admin <b>Dashboard</b></div>
+    <div class="topbar-right">
+      <button class="topbar-btn"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+      <button class="topbar-btn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Search</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Dashboard page -->
+    <div class="page active" id="page-dashboard">
+      <div class="db">
+        <div class="page-heading">Good morning, Admin</div>
+        <div class="page-sub">Here's what's happening on your platform today.</div>
+        <div class="stats">
+          <div class="stat"><div class="stat-lbl">Total courses</div><div class="stat-val">12</div><div class="stat-sub">3 active this term</div></div>
+          <div class="stat"><div class="stat-lbl">Teachers</div><div class="stat-val">8</div><div class="stat-sub">2 added this month</div></div>
+          <div class="stat"><div class="stat-lbl">Students</div><div class="stat-val">340</div><div class="stat-sub">+14 this week</div></div>
+          <div class="stat"><div class="stat-lbl">Pending approvals</div><div class="stat-val">2</div><div class="stat-sub warn">Needs your review</div></div>
+        </div>
+        <div class="section-hd">Pending approvals</div>
+        <div class="pending-list">
+          <div class="pending-row">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <div class="pr-info"><div class="pr-label">Comparative Reading</div><div class="pr-sub">English Language · Year 10 · Ms. Clarke · 2 days ago</div></div>
+            <button class="pr-btn" onclick="go('courses')">Review</button>
+          </div>
+          <div class="pending-row">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <div class="pr-info"><div class="pr-label">What language technique is used here?</div><div class="pr-sub">Textual Analysis · Year 10 · Mr. Ahmed · 3 days ago</div></div>
+            <button class="pr-btn" onclick="go('courses')">Review</button>
+          </div>
+        </div>
+        <div class="section-hd">Quick actions</div>
+        <div class="qa-grid">
+          <div class="qa-card" onclick="go('courses')"><div class="qa-icon" style="background:var(--accent-light);color:var(--accent)"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div><div><div class="qa-title">Manage courses</div><div class="qa-sub">Add categories, subjects, topics</div></div></div>
+          <div class="qa-card" onclick="go('dashboard')"><div class="qa-icon" style="background:var(--green-light);color:var(--green)"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div><div class="qa-title">Add teacher</div><div class="qa-sub">Invite new staff member</div></div></div>
+          <div class="qa-card" onclick="go('dashboard')"><div class="qa-icon" style="background:var(--amber-light);color:var(--amber)"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div><div class="qa-title">View reports</div><div class="qa-sub">Student performance overview</div></div></div>
+          <div class="qa-card" onclick="go('dashboard')"><div class="qa-icon" style="background:var(--purple-light);color:var(--purple)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg></div><div><div class="qa-title">Settings</div><div class="qa-sub">Platform configuration</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Courses page -->
+    <div class="page" id="page-courses">
+      <div class="tree-layout">
+        <div class="tree-sidebar">
+          <div class="ts-header">
+            <span class="ts-title">Content tree</span>
+            <button class="add-btn" onclick="addNode(null)"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Category</button>
+          </div>
+          <div class="tree-scroll" id="treeEl"></div>
+        </div>
+        <div class="detail-panel" id="detailEl">
+          <div class="dp-empty"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg><p>Select an item from the tree to edit</p></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const IC={category:'📁',subject:'📚',topic:'📂',question:'❓'};
+const LV=['category','subject','topic','question'];
+const LN=['Year / Category','Subject','Topic','Question'];
+const CLR={category:'#1a3a5c',subject:'#0f5940',topic:'#92400e',question:'#4c1d95'};
+let sel=null,nid=100;
+
+let tree=[
+  {id:1,label:'Year 10',type:'category',status:'approved',owner:'admin',open:true,children:[
+    {id:2,label:'English Language',type:'subject',status:'approved',owner:'admin',open:true,children:[
+      {id:3,label:'Non-Fiction & Creative Writing',type:'topic',status:'approved',owner:'teacher',open:false,children:[
+        {id:4,label:'Describe a place using the senses',type:'question',qtype:'essay',status:'approved',owner:'teacher',children:[]},
+        {id:5,label:'Identify the purpose of this extract',type:'question',qtype:'mcq',status:'approved',owner:'teacher',children:[]}
+      ]},
+      {id:6,label:'Textual Analysis & Evaluation',type:'topic',status:'approved',owner:'admin',open:false,children:[
+        {id:7,label:'What language technique is used here?',type:'question',qtype:'mcq',status:'pending',owner:'teacher',children:[]}
+      ]},
+      {id:8,label:'Comparative Reading',type:'topic',status:'pending',owner:'teacher',open:false,children:[]}
+    ]},
+    {id:9,label:'Mathematics',type:'subject',status:'approved',owner:'admin',open:false,children:[
+      {id:10,label:'Number & Calculation',type:'topic',status:'approved',owner:'admin',open:false,children:[]},
+      {id:11,label:'Algebraic Proficiency',type:'topic',status:'approved',owner:'admin',open:false,children:[]}
+    ]}
+  ]}
+];
+
+function fn(id,ns){for(let n of ns){if(n.id===id)return n;let f=fn(id,n.children);if(f)return f;}return null;}
+function fp(id,ns,p=null){for(let n of ns){if(n.id===id)return p;let r=fp(id,n.children,n);if(r!==undefined)return r;}return undefined;}
+function dn(id,ns){for(let i=0;i<ns.length;i++){if(ns[i].id===id){ns.splice(i,1);return true;}if(dn(id,ns[i].children))return true;}return false;}
+function ct(n){return LV[LV.indexOf(n.type)+1]||null;}
+function bc2(id){let p=[],c=id;while(c){let n=fn(c,tree);if(!n)break;p.unshift(n.label);let pr=fp(c,tree);c=pr?pr.id:null;}return p.join(' › ');}
+
+function renderTree(){document.getElementById('treeEl').innerHTML='';rn(tree,document.getElementById('treeEl'),0);}
+function rn(ns,el,d){ns.forEach(n=>{let w=document.createElement('div');w.className='t-node';w.innerHTML=nh(n,d);el.appendChild(w);if(n.open&&n.children.length){let c=document.createElement('div');rn(n.children,c,d+1);w.appendChild(c);}});}
+
+function nh(n,d){
+  let ind=`<span style="width:${d*16}px;display:inline-block;flex-shrink:0"></span>`;
+  let tog=n.type!=='question'?`<span class="t-chevron ${n.open?'open':''}" onclick="tv(${n.id},event)"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span>`:`<span class="t-spacer"></span>`;
+  let badge=n.status==='pending'?`<span class="t-badge tb-pending">Pending</span>`:'';
+  let s=sel===n.id?' sel':'';
+  let ct2=ct(n);
+  let addB=ct2?`<button class="t-action" onclick="addNode(${n.id},event)" title="Add ${ct2}"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>`:'';
+  let appB=n.status==='pending'?`<button class="t-action" onclick="approveN(${n.id},event)" title="Approve"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></button>`:'';
+  let delB=`<button class="t-action del" onclick="delNode(${n.id},event)" title="Delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>`;
+  return `<div class="t-row${s}" onclick="selNode(${n.id})">${ind}${tog}<span class="t-icon">${IC[n.type]}</span><span class="t-label" style="color:${CLR[n.type]}">${n.label}</span>${badge}<span class="t-actions">${appB}${addB}${delB}</span></div>`;
+}
+
+function tv(id,e){e.stopPropagation();let n=fn(id,tree);if(n)n.open=!n.open;renderTree();}
+function selNode(id){sel=id;renderTree();showDetail(fn(id,tree));}
+function delNode(id,e){e.stopPropagation();if(sel===id){sel=null;document.getElementById('detailEl').innerHTML='<div class="dp-empty"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg><p>Select an item from the tree to edit</p></div>';}dn(id,tree);renderTree();}
+function approveN(id,e){e.stopPropagation();let n=fn(id,tree);if(n)n.status='approved';renderTree();if(sel===id)showDetail(fn(id,tree));}
+function addNode(pid,e){
+  if(e)e.stopPropagation();
+  let par=pid?fn(pid,tree):null;
+  let type=par?ct(par):'category';
+  if(!type)return;
+  let nn={id:++nid,label:'New '+type,type,status:'approved',owner:'admin',open:false,children:[]};
+  if(par){par.children.push(nn);par.open=true;}else tree.push(nn);
+  sel=nn.id;renderTree();showDetail(nn);
+}
+function setQt(id,t,el){let n=fn(id,tree);if(n)n.qtype=t;el.closest('.q-grid').querySelectorAll('.q-type').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');}
+function updLbl(id,v){let n=fn(id,tree);if(n){n.label=v;renderTree();}}
+
+function showDetail(n){
+  let li=LV.indexOf(n.type);let ct2=ct(n);let isPending=n.status==='pending';
+  let banner=isPending?`<div class="banner approve"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><p>This item is <strong>pending approval</strong>. Review and approve to publish for students.</p></div>`:'';
+  let fields='';
+  if(n.type==='category'){fields=`<div class="form-group"><label class="form-label">Year / category name</label><input class="form-input" value="${n.label}" onchange="updLbl(${n.id},this.value)"/></div><div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" placeholder="e.g. All GCSE subjects for Year 10"></textarea></div>`;}
+  else if(n.type==='subject'){fields=`<div class="form-group"><label class="form-label">Subject name</label><input class="form-input" value="${n.label}" onchange="updLbl(${n.id},this.value)"/></div><div class="form-group"><label class="form-label">Curriculum level</label><select class="form-select"><option>GCSE</option><option>A-Level</option><option>KS3</option><option>KS4</option></select></div><div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" placeholder="Brief subject overview"></textarea></div>`;}
+  else if(n.type==='topic'){fields=`<div class="form-group"><label class="form-label">Topic name</label><input class="form-input" value="${n.label}" onchange="updLbl(${n.id},this.value)"/></div><div class="form-group"><label class="form-label">Learning objective</label><textarea class="form-textarea" placeholder="What will students learn?"></textarea></div><div class="form-group"><label class="form-label">Difficulty</label><select class="form-select"><option>Foundation</option><option>Intermediate</option><option>Higher</option></select></div>`;}
+  else if(n.type==='question'){fields=`<div class="form-group"><label class="form-label">Question text</label><textarea class="form-textarea">${n.label}</textarea></div><div class="divider-lbl">Question type</div><div class="q-grid"><div class="q-type ${n.qtype==='mcq'?'sel':''}" onclick="setQt(${n.id},'mcq',this)"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>MCQ</div><div class="q-type ${n.qtype==='truefalse'?'sel':''}" onclick="setQt(${n.id},'truefalse',this)"><svg viewBox="0 0 24 24"><rect x="1" y="5" width="22" height="14" rx="7" ry="7"/><circle cx="16" cy="12" r="3"/></svg>True/False</div><div class="q-type ${n.qtype==='short'?'sel':''}" onclick="setQt(${n.id},'short',this)"><svg viewBox="0 0 24 24"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>Short ans.</div><div class="q-type ${n.qtype==='essay'?'sel':''}" onclick="setQt(${n.id},'essay',this)"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Essay</div><div class="q-type ${n.qtype==='code'?'sel':''}" onclick="setQt(${n.id},'code',this)"><svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>Code</div><div class="q-type ${n.qtype==='image'?'sel':''}" onclick="setQt(${n.id},'image',this)"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Image</div></div><div class="form-group"><label class="form-label">Marks</label><input class="form-input" type="number" value="1" style="width:80px"/></div><div class="form-group"><label class="form-label">Answer guide</label><textarea class="form-textarea" placeholder="Model answer or marking scheme"></textarea></div>`;}
+  let appBtn=isPending?`<button class="btn-primary btn-approve" onclick="approveN(${n.id},{stopPropagation:()=>{}})">✓ Approve</button>`:'';
+  let addCh=ct2?`<button class="btn-secondary" onclick="addNode(${n.id})">+ Add ${ct2}</button>`:'';
+  let delBtn=`<button class="btn-secondary" style="color:#b91c1c;border-color:#b91c1c" onclick="delNode(${n.id},{stopPropagation:()=>{}})">Delete</button>`;
+  let statusHtml=n.status==='pending'?`<span class="status-dot status-pending">Pending</span>`:`<span class="status-dot status-approved">Published</span>`;
+  document.getElementById('detailEl').innerHTML=`<div class="dp-header"><div class="dp-title" style="color:${CLR[n.type]}">${IC[n.type]} ${LN[li]}</div><div class="dp-path">${statusHtml} &nbsp;·&nbsp; ${bc2(n.id)}</div></div><div class="dp-body">${banner}${fields}<div class="btn-row"><button class="btn-primary" onclick="renderTree()">Save</button>${appBtn}${addCh}${delBtn}</div></div>`;
+}
+
+function go(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  let nb=document.getElementById('nav-'+name);if(nb)nb.classList.add('active');
+  const bcs={dashboard:'Admin <b>Dashboard</b>',courses:'Courses <b>› Manage content</b>'};
+  document.getElementById('bc').innerHTML=bcs[name]||name;
+  if(name==='courses')renderTree();
+}
+renderTree();
+</script>
+</body>
+</html>

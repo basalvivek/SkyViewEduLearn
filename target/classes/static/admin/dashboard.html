@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EduLearn — Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --nav:#1a3a5c;--nav-hover:rgba(255,255,255,0.1);--nav-active:rgba(255,255,255,0.18);
+  --accent:#2563a8;--accent-light:#e8f0fc;
+  --green:#0f5940;--green-light:#e4f5ee;
+  --amber:#92400e;--amber-light:#fef3c7;
+  --purple:#4c1d95;--purple-light:#ede9fe;
+  --red:#991b1b;--red-light:#fee2e2;
+  --surface:#ffffff;--bg:#f4f6fa;--border:#e2e6ee;
+  --text:#1a1f2e;--muted:#6b7385;--small:#9399a8;
+  --radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);display:flex;height:100vh;overflow:hidden;}
+nav{width:220px;background:var(--nav);display:flex;flex-direction:column;flex-shrink:0;height:100vh;}
+.nav-brand{display:flex;align-items:center;gap:10px;padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.nav-brand svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.8;}
+.nav-brand-name{font-family:'DM Serif Display',serif;font-size:17px;color:#fff;line-height:1;}
+.nav-brand-sub{font-size:10px;color:rgba(255,255,255,0.4);margin-top:1px;}
+.nav-section{padding:14px 14px 4px;font-size:10px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.3);}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 14px;margin:1px 8px;border-radius:9px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.65);border:none;background:transparent;width:calc(100% - 16px);text-align:left;font-family:'DM Sans',sans-serif;transition:background 0.15s,color 0.15s;}
+.nav-item svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;flex-shrink:0;}
+.nav-item:hover{background:var(--nav-hover);color:#fff;}
+.nav-item.active{background:var(--nav-active);color:#fff;font-weight:500;}
+.nav-badge{margin-left:auto;background:rgba(255,255,255,0.18);color:#fff;font-size:10px;padding:1px 7px;border-radius:999px;font-weight:600;}
+.nav-badge.warn{background:rgba(250,204,21,0.25);color:#fde68a;}
+.nav-scroll{flex:1;overflow-y:auto;}
+.nav-scroll::-webkit-scrollbar{width:3px;}
+.nav-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px;}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;}
+.breadcrumb{font-size:13px;color:var(--muted);}
+.breadcrumb b{color:var(--text);font-weight:500;}
+.topbar-right{display:flex;align-items:center;gap:6px;}
+.tb-icon-btn{width:36px;height:36px;border-radius:9px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);position:relative;transition:background 0.15s,color 0.15s;}
+.tb-icon-btn:hover{background:var(--bg);color:var(--text);}
+.tb-icon-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;}
+.notif-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;background:#ef4444;border-radius:50%;border:1.5px solid #fff;display:none;}
+.tb-divider{width:1px;height:24px;background:var(--border);margin:0 4px;}
+.user-pill{display:flex;align-items:center;gap:8px;padding:5px 10px 5px 6px;border-radius:999px;border:1px solid var(--border);background:var(--surface);cursor:pointer;position:relative;transition:background 0.15s;}
+.user-pill:hover{background:var(--bg);}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;}
+.user-pill-name{font-size:13px;font-weight:500;color:var(--text);}
+.user-pill-role{font-size:10px;color:var(--muted);}
+.user-pill-chevron{width:14px;height:14px;fill:none;stroke:var(--small);stroke-width:2;flex-shrink:0;transition:transform 0.15s;}
+.user-pill.open .user-pill-chevron{transform:rotate(180deg);}
+.dropdown{position:absolute;top:calc(100% + 8px);right:0;width:220px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,0.1);z-index:999;display:none;overflow:hidden;}
+.dropdown.show{display:block;}
+.dd-header{padding:12px 14px;border-bottom:1px solid var(--border);}
+.dd-name{font-size:13px;font-weight:600;color:var(--text);}
+.dd-email{font-size:11px;color:var(--small);margin-top:1px;}
+.dd-role-chip{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--accent-light);color:var(--accent);margin-top:6px;}
+.dd-item{display:flex;align-items:center;gap:10px;padding:9px 14px;font-size:13px;color:var(--text);cursor:pointer;transition:background 0.12s;}
+.dd-item:hover{background:var(--bg);}
+.dd-item svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;color:var(--muted);}
+.dd-sep{height:1px;background:var(--border);margin:4px 0;}
+.dd-item.danger{color:var(--red);}
+.dd-item.danger svg{color:var(--red);}
+.dd-item.danger:hover{background:var(--red-light);}
+.notif-panel{position:absolute;top:calc(100% + 8px);right:0;width:320px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,0.1);z-index:999;display:none;}
+.notif-panel.show{display:block;}
+.np-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border);}
+.np-title{font-size:13px;font-weight:600;color:var(--text);}
+.np-clear{font-size:11px;color:var(--accent);cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;}
+.np-item{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.12s;}
+.np-item:last-child{border-bottom:none;}
+.np-item:hover{background:var(--bg);}
+.np-item.unread{background:#fafbff;}
+.np-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:4px;}
+.np-dot.read{background:transparent;border:1.5px solid var(--border);}
+.np-msg{font-size:12px;color:var(--text);line-height:1.5;}
+.np-time{font-size:11px;color:var(--small);margin-top:2px;}
+.np-empty{padding:20px;text-align:center;font-size:12px;color:var(--small);}
+.content{flex:1;overflow:hidden;display:flex;}
+.page{display:none;flex:1;overflow:hidden;}
+.page.active{display:flex;}
+.db{flex:1;overflow-y:auto;padding:28px;}
+.page-heading{font-family:'DM Serif Display',serif;font-size:22px;color:var(--text);margin-bottom:4px;}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:24px;}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;position:relative;overflow:hidden;}
+.stat-lbl{font-size:11px;font-weight:600;letter-spacing:0.3px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;}
+.stat-val{font-size:28px;font-weight:600;color:var(--text);line-height:1;}
+.stat-sub{font-size:12px;color:var(--small);margin-top:5px;}
+.stat-sub.warn{color:var(--amber);}
+.stat-bar{position:absolute;bottom:0;left:0;height:3px;border-radius:0 0 0 var(--radius);}
+.section-hd{font-size:14px;font-weight:600;color:var(--text);margin-bottom:12px;}
+.pending-list{display:flex;flex-direction:column;gap:8px;margin-bottom:28px;}
+.pending-row{display:flex;align-items:center;gap:14px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;}
+.pending-row svg{width:16px;height:16px;fill:none;stroke:var(--amber);stroke-width:2;flex-shrink:0;}
+.pr-label{font-size:13px;font-weight:500;color:var(--text);}
+.pr-sub{font-size:11px;color:var(--small);}
+.pr-info{flex:1;}
+.pr-btn{font-size:12px;font-family:'DM Sans',sans-serif;font-weight:500;padding:5px 14px;border-radius:8px;border:1.5px solid var(--accent);color:var(--accent);background:transparent;cursor:pointer;transition:background 0.15s;}
+.pr-btn:hover{background:var(--accent-light);}
+.qa-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.qa-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:border-color 0.15s,box-shadow 0.15s;}
+.qa-card:hover{border-color:#b8c5d8;box-shadow:0 4px 12px rgba(0,0,0,0.06);}
+.qa-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.qa-icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;}
+.qa-title{font-size:13px;font-weight:600;color:var(--text);}
+.qa-sub{font-size:12px;color:var(--small);}
+.empty-msg{text-align:center;padding:20px;color:var(--small);font-size:13px;}
+/* Org Settings */
+.org-body{flex:1;overflow-y:auto;padding:28px;}
+.org-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px;}
+.org-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;}
+.org-card.full{grid-column:1/-1;}
+.org-card-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.org-card-title svg{width:15px;height:15px;fill:none;stroke:var(--accent);stroke-width:2;}
+.logo-upload{display:flex;align-items:center;gap:16px;margin-bottom:14px;}
+.logo-box{width:80px;height:80px;border-radius:12px;border:2px dashed var(--border);background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:border-color 0.15s;flex-shrink:0;overflow:hidden;}
+.logo-box:hover{border-color:var(--accent);}
+.logo-box svg{width:22px;height:22px;fill:none;stroke:var(--small);stroke-width:1.5;margin-bottom:4px;}
+.logo-box span{font-size:10px;color:var(--small);}
+.logo-preview{width:80px;height:80px;border-radius:12px;object-fit:contain;border:1px solid var(--border);background:var(--bg);}
+.logo-info p{font-size:12px;color:var(--muted);margin-bottom:4px;}
+.logo-info small{font-size:11px;color:var(--small);}
+.form-group{margin-bottom:15px;}
+.form-label{font-size:12px;font-weight:500;color:var(--muted);display:block;margin-bottom:5px;}
+.form-input{width:100%;height:38px;padding:0 12px;font-size:13px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:9px;background:var(--bg);color:var(--text);outline:none;transition:border-color 0.15s;}
+.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,168,0.08);}
+.form-textarea{width:100%;padding:9px 12px;font-size:13px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:9px;background:var(--bg);color:var(--text);outline:none;resize:vertical;min-height:75px;transition:border-color 0.15s;}
+.form-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,168,0.08);}
+.form-select{width:100%;height:38px;padding:0 12px;font-size:13px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:9px;background:var(--bg);color:var(--text);outline:none;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.org-save-bar{display:flex;justify-content:flex-end;gap:10px;padding-top:12px;border-top:1px solid var(--border);margin-top:4px;}
+.chip-admin{display:inline-flex;align-items:center;gap:5px;background:var(--accent-light);color:var(--accent);font-size:10px;font-weight:600;padding:2px 9px;border-radius:999px;text-transform:uppercase;letter-spacing:0.4px;}
+.btn-primary{padding:8px 18px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;border:none;border-radius:9px;cursor:pointer;color:#fff;background:var(--accent);transition:opacity 0.15s;}
+.btn-primary:hover{opacity:0.88;}
+.btn-secondary{padding:8px 14px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;border:1.5px solid var(--border);border-radius:9px;background:transparent;color:var(--muted);cursor:pointer;}
+.btn-secondary:hover{background:var(--bg);}
+.toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;color:#fff;z-index:9999;display:none;box-shadow:0 4px 16px rgba(0,0,0,0.15);}
+.toast.success{background:#0f5940;}
+.toast.error{background:#991b1b;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <svg viewBox="0 0 24 24"><path d="M12 3L2 8l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+    <div><div class="nav-brand-name">EduLearn</div><div class="nav-brand-sub">Admin Portal</div></div>
+  </div>
+  <div class="nav-scroll">
+    <div class="nav-section">Main</div>
+    <button class="nav-item active" id="nav-dashboard" onclick="go('dashboard')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
+    </button>
+    <button class="nav-item" onclick="window.location.href='/admin/courses.html'">
+      <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Courses<span class="nav-badge" id="navCourseBadge"></span>
+    </button>
+    <button class="nav-item" onclick="window.location.href='/admin/courses.html'">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Approvals<span class="nav-badge warn" id="navApprovalBadge"></span>
+    </button>
+    <div class="nav-section">Manage</div>
+    <button class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Teachers
+    </button>
+    <button class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Students
+    </button>
+    <div class="nav-section">System</div>
+    <button class="nav-item" id="nav-org" onclick="go('org')">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Organisation
+    </button>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <div class="breadcrumb" id="bc">Admin <b>Dashboard</b></div>
+    <div class="topbar-right">
+      <button class="tb-icon-btn" title="Search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <div style="position:relative">
+        <button class="tb-icon-btn" id="notifBtn" title="Notifications" onclick="toggleNotif()">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="notif-dot" id="notifDot"></span>
+        </button>
+        <div class="notif-panel" id="notifPanel">
+          <div class="np-header">
+            <span class="np-title">Notifications</span>
+            <button class="np-clear" onclick="clearNotifs()">Mark all read</button>
+          </div>
+          <div id="notifList"><div class="np-empty">Loading…</div></div>
+        </div>
+      </div>
+      <div class="tb-divider"></div>
+      <div style="position:relative">
+        <div class="user-pill" id="userPill" onclick="toggleUserMenu()">
+          <div class="user-avatar" id="topbarAvatar">AD</div>
+          <div>
+            <div class="user-pill-name" id="topbarName">Admin</div>
+            <div class="user-pill-role">Administrator</div>
+          </div>
+          <svg class="user-pill-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="dropdown" id="userDropdown">
+          <div class="dd-header">
+            <div class="dd-name" id="ddName">Admin User</div>
+            <div class="dd-email" id="ddEmail">admin@localhost</div>
+            <div class="dd-role-chip">
+              <svg style="width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Administrator
+            </div>
+          </div>
+          <div class="dd-item" onclick="go('org');closeMenus()">
+            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Organisation Settings
+          </div>
+          <div class="dd-sep"></div>
+          <div class="dd-item danger" onclick="logout()">
+            <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Sign out
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- Dashboard page -->
+    <div class="page active" id="page-dashboard">
+      <div class="db">
+        <div class="page-heading" id="greeting">Good morning, Admin</div>
+        <div class="page-sub">Here's what's happening on your platform today.</div>
+        <div class="stats">
+          <div class="stat"><div class="stat-lbl">Total categories</div><div class="stat-val" id="statCats">—</div><div class="stat-sub">in platform</div><div class="stat-bar" style="width:70%;background:var(--accent)"></div></div>
+          <div class="stat"><div class="stat-lbl">Teachers</div><div class="stat-val" id="statTeachers">—</div><div class="stat-sub">registered</div><div class="stat-bar" style="width:55%;background:var(--green)"></div></div>
+          <div class="stat"><div class="stat-lbl">Total questions</div><div class="stat-val" id="statQuestions">—</div><div class="stat-sub">across all topics</div><div class="stat-bar" style="width:60%;background:var(--purple)"></div></div>
+          <div class="stat"><div class="stat-lbl">Pending approvals</div><div class="stat-val" id="statPending">—</div><div class="stat-sub warn" id="pendingNote">Needs your review</div><div class="stat-bar" style="width:20%;background:var(--amber)"></div></div>
+        </div>
+        <div class="section-hd">Pending approvals</div>
+        <div class="pending-list" id="pendingList"><div class="empty-msg">Loading…</div></div>
+        <div class="section-hd">Quick actions</div>
+        <div class="qa-grid">
+          <div class="qa-card" onclick="window.location.href='/admin/courses.html'"><div class="qa-icon" style="background:var(--accent-light);color:var(--accent)"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div><div><div class="qa-title">Manage courses</div><div class="qa-sub">Add categories, subjects, topics</div></div></div>
+          <div class="qa-card" onclick="window.location.href='/admin/courses.html'"><div class="qa-icon" style="background:var(--amber-light);color:var(--amber)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="qa-title">Review approvals</div><div class="qa-sub">Approve or reject pending content</div></div></div>
+          <div class="qa-card" onclick="go('org')"><div class="qa-icon" style="background:var(--purple-light);color:var(--purple)"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div><div><div class="qa-title">Organisation</div><div class="qa-sub">Manage org profile & settings</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Organisation Settings page -->
+    <div class="page" id="page-org">
+      <div class="org-body">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div>
+            <div class="page-heading">Organisation Settings</div>
+            <div class="page-sub" style="margin-bottom:0">Manage your institution's profile, legal details and contact information.</div>
+          </div>
+          <span class="chip-admin">Admin only</span>
+        </div>
+        <div style="height:24px"></div>
+
+        <div class="org-grid">
+          <!-- Branding -->
+          <div class="org-card full">
+            <div class="org-card-title">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              Branding
+            </div>
+            <!-- file input lives outside logoBox so preview replacement can't destroy it -->
+            <input type="file" id="logoFile" accept="image/*" style="display:none" onchange="previewLogo(this)"/>
+            <div class="logo-upload">
+              <div class="logo-box" id="logoBox" onclick="document.getElementById('logoFile').click()">
+                <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <span>Upload</span>
+              </div>
+              <div class="logo-info">
+                <p>Organisation logo</p>
+                <small>PNG, JPG or SVG &middot; Max 2MB &middot; Recommended 200&times;200px</small>
+                <br/><button class="btn-secondary" style="margin-top:8px;padding:5px 12px;font-size:12px" onclick="document.getElementById('logoFile').click()">Choose file</button>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Organisation name <span style="color:#ef4444">*</span></label><input class="form-input" id="orgName" placeholder="e.g. Oakfield Academy"/></div>
+              <div class="form-group"><label class="form-label">Display / short name</label><input class="form-input" id="displayName" placeholder="e.g. Oakfield"/></div>
+            </div>
+          </div>
+
+          <!-- Legal Details -->
+          <div class="org-card">
+            <div class="org-card-title">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Legal Details
+            </div>
+            <div class="form-group"><label class="form-label">Legal entity name <span style="color:#ef4444">*</span></label><input class="form-input" id="legalEntityName" placeholder="e.g. EduLearn Institute Ltd"/></div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Registration number <span style="color:#ef4444">*</span></label><input class="form-input" id="registrationNumber" placeholder="e.g. 12345678"/></div>
+              <div class="form-group"><label class="form-label">Registration date</label><input class="form-input" id="registrationDate" type="date"/></div>
+            </div>
+            <div class="form-group"><label class="form-label">Registered country</label>
+              <select class="form-select" id="registeredCountry">
+                <option value="">Select country…</option>
+                <option>United Kingdom</option><option>United States</option><option>Australia</option><option>Canada</option><option>India</option><option>Other</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Tax / VAT number</label><input class="form-input" id="vatNumber" placeholder="e.g. GB123456789"/></div>
+            <div class="form-group"><label class="form-label">Organisation type</label>
+              <select class="form-select" id="orgType">
+                <option value="">Select type…</option>
+                <option value="SECONDARY_SCHOOL">Secondary School</option>
+                <option value="PRIMARY_SCHOOL">Primary School</option>
+                <option value="COLLEGE">College / Sixth Form</option>
+                <option value="UNIVERSITY">University</option>
+                <option value="TUTORING_CENTRE">Private Tutoring Centre</option>
+                <option value="OTHER">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Address -->
+          <div class="org-card">
+            <div class="org-card-title">
+              <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Registered Address
+            </div>
+            <div class="form-group"><label class="form-label">Address line 1 <span style="color:#ef4444">*</span></label><input class="form-input" id="addressLine1" placeholder="Street address"/></div>
+            <div class="form-group"><label class="form-label">Address line 2</label><input class="form-input" id="addressLine2" placeholder="Apartment, suite, unit etc."/></div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">City <span style="color:#ef4444">*</span></label><input class="form-input" id="city" placeholder="e.g. London"/></div>
+              <div class="form-group"><label class="form-label">County / State</label><input class="form-input" id="county" placeholder="e.g. Greater London"/></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Postcode <span style="color:#ef4444">*</span></label><input class="form-input" id="postcode" placeholder="e.g. EC1A 1BB"/></div>
+              <div class="form-group"><label class="form-label">Country</label>
+                <select class="form-select" id="addrCountry">
+                  <option value="">Select country…</option>
+                  <option>United Kingdom</option><option>United States</option><option>Australia</option><option>Other</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Points of Contact -->
+          <div class="org-card full">
+            <div class="org-card-title">
+              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Points of Contact
+            </div>
+            <div style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:12px">
+              <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.4px">Primary contact</div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Full name <span style="color:#ef4444">*</span></label><input class="form-input" id="poc1Name" placeholder="e.g. Dr. Jane Smith"/></div>
+                <div class="form-group"><label class="form-label">Job title</label><input class="form-input" id="poc1Title" placeholder="e.g. Principal"/></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Email <span style="color:#ef4444">*</span></label><input class="form-input" id="poc1Email" type="email" placeholder="e.g. head@school.edu"/></div>
+                <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="poc1Phone" type="tel" placeholder="e.g. +44 20 7946 0958"/></div>
+              </div>
+            </div>
+            <div style="background:var(--bg);border-radius:10px;padding:14px">
+              <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.4px">Secondary contact (optional)</div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Full name</label><input class="form-input" id="poc2Name" placeholder="e.g. Mr. John Brown"/></div>
+                <div class="form-group"><label class="form-label">Job title</label><input class="form-input" id="poc2Title" placeholder="e.g. Deputy Head"/></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="poc2Email" type="email" placeholder="e.g. deputy@school.edu"/></div>
+                <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="poc2Phone" type="tel" placeholder="e.g. +44 20 7946 0000"/></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Academic Info -->
+          <div class="org-card full">
+            <div class="org-card-title">
+              <svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+              Academic Information
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Academic year start</label><input class="form-input" id="academicYearStart" type="date"/></div>
+              <div class="form-group"><label class="form-label">Academic year end</label><input class="form-input" id="academicYearEnd" type="date"/></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Curriculum framework</label>
+                <select class="form-select" id="curriculum">
+                  <option value="">Select…</option>
+                  <option>UK National Curriculum</option><option>IB (International Baccalaureate)</option><option>Cambridge International</option><option>CBSE</option><option>Custom</option>
+                </select>
+              </div>
+              <div class="form-group"><label class="form-label">Ofsted / Accreditation number</label><input class="form-input" id="accreditationNo" placeholder="Optional"/></div>
+            </div>
+            <div class="form-group"><label class="form-label">Website</label><input class="form-input" id="website" type="url" placeholder="https://www.yourschool.edu"/></div>
+            <div class="form-group"><label class="form-label">About the organisation</label><textarea class="form-textarea" id="aboutText" style="min-height:90px" placeholder="Brief description…" maxlength="1000"></textarea></div>
+          </div>
+        </div>
+
+        <!-- Single save bar for the whole page -->
+        <div style="display:flex;justify-content:flex-end;gap:10px;padding:16px 0 8px;border-top:1px solid var(--border);margin-top:4px;">
+          <button class="btn-secondary" onclick="loadOrgSettings()">Discard changes</button>
+          <button class="btn-primary" id="orgSaveBtn" onclick="saveAllSettings()">Save all changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="/js/auth.js"></script>
+<script src="/js/api.js"></script>
+<script>
+if (!requireAuth('ADMIN')) { /* redirected */ }
+initUserDisplay();
+
+// Set topbar user info
+const name = getName();
+const hour = new Date().getHours();
+const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+document.getElementById('greeting').textContent = greeting + ', ' + (name || 'Admin');
+document.getElementById('topbarName').textContent = name || 'Admin';
+document.getElementById('ddName').textContent = name || 'Admin';
+const initials = (name || 'Admin').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+document.getElementById('topbarAvatar').textContent = initials;
+
+// ── Navigation ──
+function go(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  const nb = document.getElementById('nav-' + name);
+  if (nb) nb.classList.add('active');
+  const bcs = { dashboard: 'Admin <b>Dashboard</b>', org: '<b>Organisation Settings</b>' };
+  document.getElementById('bc').innerHTML = bcs[name] || name;
+  closeMenus();
+  if (name === 'org') loadOrgSettings();
+}
+
+// ── Topbar dropdowns ──
+function toggleUserMenu() {
+  const dd = document.getElementById('userDropdown');
+  const pill = document.getElementById('userPill');
+  document.getElementById('notifPanel').classList.remove('show');
+  dd.classList.toggle('show');
+  pill.classList.toggle('open');
+}
+function toggleNotif() {
+  const np = document.getElementById('notifPanel');
+  document.getElementById('userDropdown').classList.remove('show');
+  document.getElementById('userPill').classList.remove('open');
+  np.classList.toggle('show');
+  if (np.classList.contains('show')) loadNotifications();
+}
+function closeMenus() {
+  document.getElementById('userDropdown').classList.remove('show');
+  document.getElementById('notifPanel').classList.remove('show');
+  document.getElementById('userPill').classList.remove('open');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('#userPill') && !e.target.closest('#userDropdown'))
+    { document.getElementById('userDropdown').classList.remove('show'); document.getElementById('userPill').classList.remove('open'); }
+  if (!e.target.closest('#notifBtn') && !e.target.closest('#notifPanel'))
+    document.getElementById('notifPanel').classList.remove('show');
+});
+
+// ── Toast ──
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type;
+  t.style.display = 'block';
+  setTimeout(() => { t.style.display = 'none'; }, 3000);
+}
+
+// ── Dashboard data ──
+async function loadDashboard() {
+  try {
+    const cats = await apiGet('/categories?page=0&size=1');
+    if (cats) document.getElementById('statCats').textContent = cats.pagination?.total ?? '—';
+
+    const pending = await apiGet('/approvals/pending?page=0&size=50');
+    if (pending?.data) {
+      const items = pending.data;
+      document.getElementById('statPending').textContent = items.length;
+      document.getElementById('navApprovalBadge').textContent = items.length > 0 ? items.length : '';
+      const list = document.getElementById('pendingList');
+      if (items.length === 0) {
+        list.innerHTML = '<div class="empty-msg">No pending approvals — all caught up!</div>';
+      } else {
+        list.innerHTML = items.slice(0, 10).map(item => `
+          <div class="pending-row">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <div class="pr-info">
+              <div class="pr-label">${esc(item.name)}</div>
+              <div class="pr-sub">${esc(item.entityType)} &bull; ${esc(item.path || '')} &bull; ${esc(item.createdByName)}</div>
+            </div>
+            <button class="pr-btn" onclick="window.location.href='/admin/courses.html'">Review</button>
+          </div>`).join('');
+      }
+    }
+  } catch(e) { console.error('Dashboard load error', e); }
+
+  // Load unread notification count
+  try {
+    const r = await apiGet('/notifications/unread-count');
+    if (r?.data?.count > 0) document.getElementById('notifDot').style.display = 'block';
+  } catch(e) {}
+}
+
+// ── Notifications ──
+async function loadNotifications() {
+  const list = document.getElementById('notifList');
+  try {
+    const r = await apiGet('/notifications?page=0&size=10');
+    const items = r?.data || [];
+    if (items.length === 0) {
+      list.innerHTML = '<div class="np-empty">No notifications</div>';
+      return;
+    }
+    list.innerHTML = items.map(n => `
+      <div class="np-item ${n.read ? '' : 'unread'}" onclick="markNotifRead('${n.id}',this)">
+        <span class="np-dot ${n.read ? 'read' : ''}"></span>
+        <div>
+          <div class="np-msg">${esc(n.message)}</div>
+          <div class="np-time">${timeAgo(n.createdAt)}</div>
+        </div>
+      </div>`).join('');
+  } catch(e) {
+    list.innerHTML = '<div class="np-empty">Could not load notifications</div>';
+  }
+}
+
+async function markNotifRead(id, el) {
+  try {
+    await apiPut('/notifications/' + id + '/read', {});
+    el.classList.remove('unread');
+    el.querySelector('.np-dot').classList.add('read');
+  } catch(e) {}
+}
+
+async function clearNotifs() {
+  try {
+    await apiPut('/notifications/read-all', {});
+    document.querySelectorAll('.np-item').forEach(i => {
+      i.classList.remove('unread');
+      i.querySelector('.np-dot').classList.add('read');
+    });
+    document.getElementById('notifDot').style.display = 'none';
+  } catch(e) {}
+}
+
+function timeAgo(iso) {
+  if (!iso) return '';
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return m + ' min ago';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + ' hour' + (h > 1 ? 's' : '') + ' ago';
+  const d = Math.floor(h / 24);
+  return d + ' day' + (d > 1 ? 's' : '') + ' ago';
+}
+
+// ── Org Settings ──
+let orgOriginal = {};
+
+async function loadOrgSettings() {
+  try {
+    const r = await apiGet('/org/settings');
+    if (!r?.data) return;
+    const d = r.data;
+    orgOriginal = d;
+    setVal('orgName', d.orgName);
+    setVal('displayName', d.displayName);
+    if (d.logoUrl) {
+      document.getElementById('logoBox').innerHTML = `<img src="${d.logoUrl}" style="width:100%;height:100%;object-fit:contain"/>`;
+    }
+    setVal('legalEntityName', d.legalEntityName);
+    setVal('registrationNumber', d.registrationNumber);
+    setVal('registrationDate', d.registrationDate);
+    setVal('registeredCountry', d.registeredCountry);
+    setVal('vatNumber', d.vatNumber);
+    setVal('orgType', d.orgType);
+    setVal('addressLine1', d.addressLine1);
+    setVal('addressLine2', d.addressLine2);
+    setVal('city', d.city);
+    setVal('county', d.county);
+    setVal('postcode', d.postcode);
+    setVal('addrCountry', d.country);
+    setVal('poc1Name', d.poc1Name);
+    setVal('poc1Title', d.poc1Title);
+    setVal('poc1Email', d.poc1Email);
+    setVal('poc1Phone', d.poc1Phone);
+    setVal('poc2Name', d.poc2Name);
+    setVal('poc2Title', d.poc2Title);
+    setVal('poc2Email', d.poc2Email);
+    setVal('poc2Phone', d.poc2Phone);
+    setVal('academicYearStart', d.academicYearStart);
+    setVal('academicYearEnd', d.academicYearEnd);
+    setVal('curriculum', d.curriculum);
+    setVal('accreditationNo', d.accreditationNo);
+    setVal('website', d.website);
+    setVal('aboutText', d.aboutText);
+  } catch(e) { console.error('Org settings load error', e); }
+}
+
+function setVal(id, val) {
+  const el = document.getElementById(id);
+  if (!el || val == null) return;
+  el.value = val;
+}
+
+async function saveAllSettings() {
+  const btn = document.getElementById('orgSaveBtn');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+  try {
+    // Upload logo first if a new file was selected
+    const file = document.getElementById('logoFile').files[0];
+    if (file) {
+      const fd = new FormData();
+      fd.append('file', file);
+      await apiFetch('/org/settings/logo', { method: 'POST', body: fd, noJson: true });
+    }
+    // Save all five sections in parallel
+    await Promise.all([
+      apiPut('/org/settings/branding', {
+        orgName: document.getElementById('orgName').value,
+        displayName: document.getElementById('displayName').value
+      }),
+      apiPut('/org/settings/legal', {
+        legalEntityName: document.getElementById('legalEntityName').value,
+        registrationNumber: document.getElementById('registrationNumber').value,
+        registrationDate: document.getElementById('registrationDate').value || null,
+        registeredCountry: document.getElementById('registeredCountry').value,
+        vatNumber: document.getElementById('vatNumber').value,
+        orgType: document.getElementById('orgType').value || null
+      }),
+      apiPut('/org/settings/address', {
+        addressLine1: document.getElementById('addressLine1').value,
+        addressLine2: document.getElementById('addressLine2').value,
+        city: document.getElementById('city').value,
+        county: document.getElementById('county').value,
+        postcode: document.getElementById('postcode').value,
+        country: document.getElementById('addrCountry').value
+      }),
+      apiPut('/org/settings/contacts', {
+        poc1Name: document.getElementById('poc1Name').value,
+        poc1Title: document.getElementById('poc1Title').value,
+        poc1Email: document.getElementById('poc1Email').value,
+        poc1Phone: document.getElementById('poc1Phone').value,
+        poc2Name: document.getElementById('poc2Name').value,
+        poc2Title: document.getElementById('poc2Title').value,
+        poc2Email: document.getElementById('poc2Email').value,
+        poc2Phone: document.getElementById('poc2Phone').value
+      }),
+      apiPut('/org/settings/academic', {
+        academicYearStart: document.getElementById('academicYearStart').value || null,
+        academicYearEnd: document.getElementById('academicYearEnd').value || null,
+        curriculum: document.getElementById('curriculum').value,
+        accreditationNo: document.getElementById('accreditationNo').value,
+        website: document.getElementById('website').value,
+        aboutText: document.getElementById('aboutText').value
+      })
+    ]);
+    showToast('Settings saved');
+    await loadOrgSettings();
+  } catch(e) {
+    showToast('Save failed: ' + (e.message || e), 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Save all changes';
+  }
+}
+
+function previewLogo(input) {
+  if (!input.files || !input.files[0]) return;
+  const r = new FileReader();
+  r.onload = e => {
+    document.getElementById('logoBox').innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:contain"/>`;
+  };
+  r.readAsDataURL(input.files[0]);
+}
+
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+loadDashboard();
+</script>
+</body>
+</html>

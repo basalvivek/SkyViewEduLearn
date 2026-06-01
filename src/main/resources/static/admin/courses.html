@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EduLearn — Admin Courses</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --nav:#1a3a5c;--nav-hover:rgba(255,255,255,0.1);--nav-active:rgba(255,255,255,0.18);
+  --accent:#2563a8;--accent-light:#e8f0fc;
+  --green:#0f5940;--green-light:#e4f5ee;
+  --amber:#92400e;--amber-light:#fef3c7;
+  --purple:#4c1d95;--purple-light:#ede9fe;
+  --red:#991b1b;--red-light:#fee2e2;
+  --surface:#ffffff;--bg:#f4f6fa;--border:#e2e6ee;
+  --text:#1a1f2e;--muted:#6b7385;--small:#9399a8;
+  --radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);display:flex;height:100vh;overflow:hidden;}
+nav{width:220px;background:var(--nav);display:flex;flex-direction:column;flex-shrink:0;height:100vh;}
+.nav-brand{display:flex;align-items:center;gap:10px;padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.nav-brand svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.8;}
+.nav-brand-name{font-family:'DM Serif Display',serif;font-size:17px;color:#fff;line-height:1;}
+.nav-brand-sub{font-size:10px;color:rgba(255,255,255,0.4);margin-top:1px;}
+.nav-section{padding:14px 14px 4px;font-size:10px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.3);}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 14px;margin:1px 8px;border-radius:9px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.65);border:none;background:transparent;width:calc(100% - 16px);text-align:left;font-family:'DM Sans',sans-serif;transition:background 0.15s,color 0.15s;}
+.nav-item svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;flex-shrink:0;}
+.nav-item:hover{background:var(--nav-hover);color:#fff;}
+.nav-item.active{background:var(--nav-active);color:#fff;font-weight:500;}
+.nav-badge{margin-left:auto;background:rgba(255,255,255,0.18);color:#fff;font-size:10px;padding:1px 7px;border-radius:999px;font-weight:600;}
+.nav-badge.warn{background:rgba(250,204,21,0.25);color:#fde68a;}
+.nav-scroll{flex:1;overflow-y:auto;}
+.nav-scroll::-webkit-scrollbar{width:3px;}
+.nav-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px;}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;}
+.breadcrumb{font-size:13px;color:var(--muted);}
+.breadcrumb b{color:var(--text);font-weight:500;}
+.topbar-right{display:flex;align-items:center;gap:6px;}
+.tb-icon-btn{width:36px;height:36px;border-radius:9px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);position:relative;transition:background 0.15s,color 0.15s;}
+.tb-icon-btn:hover{background:var(--bg);color:var(--text);}
+.tb-icon-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;}
+.notif-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;background:#ef4444;border-radius:50%;border:1.5px solid #fff;display:none;}
+.tb-divider{width:1px;height:24px;background:var(--border);margin:0 4px;}
+.user-pill{display:flex;align-items:center;gap:8px;padding:5px 10px 5px 6px;border-radius:999px;border:1px solid var(--border);background:var(--surface);cursor:pointer;position:relative;transition:background 0.15s;}
+.user-pill:hover{background:var(--bg);}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;}
+.user-pill-name{font-size:13px;font-weight:500;color:var(--text);}
+.user-pill-role{font-size:10px;color:var(--muted);}
+.user-pill-chevron{width:14px;height:14px;fill:none;stroke:var(--small);stroke-width:2;flex-shrink:0;transition:transform 0.15s;}
+.user-pill.open .user-pill-chevron{transform:rotate(180deg);}
+.dropdown{position:absolute;top:calc(100% + 8px);right:0;width:220px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,0.1);z-index:999;display:none;overflow:hidden;}
+.dropdown.show{display:block;}
+.dd-header{padding:12px 14px;border-bottom:1px solid var(--border);}
+.dd-name{font-size:13px;font-weight:600;color:var(--text);}
+.dd-email{font-size:11px;color:var(--small);margin-top:1px;}
+.dd-role-chip{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--accent-light);color:var(--accent);margin-top:6px;}
+.dd-item{display:flex;align-items:center;gap:10px;padding:9px 14px;font-size:13px;color:var(--text);cursor:pointer;transition:background 0.12s;}
+.dd-item:hover{background:var(--bg);}
+.dd-item svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;color:var(--muted);}
+.dd-sep{height:1px;background:var(--border);margin:4px 0;}
+.dd-item.danger{color:var(--red);}
+.dd-item.danger svg{color:var(--red);}
+.dd-item.danger:hover{background:var(--red-light);}
+.notif-panel{position:absolute;top:calc(100% + 8px);right:0;width:320px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,0.1);z-index:999;display:none;}
+.notif-panel.show{display:block;}
+.np-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border);}
+.np-title{font-size:13px;font-weight:600;color:var(--text);}
+.np-clear{font-size:11px;color:var(--accent);cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;}
+.np-item{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.12s;}
+.np-item:last-child{border-bottom:none;}
+.np-item:hover{background:var(--bg);}
+.np-item.unread{background:#fafbff;}
+.np-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:4px;}
+.np-dot.read{background:transparent;border:1.5px solid var(--border);}
+.np-msg{font-size:12px;color:var(--text);line-height:1.5;}
+.np-time{font-size:11px;color:var(--small);margin-top:2px;}
+.np-empty{padding:20px;text-align:center;font-size:12px;color:var(--small);}
+.layout{display:flex;flex:1;overflow:hidden;}
+.sidebar{width:280px;border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--surface);}
+.sb-hdr{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.sb-title{font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--muted);}
+.add-btn{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-family:'DM Sans',sans-serif;padding:5px 10px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;}
+.add-btn:hover{background:var(--bg);}
+.add-btn svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;}
+.tree-scroll{flex:1;overflow-y:auto;padding:8px 0;}
+.t-node{user-select:none;}
+.t-row{display:flex;align-items:center;padding:5px 8px 5px 0;cursor:pointer;border-radius:8px;margin:1px 6px;transition:background 0.12s;}
+.t-row:hover{background:var(--bg);}
+.t-row.sel{background:var(--accent-light);}
+.t-chevron{width:18px;height:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--small);transition:transform 0.15s;}
+.t-chevron.open{transform:rotate(90deg);}
+.t-chevron svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.5;}
+.t-spacer{width:18px;flex-shrink:0;}
+.t-icon{font-size:14px;margin:0 5px;flex-shrink:0;}
+.t-label{font-size:12px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.t-badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:999px;flex-shrink:0;}
+.tb-pending{background:var(--amber-light);color:var(--amber);}
+.tb-draft{background:#f3f4f6;color:#374151;}
+.tb-approved{background:var(--green-light);color:var(--green);}
+.tb-rejected{background:#fee2e2;color:#b91c1c;}
+.t-actions{display:none;gap:2px;flex-shrink:0;}
+.t-row:hover .t-actions,.t-row.sel .t-actions{display:flex;}
+.t-action{width:22px;height:22px;border:none;background:transparent;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--small);}
+.t-action:hover{background:var(--bg);color:var(--text);}
+.t-action.del:hover{color:#b91c1c;}
+.t-action svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;}
+.detail{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--surface);}
+.dp-hdr{padding:16px 24px;border-bottom:1px solid var(--border);}
+.dp-title{font-size:15px;font-weight:600;color:var(--text);}
+.dp-path{font-size:11px;color:var(--small);margin-top:3px;}
+.dp-body{flex:1;overflow-y:auto;padding:24px;}
+.dp-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--small);gap:10px;}
+.dp-empty svg{width:32px;height:32px;fill:none;stroke:var(--border);stroke-width:1.5;}
+.dp-empty p{font-size:13px;}
+.form-group{margin-bottom:16px;}
+.form-label{font-size:12px;font-weight:500;color:var(--muted);display:block;margin-bottom:6px;}
+.form-input,.form-select{width:100%;height:38px;padding:0 12px;font-size:13px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:9px;background:var(--bg);color:var(--text);outline:none;}
+.form-input:focus,.form-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,168,0.08);}
+.form-textarea{width:100%;padding:10px 12px;font-size:13px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:9px;background:var(--bg);color:var(--text);outline:none;resize:vertical;min-height:80px;}
+.form-textarea:focus{border-color:var(--accent);}
+.btn-row{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap;}
+.btn-primary{padding:8px 20px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;border:none;border-radius:9px;cursor:pointer;color:#fff;background:var(--accent);}
+.btn-primary:hover{opacity:0.88;}
+.btn-approve{background:var(--green)!important;}
+.btn-reject{background:#b91c1c!important;}
+.btn-secondary{padding:8px 16px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;border:1.5px solid var(--border);border-radius:9px;background:transparent;color:var(--muted);cursor:pointer;}
+.btn-secondary:hover{background:var(--bg);}
+.banner{display:flex;align-items:flex-start;gap:10px;border-radius:9px;padding:10px 14px;margin-bottom:16px;}
+.banner svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;flex-shrink:0;margin-top:1px;}
+.banner p{font-size:12px;line-height:1.6;}
+.ban-pending{background:var(--amber-light);color:var(--amber);}
+.status-badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:999px;}
+.q-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;}
+.q-type{border:1.5px solid var(--border);border-radius:9px;padding:8px 10px;cursor:pointer;display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);}
+.q-type:hover,.q-type.sel{border-color:var(--accent);background:var(--accent-light);color:var(--accent);}
+.toast{position:fixed;bottom:24px;right:24px;background:#1a1f2e;color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:999;}
+.toast.show{opacity:1;}
+.tf-btn{padding:10px 24px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;border:1.5px solid var(--border);border-radius:9px;background:transparent;color:var(--muted);cursor:pointer;transition:all 0.15s;}
+.tf-btn:hover{border-color:var(--accent);color:var(--accent);}
+.tf-btn.sel{border-color:var(--accent);background:var(--accent-light);color:var(--accent);font-weight:600;}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-brand">
+    <svg viewBox="0 0 24 24"><path d="M12 3L2 8l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+    <div><div class="nav-brand-name">EduLearn</div><div class="nav-brand-sub">Admin Portal</div></div>
+  </div>
+  <div class="nav-scroll">
+    <div class="nav-section">Main</div>
+    <button class="nav-item" onclick="window.location.href='/admin/dashboard.html'">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
+    </button>
+    <button class="nav-item active">
+      <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Courses<span class="nav-badge" id="navCourseBadge"></span>
+    </button>
+    <button class="nav-item" onclick="window.location.href='/admin/dashboard.html'">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Approvals<span class="nav-badge warn" id="navApprovalBadge"></span>
+    </button>
+    <div class="nav-section">Manage</div>
+    <button class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Teachers
+    </button>
+    <button class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Students
+    </button>
+    <div class="nav-section">System</div>
+    <button class="nav-item" onclick="window.location.href='/admin/dashboard.html#org'">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Organisation
+    </button>
+  </div>
+</nav>
+<div class="main">
+  <div class="topbar">
+    <div class="breadcrumb">Courses <b>› Manage content</b></div>
+    <div class="topbar-right">
+      <button class="tb-icon-btn" title="Search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <div style="position:relative">
+        <button class="tb-icon-btn" id="notifBtn" title="Notifications" onclick="toggleNotif()">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="notif-dot" id="notifDot"></span>
+        </button>
+        <div class="notif-panel" id="notifPanel">
+          <div class="np-header">
+            <span class="np-title">Notifications</span>
+            <button class="np-clear" onclick="clearNotifs()">Mark all read</button>
+          </div>
+          <div id="notifList"><div class="np-empty">Loading…</div></div>
+        </div>
+      </div>
+      <div class="tb-divider"></div>
+      <div style="position:relative">
+        <div class="user-pill" id="userPill" onclick="toggleUserMenu()">
+          <div class="user-avatar" id="topbarAvatar">AD</div>
+          <div>
+            <div class="user-pill-name" id="topbarName">Admin</div>
+            <div class="user-pill-role">Administrator</div>
+          </div>
+          <svg class="user-pill-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="dropdown" id="userDropdown">
+          <div class="dd-header">
+            <div class="dd-name" id="ddName">Admin User</div>
+            <div class="dd-email" id="ddEmail"></div>
+            <div class="dd-role-chip">
+              <svg style="width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Administrator
+            </div>
+          </div>
+          <div class="dd-item" onclick="window.location.href='/admin/dashboard.html'">
+            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Organisation Settings
+          </div>
+          <div class="dd-sep"></div>
+          <div class="dd-item danger" onclick="logout()">
+            <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Sign out
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="layout">
+    <div class="sidebar">
+      <div class="sb-hdr">
+        <span class="sb-title">Content tree</span>
+        <button class="add-btn" onclick="showCreateForm('category',null)"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Category</button>
+      </div>
+      <div class="tree-scroll" id="treeEl"><div style="padding:16px;font-size:12px;color:var(--small)">Loading tree…</div></div>
+    </div>
+    <div class="detail" id="detailEl">
+      <div class="dp-empty"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg><p>Select an item from the tree to edit</p></div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="/js/auth.js"></script>
+<script src="/js/api.js"></script>
+<script>
+if (!requireAuth('ADMIN')) { /* redirected */ }
+initUserDisplay();
+
+// ── Topbar user info ──
+const _name = getName();
+document.getElementById('topbarName').textContent = _name || 'Admin';
+document.getElementById('ddName').textContent = _name || 'Admin';
+const _initials = (_name || 'Admin').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+document.getElementById('topbarAvatar').textContent = _initials;
+
+// ── Topbar dropdowns ──
+function toggleUserMenu() {
+  const dd = document.getElementById('userDropdown');
+  const pill = document.getElementById('userPill');
+  document.getElementById('notifPanel').classList.remove('show');
+  dd.classList.toggle('show');
+  pill.classList.toggle('open');
+}
+function toggleNotif() {
+  const np = document.getElementById('notifPanel');
+  document.getElementById('userDropdown').classList.remove('show');
+  document.getElementById('userPill').classList.remove('open');
+  np.classList.toggle('show');
+  if (np.classList.contains('show')) loadNotifications();
+}
+function closeMenus() {
+  document.getElementById('userDropdown').classList.remove('show');
+  document.getElementById('notifPanel').classList.remove('show');
+  document.getElementById('userPill').classList.remove('open');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('#userPill') && !e.target.closest('#userDropdown'))
+    { document.getElementById('userDropdown').classList.remove('show'); document.getElementById('userPill').classList.remove('open'); }
+  if (!e.target.closest('#notifBtn') && !e.target.closest('#notifPanel'))
+    document.getElementById('notifPanel').classList.remove('show');
+});
+
+// ── Notifications ──
+async function loadNotifications() {
+  const list = document.getElementById('notifList');
+  try {
+    const r = await apiGet('/notifications?page=0&size=10');
+    const items = r?.data || [];
+    if (items.length === 0) { list.innerHTML = '<div class="np-empty">No notifications</div>'; return; }
+    list.innerHTML = items.map(n => `
+      <div class="np-item ${n.read?'':'unread'}" onclick="markNotifRead('${n.id}',this)">
+        <span class="np-dot ${n.read?'read':''}"></span>
+        <div><div class="np-msg">${esc(n.message)}</div><div class="np-time">${timeAgo(n.createdAt)}</div></div>
+      </div>`).join('');
+  } catch(e) { list.innerHTML = '<div class="np-empty">Could not load</div>'; }
+}
+async function markNotifRead(id, el) {
+  try { await apiPut('/notifications/' + id + '/read', {}); el.classList.remove('unread'); el.querySelector('.np-dot').classList.add('read'); } catch(e) {}
+}
+async function clearNotifs() {
+  try {
+    await apiPut('/notifications/read-all', {});
+    document.querySelectorAll('.np-item').forEach(i => { i.classList.remove('unread'); i.querySelector('.np-dot').classList.add('read'); });
+    document.getElementById('notifDot').style.display = 'none';
+  } catch(e) {}
+}
+function timeAgo(iso) {
+  if (!iso) return '';
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff/60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return m + ' min ago';
+  const h = Math.floor(m/60);
+  if (h < 24) return h + 'h ago';
+  return Math.floor(h/24) + 'd ago';
+}
+// Load unread badge on page open
+apiGet('/notifications/unread-count').then(r => {
+  if (r?.data?.count > 0) document.getElementById('notifDot').style.display = 'block';
+}).catch(()=>{});
+
+const IC = {category:'📁',subject:'📚',topic:'📂',question:'❓'};
+const CLR = {category:'#1a3a5c',subject:'#0f5940',topic:'#92400e',question:'#4c1d95'};
+const CHILD_TYPE = {category:'subject',subject:'topic',topic:'question',question:null};
+const CHILD_ENDPOINT = {category:(id)=>'/categories/'+id+'/subjects',subject:(id)=>'/subjects/'+id+'/topics',topic:(id)=>'/topics/'+id+'/questions'};
+const CREATE_ENDPOINT = {category:'/categories',subject:(pid)=>'/categories/'+pid+'/subjects',topic:(pid)=>'/subjects/'+pid+'/topics',question:(pid)=>'/topics/'+pid+'/questions'};
+const UPDATE_ENDPOINT = {category:(id)=>'/categories/'+id,subject:(id)=>'/subjects/'+id,topic:(id)=>'/topics/'+id,question:(id)=>'/questions/'+id};
+const DELETE_ENDPOINT = {category:(id)=>'/categories/'+id,subject:(id)=>'/subjects/'+id,topic:(id)=>'/topics/'+id,question:(id)=>'/questions/'+id};
+
+let treeData = []; // array of categories with nested loaded children
+let selNode = null;
+let loadedChildren = {}; // nodeId → true if children loaded
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+async function loadTree() {
+  const res = await apiGet('/categories?page=0&size=100');
+  if (!res || !res.data) return;
+  treeData = res.data.map(c => ({...c, type:'category', open:false, children:[]}));
+  renderTree();
+}
+
+function renderTree() {
+  const el = document.getElementById('treeEl');
+  el.innerHTML = '';
+  treeData.forEach(n => renderNode(n, el, 0));
+}
+
+function renderNode(node, container, depth) {
+  const wrap = document.createElement('div');
+  wrap.className = 't-node';
+  const hasChildren = CHILD_TYPE[node.type] !== null;
+  const isOpen = node.open;
+  const isSel = selNode && selNode.id === node.id;
+  const statusBadge = node.status !== 'APPROVED' ? `<span class="t-badge tb-${node.status.toLowerCase()}">${node.status.charAt(0)+node.status.slice(1).toLowerCase()}</span>` : '';
+  const chevron = hasChildren
+    ? `<span class="t-chevron ${isOpen?'open':''}" onclick="toggleNode('${node.id}',event)"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span>`
+    : `<span class="t-spacer"></span>`;
+  const addBtn = CHILD_TYPE[node.type] ? `<button class="t-action" onclick="showCreateForm('${CHILD_TYPE[node.type]}','${node.id}',event)" title="Add ${CHILD_TYPE[node.type]}"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>` : '';
+  const approveBtn = node.status === 'PENDING' ? `<button class="t-action" onclick="approveNode('${node.id}','${node.type}',event)" title="Approve"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></button>` : '';
+  const delBtn = `<button class="t-action del" onclick="deleteNode('${node.id}','${node.type}',event)" title="Delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>`;
+
+  wrap.innerHTML = `<div class="t-row${isSel?' sel':''}" onclick="selectNode('${node.id}','${node.type}')">
+    <span style="width:${depth*16}px;display:inline-block;flex-shrink:0"></span>
+    ${chevron}
+    <span class="t-icon">${IC[node.type]}</span>
+    <span class="t-label" style="color:${CLR[node.type]}">${esc(node.name||node.questionText)}</span>
+    ${statusBadge}
+    <span class="t-actions">${approveBtn}${addBtn}${delBtn}</span>
+  </div>`;
+  container.appendChild(wrap);
+
+  if (isOpen && node.children && node.children.length > 0) {
+    node.children.forEach(c => renderNode(c, wrap, depth+1));
+  }
+}
+
+async function toggleNode(id, e) {
+  e.stopPropagation();
+  const node = findNode(id);
+  if (!node) return;
+  if (!node.open && !loadedChildren[id]) {
+    const childType = CHILD_TYPE[node.type];
+    if (childType) {
+      const endpoint = CHILD_ENDPOINT[node.type];
+      if (endpoint) {
+        const res = await apiGet(endpoint(id));
+        if (res && res.data) {
+          node.children = res.data.map(c => ({...c, type:childType, open:false, children:[]}));
+          loadedChildren[id] = true;
+        }
+      }
+    }
+  }
+  node.open = !node.open;
+  renderTree();
+}
+
+function findNode(id, nodes) {
+  nodes = nodes || treeData;
+  for (const n of nodes) {
+    if (n.id === id) return n;
+    if (n.children) { const f = findNode(id, n.children); if (f) return f; }
+  }
+  return null;
+}
+
+function selectNode(id, type) {
+  const node = findNode(id);
+  selNode = node;
+  renderTree();
+  showDetail(node, type);
+}
+
+function showDetail(node, type) {
+  const el = document.getElementById('detailEl');
+  const name = node.name || node.questionText;
+  const isPending = node.status === 'PENDING';
+
+  let banner = '';
+  if (isPending) banner = `<div class="banner ban-pending"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><p>This item is <strong>pending approval</strong>. Review and approve or reject.</p></div>`;
+
+  const fields = buildFields(node, type);
+  const approveBtn = isPending ? `<button class="btn-primary btn-approve" onclick="approveNode('${node.id}','${type}',{stopPropagation:()=>{}})">✓ Approve</button>` : '';
+  const rejectBtn = isPending ? `<button class="btn-primary btn-reject" onclick="rejectNode('${node.id}','${type}')">✗ Reject</button>` : '';
+  const addChildType = CHILD_TYPE[type];
+  const addChildBtn = addChildType ? `<button class="btn-secondary" onclick="showCreateForm('${addChildType}','${node.id}')">+ Add ${addChildType}</button>` : '';
+  const saveBtn = `<button class="btn-primary" onclick="saveNode('${node.id}','${type}')">Save</button>`;
+  const delBtn = `<button class="btn-secondary" style="color:#b91c1c;border-color:#fca5a5" onclick="deleteNode('${node.id}','${type}',{stopPropagation:()=>{}})">Delete</button>`;
+
+  el.innerHTML = `<div class="dp-hdr">
+    <div class="dp-title" style="color:${CLR[type]}">${IC[type]} ${type.charAt(0).toUpperCase()+type.slice(1)}</div>
+    <div class="dp-path"><span class="status-badge tb-${node.status.toLowerCase()}">${node.status}</span></div>
+  </div>
+  <div class="dp-body" id="dpBody">
+    ${banner}${fields}
+    <div class="btn-row">${saveBtn}${approveBtn}${rejectBtn}${addChildBtn}${delBtn}</div>
+  </div>`;
+  if (type === 'question') { currentEditNode = node; renderTypeSpecificFields(node.questionType||'MCQ_SINGLE', node); }
+}
+
+function buildFields(node, type) {
+  if (type === 'category') {
+    return `<div class="form-group"><label class="form-label">Category name</label><input class="form-input" id="f_name" value="${esc(node.name)}"/></div>
+    <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="f_desc">${esc(node.description||'')}</textarea></div>`;
+  } else if (type === 'subject') {
+    return `<div class="form-group"><label class="form-label">Subject name</label><input class="form-input" id="f_name" value="${esc(node.name)}"/></div>
+    <div class="form-group"><label class="form-label">Curriculum level</label><input class="form-input" id="f_curriculum" value="${esc(node.curriculumLevel||'')}"/></div>
+    <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="f_desc">${esc(node.description||'')}</textarea></div>`;
+  } else if (type === 'topic') {
+    const diff = node.difficulty||'Foundation';
+    return `<div class="form-group"><label class="form-label">Topic name</label><input class="form-input" id="f_name" value="${esc(node.name)}"/></div>
+    <div class="form-group"><label class="form-label">Learning objective</label><textarea class="form-textarea" id="f_obj">${esc(node.learningObjective||'')}</textarea></div>
+    <div class="form-group"><label class="form-label">Difficulty</label><select class="form-select" id="f_diff"><option${diff==='Foundation'?' selected':''}>Foundation</option><option${diff==='Intermediate'?' selected':''}>Intermediate</option><option${diff==='Higher'?' selected':''}>Higher</option></select></div>`;
+  } else if (type === 'question') {
+    const qt = node.questionType||'MCQ_SINGLE';
+    const qtypes = ['MCQ_SINGLE','MCQ_MULTIPLE','TRUE_FALSE','SHORT_ANSWER','ESSAY','CODE','IMAGE_BASED'];
+    const qtGrid = qtypes.map(t => `<div class="q-type${qt===t?' sel':''}" onclick="selectQType('${t}',this)" data-v="${t}">${t.replace(/_/g,' ')}</div>`).join('');
+    return `<div class="form-group"><label class="form-label">Question text</label><textarea class="form-textarea" id="f_qtext">${esc(node.questionText)}</textarea></div>
+    <div style="font-size:10px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--small);margin:14px 0 8px">Question type</div>
+    <div class="q-grid" id="f_qtype">${qtGrid}</div>
+    <div id="typeFieldsContainer"></div>
+    <div class="form-group" style="margin-top:12px"><label class="form-label">Marks</label><input class="form-input" id="f_marks" type="number" value="${node.marks||1}" style="width:80px"/></div>
+    <div class="form-group"><label class="form-label">Answer explanation <span style="font-weight:400;color:var(--small)">— shown to student after attempt</span></label><textarea class="form-textarea" id="f_answerExp">${esc(node.answerExplanation||'')}</textarea></div>`;
+  }
+  return '';
+}
+
+async function saveNode(id, type) {
+  const endpoint = UPDATE_ENDPOINT[type](id);
+  let body;
+  if (type === 'category') body = { name: document.getElementById('f_name').value, description: document.getElementById('f_desc').value };
+  else if (type === 'subject') body = { name: document.getElementById('f_name').value, curriculumLevel: document.getElementById('f_curriculum').value, description: document.getElementById('f_desc').value };
+  else if (type === 'topic') body = { name: document.getElementById('f_name').value, learningObjective: document.getElementById('f_obj').value, difficulty: document.getElementById('f_diff').value };
+  else if (type === 'question') {
+    body = getQuestionEditBody();
+  }
+  const res = await apiPut(endpoint, body);
+  if (res && res.status === 'success') {
+    toast('Saved!');
+    const node = findNode(id);
+    if (node) Object.assign(node, res.data);
+    renderTree();
+  } else {
+    toast('Error: ' + (res?.message || 'Save failed'));
+  }
+}
+
+async function approveNode(id, type, e) {
+  e.stopPropagation();
+  const endpoint = UPDATE_ENDPOINT[type](id) + '/approve';
+  const res = await apiPut(endpoint, {});
+  if (res && res.status === 'success') {
+    toast('Approved!');
+    const node = findNode(id);
+    if (node) { node.status = 'APPROVED'; Object.assign(node, res.data); }
+    renderTree();
+    if (selNode && selNode.id === id) showDetail(node||selNode, type);
+  } else toast('Error: ' + (res?.message || 'Failed'));
+}
+
+async function rejectNode(id, type) {
+  const reason = prompt('Rejection reason:');
+  if (!reason) return;
+  const endpoint = UPDATE_ENDPOINT[type](id) + '/reject';
+  const res = await apiPut(endpoint, { note: reason });
+  if (res && res.status === 'success') {
+    toast('Rejected.');
+    const node = findNode(id);
+    if (node) { node.status = 'REJECTED'; Object.assign(node, res.data); }
+    renderTree();
+    if (selNode && selNode.id === id) showDetail(node||selNode, type);
+  } else toast('Error: ' + (res?.message || 'Failed'));
+}
+
+async function deleteNode(id, type, e) {
+  e.stopPropagation();
+  if (!confirm('Delete this ' + type + '? This cannot be undone.')) return;
+  const endpoint = DELETE_ENDPOINT[type](id);
+  const res = await apiDelete(endpoint);
+  if (res && res.status === 'success') {
+    toast('Deleted.');
+    removeFromTree(id);
+    if (selNode && selNode.id === id) {
+      selNode = null;
+      document.getElementById('detailEl').innerHTML = '<div class="dp-empty"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg><p>Select an item from the tree to edit</p></div>';
+    }
+    renderTree();
+  } else toast('Error: ' + (res?.message || 'Failed'));
+}
+
+function removeFromTree(id, nodes) {
+  nodes = nodes || treeData;
+  for (let i = 0; i < nodes.length; i++) {
+    if (nodes[i].id === id) { nodes.splice(i, 1); return true; }
+    if (nodes[i].children && removeFromTree(id, nodes[i].children)) return true;
+  }
+  return false;
+}
+
+function showCreateForm(type, parentId, e) {
+  if (e) e.stopPropagation();
+  const el = document.getElementById('detailEl');
+  selNode = null;
+  renderTree();
+
+  let fields = '';
+  if (type === 'category') fields = `<div class="form-group"><label class="form-label">Category name</label><input class="form-input" id="n_name" placeholder="e.g. Year 10"/></div><div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="n_desc" placeholder="Optional description"></textarea></div>`;
+  else if (type === 'subject') fields = `<div class="form-group"><label class="form-label">Subject name</label><input class="form-input" id="n_name" placeholder="e.g. English Language"/></div><div class="form-group"><label class="form-label">Curriculum level</label><input class="form-input" id="n_curriculum" placeholder="e.g. GCSE"/></div><div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="n_desc"></textarea></div>`;
+  else if (type === 'topic') fields = `<div class="form-group"><label class="form-label">Topic name</label><input class="form-input" id="n_name" placeholder="e.g. Non-Fiction Writing"/></div><div class="form-group"><label class="form-label">Learning objective</label><textarea class="form-textarea" id="n_obj" placeholder="What will students learn?"></textarea></div><div class="form-group"><label class="form-label">Difficulty</label><select class="form-select" id="n_diff"><option>Foundation</option><option>Intermediate</option><option>Higher</option></select></div>`;
+  else if (type === 'question') fields = `<div class="form-group"><label class="form-label">Question text</label><textarea class="form-textarea" id="n_qtext" placeholder="Enter question…"></textarea></div><div class="form-group"><label class="form-label">Question type</label><select class="form-select" id="n_qtype" onchange="renderNewTypeFields(this.value)"><option value="MCQ_SINGLE">MCQ Single</option><option value="MCQ_MULTIPLE">MCQ Multiple</option><option value="TRUE_FALSE">True/False</option><option value="SHORT_ANSWER">Short Answer</option><option value="ESSAY">Essay</option><option value="CODE">Code</option><option value="IMAGE_BASED">Image Based</option></select></div><div id="newTypeFieldsContainer"></div><div class="form-group"><label class="form-label">Marks</label><input class="form-input" id="n_marks" type="number" value="1" style="width:80px"/></div><div class="form-group"><label class="form-label">Answer explanation</label><textarea class="form-textarea" id="n_answerExp" placeholder="Explain the correct answer..."></textarea></div>`;
+
+  el.innerHTML = `<div class="dp-hdr"><div class="dp-title" style="color:${CLR[type]}">${IC[type]} New ${type.charAt(0).toUpperCase()+type.slice(1)}</div></div>
+  <div class="dp-body">${fields}
+  <div class="btn-row">
+    <button class="btn-primary" onclick="createNode('${type}','${parentId||''}')">Create</button>
+    <button class="btn-secondary" onclick="cancelCreate()">Cancel</button>
+  </div></div>`;
+  if (type === 'question') renderNewTypeFields('MCQ_SINGLE');
+}
+
+async function createNode(type, parentId) {
+  let body, endpoint;
+  if (type === 'category') {
+    body = { name: document.getElementById('n_name').value, description: document.getElementById('n_desc').value };
+    endpoint = '/categories';
+  } else if (type === 'subject') {
+    body = { name: document.getElementById('n_name').value, curriculumLevel: document.getElementById('n_curriculum').value, description: document.getElementById('n_desc').value };
+    endpoint = '/categories/' + parentId + '/subjects';
+  } else if (type === 'topic') {
+    body = { name: document.getElementById('n_name').value, learningObjective: document.getElementById('n_obj').value, difficulty: document.getElementById('n_diff').value };
+    endpoint = '/subjects/' + parentId + '/topics';
+  } else if (type === 'question') {
+    body = getQuestionCreateBody();
+    endpoint = '/topics/' + parentId + '/questions';
+  }
+  const res = await apiPost(endpoint, body);
+  if (res && res.status === 'success') {
+    toast('Created!');
+    const newNode = {...res.data, type, open:false, children:[]};
+    if (type === 'category') { treeData.push(newNode); }
+    else {
+      const parent = findNode(parentId);
+      if (parent) { parent.children.push(newNode); parent.open = true; }
+    }
+    selNode = newNode;
+    renderTree();
+    showDetail(newNode, type);
+  } else toast('Error: ' + (res?.message || 'Create failed'));
+}
+
+function cancelCreate() {
+  document.getElementById('detailEl').innerHTML = '<div class="dp-empty"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg><p>Select an item from the tree to edit</p></div>';
+}
+
+// ── Question form helpers ──────────────────────────────────────────────
+let currentEditNode = null;
+
+function selectQType(qt, el) {
+  el.closest('.q-grid').querySelectorAll('.q-type').forEach(x => x.classList.remove('sel'));
+  el.classList.add('sel');
+  renderTypeSpecificFields(qt, currentEditNode || {});
+}
+
+function renderTypeSpecificFields(qt, node) {
+  const container = document.getElementById('typeFieldsContainer');
+  if (!container) return;
+  node = node || {};
+  container.innerHTML = buildTypeFields(qt, node, '');
+}
+
+function renderNewTypeFields(qt) {
+  const container = document.getElementById('newTypeFieldsContainer');
+  if (!container) return;
+  container.innerHTML = buildTypeFields(qt, {}, 'n_');
+}
+
+function buildTypeFields(qt, node, pfx) {
+  switch(qt) {
+    case 'MCQ_SINGLE': case 'MCQ_MULTIPLE': {
+      const isMulti = qt === 'MCQ_MULTIPLE';
+      const itype = isMulti ? 'checkbox' : 'radio';
+      const opts = (node.options && node.options.length > 0) ? node.options
+        : [{optionText:'',isCorrect:false},{optionText:'',isCorrect:false},{optionText:'',isCorrect:false},{optionText:'',isCorrect:false}];
+      const listId = pfx ? 'newOptList' : 'optionsList';
+      const hint = isMulti ? 'Check all correct' : 'Select ONE correct';
+      return `<div style="font-size:10px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--small);margin:14px 0 8px">Answer options <span style="font-weight:400;text-transform:none">${hint}</span></div>
+      <div id="${listId}">
+        ${opts.map((o,i)=>`<div class="opt-row" data-idx="${i}" style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <input type="${itype}" name="correctOpt_${pfx||'edit'}" ${(o.isCorrect||o.correct)?'checked':''} data-idx="${i}" style="width:16px;height:16px;cursor:pointer;flex-shrink:0;accent-color:var(--accent)"/>
+          <input class="form-input opt-text" placeholder="Option ${i+1}" value="${esc(o.optionText||o.text||'')}" style="flex:1"/>
+          <button onclick="removeOption(${i},'${listId}')" style="width:22px;height:22px;border:none;background:transparent;border-radius:6px;cursor:pointer;color:var(--small);flex-shrink:0" title="Remove">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>`).join('')}
+      </div>
+      <button class="btn-secondary" onclick="addOption('${listId}','${itype}','correctOpt_${pfx||'edit'}')" style="margin-top:4px;font-size:12px">+ Add option</button>
+      ${isMulti ? `<div class="form-group" style="margin-top:12px"><label class="form-label">Partial marking</label>
+        <select class="form-select" id="${pfx}partialMarking" style="width:auto">
+          <option value="false">Full marks only</option>
+          <option value="true">Award marks per correct option</option>
+        </select></div>` : ''}`;
+    }
+    case 'TRUE_FALSE':
+      return `<div style="font-size:10px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--small);margin:14px 0 8px">Correct answer</div>
+      <div style="display:flex;gap:10px">
+        <button type="button" class="tf-btn${node.correctBoolean===true?' sel':''}" onclick="selectTF(this)" data-val="true">✓ True</button>
+        <button type="button" class="tf-btn${node.correctBoolean===false?' sel':''}" onclick="selectTF(this)" data-val="false">✗ False</button>
+      </div>`;
+    case 'SHORT_ANSWER':
+      return `<div class="form-group" style="margin-top:8px"><label class="form-label">Model answer <span style="font-weight:400;color:var(--small)">— shown to marker only</span></label>
+        <textarea class="form-textarea" id="${pfx}modelAnswer" placeholder="Expected answer...">${esc(node.modelAnswer||'')}</textarea></div>`;
+    case 'ESSAY':
+      return `<div class="form-group" style="margin-top:8px"><label class="form-label">Marking scheme / criteria</label>
+        <textarea class="form-textarea" id="${pfx}markingScheme" style="min-height:80px" placeholder="e.g. Award 2 marks for technique...">${esc(node.markingScheme||'')}</textarea></div>
+        <div class="form-group"><label class="form-label">Word limit (0 = no limit)</label>
+        <input class="form-input" id="${pfx}wordLimit" type="number" value="${node.wordLimit||0}" style="width:100px"/></div>`;
+    case 'CODE':
+      return `<div class="form-group" style="margin-top:8px"><label class="form-label">Programming language</label>
+        <select class="form-select" id="${pfx}codeLang" style="width:auto">
+          ${['Python','Java','JavaScript','SQL','HTML','CSS','Other'].map(l=>`<option ${(node.codeLang||'').toLowerCase()===l.toLowerCase()?'selected':''}>${l}</option>`).join('')}
+        </select></div>
+        <div class="form-group"><label class="form-label">Starter code (shown to student)</label>
+        <textarea class="form-textarea" id="${pfx}starterCode" style="font-family:monospace;font-size:12px;min-height:80px" placeholder="def add(a, b):\n    pass">${esc(node.starterCode||'')}</textarea></div>
+        <div class="form-group"><label class="form-label">Expected output <span style="font-weight:400;color:var(--small)">— optional</span></label>
+        <input class="form-input" id="${pfx}expectedOutput" style="font-family:monospace" placeholder="e.g. 5" value="${esc(node.expectedOutput||'')}"/></div>`;
+    case 'IMAGE_BASED':
+      return `<div class="form-group" style="margin-top:8px">
+        <label class="form-label">Question image</label>
+        <div class="img-upload-zone" onclick="document.getElementById('${pfx}imgFile').click()" style="border:2px dashed var(--border);border-radius:9px;padding:20px;text-align:center;cursor:pointer;transition:border-color 0.15s;background:var(--bg)">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="var(--small)" stroke-width="1.5" style="margin-bottom:6px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <div style="font-size:12px;color:var(--muted)">Click to upload image</div>
+          <div style="font-size:11px;color:var(--small);margin-top:2px">PNG, JPG — max 5MB</div>
+        </div>
+        <input type="file" id="${pfx}imgFile" accept="image/png,image/jpeg,image/gif,image/webp" style="display:none" onchange="previewQImage(this,'${pfx}')"/>
+        <div id="${pfx}imgPreview" style="margin-top:8px">${node.imageUrl?`<img src="${esc(node.imageUrl)}" style="max-width:100%;max-height:200px;border-radius:8px;object-fit:contain"/>`:''}</div>
+        <input type="hidden" id="${pfx}imageUrl" value="${esc(node.imageUrl||'')}"/>
+      </div>
+      <div class="form-group"><label class="form-label">Alt text (accessibility)</label>
+        <input class="form-input" id="${pfx}imageAltText" placeholder="Describe the image..." value="${esc(node.imageAltText||'')}"/></div>
+      <div class="form-group"><label class="form-label">Answer type</label>
+        <select class="form-select" id="${pfx}imageAnswerType" style="width:auto" onchange="toggleImageMcqFields(this.value,'${pfx}')">
+          <option value="WRITTEN" ${(node.imageAnswerType||'WRITTEN')==='WRITTEN'?'selected':''}>Written response</option>
+          <option value="MCQ" ${node.imageAnswerType==='MCQ'?'selected':''}>MCQ options</option>
+        </select></div>
+      <div id="${pfx}imageMcqWrap">${node.imageAnswerType==='MCQ'?buildMcqBlock(node,pfx):''}</div>`;
+    default:
+      return '';
+  }
+}
+
+function buildMcqBlock(node, pfx) {
+  const radioName = 'imgCorrectOpt_' + (pfx||'edit');
+  const existOpts = node.options || [];
+  const slots = [0,1,2,3].map(i => existOpts[i] || {optionText:'',isCorrect:false});
+  const cards = slots.map((o,i) => {
+    const hasImg = !!(o.optionText && o.optionText.length > 0);
+    const checked = (o.isCorrect || o.correct) ? 'checked' : '';
+    const zoneId = pfx + 'imgOpt' + i;
+    return `<div style="border:1.5px solid var(--border);border-radius:9px;padding:10px;background:var(--surface)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <input type="radio" name="${radioName}" data-idx="${i}" ${checked} style="width:16px;height:16px;cursor:pointer;flex-shrink:0;accent-color:var(--accent)"/>
+        <span style="font-size:12px;font-weight:600;color:var(--muted)">Option ${i+1}</span>
+      </div>
+      <div class="img-upload-zone" onclick="document.getElementById('${zoneId}File').click()"
+           style="border:2px dashed ${hasImg?'var(--accent)':'var(--border)'};border-radius:8px;padding:14px;text-align:center;cursor:pointer;background:var(--bg)">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--small)" stroke-width="1.5" style="margin-bottom:4px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <div style="font-size:11px;color:var(--muted)">${hasImg ? 'Click to change' : 'Click to upload'}</div>
+      </div>
+      <input type="file" id="${zoneId}File" accept="image/png,image/jpeg,image/gif,image/webp" style="display:none" onchange="previewImgOpt(this,${i},'${pfx}')"/>
+      <div id="${zoneId}Preview" style="margin-top:6px;text-align:center">${hasImg ? `<img src="${esc(o.optionText)}" style="max-width:100%;max-height:110px;border-radius:6px;object-fit:contain"/>` : ''}</div>
+      <input type="hidden" id="${zoneId}Url" value="${esc(o.optionText||'')}"/>
+    </div>`;
+  }).join('');
+  return `<div style="font-size:10px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--small);margin:14px 0 10px">
+    Image options <span style="font-weight:400;text-transform:none">— select ONE correct (up to 4)</span>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">${cards}</div>`;
+}
+
+function previewImgOpt(input, idx, pfx) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { toast('Image must be under 5MB'); input.value = ''; return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const url = e.target.result;
+    const zoneId = pfx + 'imgOpt' + idx;
+    document.getElementById(zoneId + 'Url').value = url;
+    const preview = document.getElementById(zoneId + 'Preview');
+    if (preview) preview.innerHTML = `<img src="${url}" style="max-width:100%;max-height:110px;border-radius:6px;object-fit:contain"/>`;
+    const zone = document.getElementById(zoneId + 'File')?.parentElement?.querySelector('.img-upload-zone');
+    if (zone) { zone.style.borderColor = 'var(--accent)'; zone.querySelector('div').textContent = 'Click to change'; }
+  };
+  reader.readAsDataURL(file);
+}
+
+function collectImgOptions(pfx) {
+  const radioName = 'imgCorrectOpt_' + (pfx||'edit');
+  return [0,1,2,3].map(i => {
+    const urlEl = document.getElementById(pfx + 'imgOpt' + i + 'Url');
+    const radio = document.querySelector(`input[name="${radioName}"][data-idx="${i}"]`);
+    return { optionText: urlEl?.value || '', isCorrect: radio?.checked || false, displayOrder: i };
+  }).filter(o => o.optionText.length > 0);
+}
+
+function toggleImageMcqFields(val, pfx) {
+  const wrap = document.getElementById((pfx||'')+'imageMcqWrap');
+  if (!wrap) return;
+  wrap.innerHTML = val === 'MCQ' ? buildMcqBlock({}, pfx) : '';
+}
+
+function previewQImage(input, pfx) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { toast('Image must be under 5MB'); input.value = ''; return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const url = e.target.result;
+    document.getElementById(pfx + 'imageUrl').value = url;
+    const preview = document.getElementById(pfx + 'imgPreview');
+    if (preview) preview.innerHTML = `<img src="${url}" style="max-width:100%;max-height:200px;border-radius:8px;object-fit:contain;margin-top:4px"/>`;
+    const zone = input.closest('.form-group')?.querySelector('.img-upload-zone');
+    if (zone) zone.style.borderColor = 'var(--accent)';
+  };
+  reader.readAsDataURL(file);
+}
+
+function addOption(listId, inputType, radioName) {
+  const list = document.getElementById(listId);
+  if (!list) return;
+  const idx = list.querySelectorAll('.opt-row').length;
+  const div = document.createElement('div');
+  div.className = 'opt-row';
+  div.dataset.idx = idx;
+  div.style = 'display:flex;align-items:center;gap:8px;margin-bottom:8px';
+  div.innerHTML = `<input type="${inputType||'radio'}" name="${radioName||'correctOpt'}" data-idx="${idx}" style="width:16px;height:16px;cursor:pointer;flex-shrink:0;accent-color:var(--accent)"/>
+    <input class="form-input opt-text" placeholder="Option ${idx+1}" style="flex:1"/>
+    <button onclick="removeOption(${idx},'${listId}')" style="width:22px;height:22px;border:none;background:transparent;border-radius:6px;cursor:pointer;color:var(--small);flex-shrink:0">
+      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>`;
+  list.appendChild(div);
+}
+
+function removeOption(idx, listId) {
+  const list = document.getElementById(listId);
+  if (!list) return;
+  const rows = list.querySelectorAll('.opt-row');
+  if (rows.length <= 2) { toast('Minimum 2 options required'); return; }
+  rows[idx].remove();
+  list.querySelectorAll('.opt-row').forEach((row, i) => {
+    row.dataset.idx = i;
+    const txt = row.querySelector('.opt-text');
+    if (txt) txt.placeholder = 'Option ' + (i+1);
+    const inp = row.querySelector('input[type=radio],input[type=checkbox]');
+    if (inp) inp.dataset.idx = i;
+  });
+}
+
+function selectTF(el) {
+  document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function collectOptions(listId) {
+  const list = document.getElementById(listId||'optionsList');
+  if (!list) return [];
+  return Array.from(list.querySelectorAll('.opt-row')).map((row, i) => ({
+    optionText: row.querySelector('.opt-text')?.value || '',
+    isCorrect: row.querySelector('input[type=radio],input[type=checkbox]')?.checked || false,
+    displayOrder: i
+  }));
+}
+
+function getQuestionEditBody() {
+  const selQType = document.querySelector('#f_qtype .q-type.sel');
+  const qt = selQType?.dataset.v || 'MCQ_SINGLE';
+  const body = {
+    questionText: document.getElementById('f_qtext')?.value || '',
+    questionType: qt,
+    marks: parseInt(document.getElementById('f_marks')?.value || 1),
+    answerExplanation: document.getElementById('f_answerExp')?.value || null
+  };
+  if (qt === 'MCQ_SINGLE' || qt === 'MCQ_MULTIPLE') {
+    body.options = collectOptions('optionsList');
+  } else if (qt === 'TRUE_FALSE') {
+    const sel = document.querySelector('.tf-btn.sel');
+    body.correctBoolean = sel ? sel.dataset.val === 'true' : null;
+  } else if (qt === 'SHORT_ANSWER') {
+    body.modelAnswer = document.getElementById('modelAnswer')?.value || null;
+  } else if (qt === 'ESSAY') {
+    body.markingScheme = document.getElementById('markingScheme')?.value || null;
+    const wl = parseInt(document.getElementById('wordLimit')?.value);
+    body.wordLimit = !isNaN(wl) && wl > 0 ? wl : null;
+  } else if (qt === 'CODE') {
+    body.codeLang = document.getElementById('codeLang')?.value || null;
+    body.starterCode = document.getElementById('starterCode')?.value || null;
+    body.expectedOutput = document.getElementById('expectedOutput')?.value || null;
+  } else if (qt === 'IMAGE_BASED') {
+    body.imageUrl = document.getElementById('imageUrl')?.value || null;
+    body.imageAltText = document.getElementById('imageAltText')?.value || null;
+    body.imageAnswerType = document.getElementById('imageAnswerType')?.value || 'WRITTEN';
+    if (body.imageAnswerType === 'MCQ') body.options = collectImgOptions('');
+  }
+  return body;
+}
+
+function getQuestionCreateBody() {
+  const qt = document.getElementById('n_qtype')?.value || 'MCQ_SINGLE';
+  const body = {
+    questionText: document.getElementById('n_qtext')?.value || '',
+    questionType: qt,
+    marks: parseInt(document.getElementById('n_marks')?.value || 1),
+    answerExplanation: document.getElementById('n_answerExp')?.value || null
+  };
+  if (qt === 'MCQ_SINGLE' || qt === 'MCQ_MULTIPLE') {
+    body.options = collectOptions('newOptList');
+  } else if (qt === 'TRUE_FALSE') {
+    const sel = document.querySelector('.tf-btn.sel');
+    body.correctBoolean = sel ? sel.dataset.val === 'true' : null;
+  } else if (qt === 'SHORT_ANSWER') {
+    body.modelAnswer = document.getElementById('n_modelAnswer')?.value || null;
+  } else if (qt === 'ESSAY') {
+    body.markingScheme = document.getElementById('n_markingScheme')?.value || null;
+    const wl = parseInt(document.getElementById('n_wordLimit')?.value);
+    body.wordLimit = !isNaN(wl) && wl > 0 ? wl : null;
+  } else if (qt === 'CODE') {
+    body.codeLang = document.getElementById('n_codeLang')?.value || null;
+    body.starterCode = document.getElementById('n_starterCode')?.value || null;
+    body.expectedOutput = document.getElementById('n_expectedOutput')?.value || null;
+  } else if (qt === 'IMAGE_BASED') {
+    body.imageUrl = document.getElementById('n_imageUrl')?.value || null;
+    body.imageAltText = document.getElementById('n_imageAltText')?.value || null;
+    body.imageAnswerType = document.getElementById('n_imageAnswerType')?.value || 'WRITTEN';
+    if (body.imageAnswerType === 'MCQ') body.options = collectImgOptions('n_');
+  }
+  return body;
+}
+// ────────────────────────────────────────────────────────────────────────
+
+loadTree();
+</script>
+</body>
+</html>
