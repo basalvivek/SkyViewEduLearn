@@ -12,7 +12,8 @@ public record ScheduleRequest(
     @NotNull OffsetDateTime endAt,
     int maxAttempts,
     boolean showResultsImmediately,
-    String instructions
+    String instructions,
+    UUID teacherId
 ) {
     public ScheduleRequest {
         if (maxAttempts <= 0) maxAttempts = 1;

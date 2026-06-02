@@ -9,5 +9,6 @@ import java.util.UUID;
 
 public interface ExamQuestionRepository extends JpaRepository<ExamQuestion, UUID> {
     List<ExamQuestion> findByExamOrderByDisplayOrderAsc(Exam exam);
+    long countByExam(Exam exam);
     void deleteByExam(Exam exam);
 }

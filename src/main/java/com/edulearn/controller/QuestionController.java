@@ -3,9 +3,11 @@ package com.edulearn.controller;
 import com.edulearn.dto.request.ApprovalActionRequest;
 import com.edulearn.dto.request.QuestionRequest;
 import com.edulearn.dto.response.QuestionResponse;
+import com.edulearn.enums.ContentStatus;
 import com.edulearn.service.QuestionService;
 import com.edulearn.util.ApiResponse;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -22,6 +25,23 @@ public class QuestionController {
 
     public QuestionController(QuestionService questionService) {
         this.questionService = questionService;
+    }
+
+    @GetMapping("/questions")
+    public ResponseEntity<ApiResponse<List<QuestionResponse>>> search(
+            @RequestParam(defaultValue = "APPROVED") String status,
+            @RequestParam(required = false) UUID topicId,
+            @RequestParam(required = false) UUID subjectId,
+            @RequestParam(required = false) UUID categoryId,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String difficulty,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        ContentStatus cs;
+        try { cs = ContentStatus.valueOf(status); } catch (Exception e) { cs = ContentStatus.APPROVED; }
+        Page<QuestionResponse> result = questionService.searchQuestions(
+                cs, topicId, subjectId, categoryId, type, difficulty, page, size);
+        return ResponseEntity.ok(ApiResponse.paged(result.getContent(), result));
     }
 
     @PostMapping("/topics/{tid}/questions")

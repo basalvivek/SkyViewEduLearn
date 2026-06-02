@@ -74,13 +74,18 @@ public class ExamService {
     }
 
     @Transactional(readOnly = true)
-    public List<ExamSummaryResponse> listExams(String email) {
+    public List<ExamSummaryResponse> listExams(String email, ExamStatus statusFilter) {
         User actor = getUser(email);
         List<Exam> exams;
         if (actor.getRole() == UserRole.ADMIN) {
-            exams = examRepo.findAll();
+            exams = statusFilter != null
+                ? examRepo.findByStatus(statusFilter)
+                : examRepo.findAll();
         } else {
             exams = examRepo.findByCreatedByOrderByCreatedAtDesc(actor);
+            if (statusFilter != null) {
+                exams = exams.stream().filter(e -> e.getStatus() == statusFilter).collect(Collectors.toList());
+            }
         }
         return exams.stream().map(this::toSummary).collect(Collectors.toList());
     }

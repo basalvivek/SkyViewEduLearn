@@ -7,11 +7,12 @@ import com.edulearn.enums.ContentStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.List;
 import java.util.UUID;
 
-public interface QuestionRepository extends JpaRepository<Question, UUID> {
+public interface QuestionRepository extends JpaRepository<Question, UUID>, JpaSpecificationExecutor<Question> {
     List<Question> findByTopic(Topic topic);
     List<Question> findByTopicAndStatus(Topic topic, ContentStatus status);
     Page<Question> findByStatus(ContentStatus status, Pageable pageable);

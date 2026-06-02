@@ -5,6 +5,7 @@ import com.edulearn.dto.request.ExamQuestionsRequest;
 import com.edulearn.dto.request.ExamRequest;
 import com.edulearn.dto.response.ExamResponse;
 import com.edulearn.dto.response.ExamSummaryResponse;
+import com.edulearn.enums.ExamStatus;
 import com.edulearn.service.ExamService;
 import com.edulearn.util.ApiResponse;
 import jakarta.validation.Valid;
@@ -30,8 +31,9 @@ public class ExamController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<ExamSummaryResponse>>> list(
+            @RequestParam(required = false) ExamStatus status,
             @AuthenticationPrincipal UserDetails user) {
-        return ResponseEntity.ok(ApiResponse.success(examService.listExams(user.getUsername())));
+        return ResponseEntity.ok(ApiResponse.success(examService.listExams(user.getUsername(), status)));
     }
 
     @PostMapping

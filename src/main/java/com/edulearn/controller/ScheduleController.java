@@ -1,7 +1,13 @@
 package com.edulearn.controller;
 
+import com.edulearn.dto.request.ClassEventRequest;
+import com.edulearn.dto.request.MoveScheduleRequest;
+import com.edulearn.dto.request.RangeScheduleRequest;
+import com.edulearn.dto.request.RecurringScheduleRequest;
 import com.edulearn.dto.request.ScheduleRequest;
+import com.edulearn.dto.response.CalendarEntryResponse;
 import com.edulearn.dto.response.ScheduleResponse;
+import com.edulearn.dto.response.SeriesCreatedResponse;
 import com.edulearn.service.ScheduleService;
 import com.edulearn.util.ApiResponse;
 import jakarta.validation.Valid;
@@ -60,5 +66,90 @@ public class ScheduleController {
             @AuthenticationPrincipal UserDetails user) {
         scheduleService.cancelSchedule(id, user.getUsername());
         return ResponseEntity.ok(ApiResponse.success("Cancelled", null));
+    }
+
+    // ── Teachers list (for assignment dropdown) ────────────────
+
+    @GetMapping("/teachers")
+    public ResponseEntity<ApiResponse<List<java.util.Map<String, Object>>>> listTeachers() {
+        return ResponseEntity.ok(ApiResponse.success(scheduleService.listTeachers()));
+    }
+
+    // ── Calendar feed ──────────────────────────────────────────
+
+    @GetMapping("/calendar")
+    public ResponseEntity<ApiResponse<List<CalendarEntryResponse>>> calendar(
+            @RequestParam int year,
+            @RequestParam int month,
+            @RequestParam(required = false) UUID classId,
+            @AuthenticationPrincipal UserDetails user) {
+        return ResponseEntity.ok(ApiResponse.success(
+                scheduleService.getCalendar(year, month, classId, user.getUsername())));
+    }
+
+    // ── Class / Event / Holiday (single, no exam) ──────────────
+
+    @PutMapping("/{id}/class-event")
+    public ResponseEntity<ApiResponse<ScheduleResponse>> updateClassEvent(
+            @PathVariable UUID id,
+            @Valid @RequestBody ClassEventRequest request,
+            @AuthenticationPrincipal UserDetails user) {
+        return ResponseEntity.ok(ApiResponse.success(
+                scheduleService.updateClassEvent(id, request, user.getUsername())));
+    }
+
+    @PostMapping("/class-event")
+    public ResponseEntity<ApiResponse<ScheduleResponse>> createClassEvent(
+            @Valid @RequestBody ClassEventRequest request,
+            @AuthenticationPrincipal UserDetails user) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Created", scheduleService.createClassEvent(request, user.getUsername())));
+    }
+
+    // ── Date-range booking ─────────────────────────────────────
+
+    @PostMapping("/range")
+    public ResponseEntity<ApiResponse<SeriesCreatedResponse>> createRange(
+            @Valid @RequestBody RangeScheduleRequest request,
+            @AuthenticationPrincipal UserDetails user) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Created", scheduleService.createRange(request, user.getUsername())));
+    }
+
+    // ── Recurring series booking ───────────────────────────────
+
+    @PostMapping("/recurring")
+    public ResponseEntity<ApiResponse<SeriesCreatedResponse>> createRecurring(
+            @Valid @RequestBody RecurringScheduleRequest request,
+            @AuthenticationPrincipal UserDetails user) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Created", scheduleService.createRecurring(request, user.getUsername())));
+    }
+
+    // ── Drag-drop move ─────────────────────────────────────────
+
+    @PutMapping("/{id}/move")
+    public ResponseEntity<ApiResponse<Void>> moveSchedule(
+            @PathVariable UUID id,
+            @Valid @RequestBody MoveScheduleRequest request,
+            @AuthenticationPrincipal UserDetails user) {
+        scheduleService.moveSchedule(id, request, user.getUsername());
+        return ResponseEntity.ok(ApiResponse.success("Moved", null));
+    }
+
+    // ── Series endpoints ───────────────────────────────────────
+
+    @GetMapping("/series/{seriesId}")
+    public ResponseEntity<ApiResponse<List<CalendarEntryResponse>>> getSeries(@PathVariable UUID seriesId) {
+        return ResponseEntity.ok(ApiResponse.success(scheduleService.getSeries(seriesId)));
+    }
+
+    @DeleteMapping("/series/{seriesId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> deleteSeries(
+            @PathVariable UUID seriesId,
+            @AuthenticationPrincipal UserDetails user) {
+        scheduleService.deleteSeries(seriesId, user.getUsername());
+        return ResponseEntity.ok(ApiResponse.success("Series deleted", null));
     }
 }

@@ -78,6 +78,7 @@ public class ProfileService {
         if (!req.getNewPassword().equals(req.getConfirmPassword()))
             throw new ValidationException("Passwords do not match");
         user.setPasswordHash(passwordEncoder.encode(req.getNewPassword()));
+        user.setMustChangePassword(false);
         userRepo.save(user);
     }
 

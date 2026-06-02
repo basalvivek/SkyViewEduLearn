@@ -11,6 +11,7 @@ import java.util.UUID;
 
 public interface StudentClassRepository extends JpaRepository<StudentClass, UUID> {
     List<StudentClass> findByStudent(User student);
+    List<StudentClass> findByStudentAndIsActiveTrue(User student);
     List<StudentClass> findByClassroom(Classroom classroom);
     Optional<StudentClass> findByStudentAndClassroom(User student, Classroom classroom);
     List<StudentClass> findByClassroomAndIsActiveTrue(Classroom classroom);

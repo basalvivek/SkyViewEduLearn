@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EduLearn — Admin Approvals</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --nav:#1a3a5c;--nav-hover:rgba(255,255,255,0.1);--nav-active:rgba(255,255,255,0.18);
+  --accent:#2563a8;--accent-light:#e8f0fc;
+  --green:#0f5940;--green-light:#e4f5ee;
+  --amber:#92400e;--amber-light:#fef3c7;
+  --purple:#4c1d95;--purple-light:#ede9fe;
+  --red:#991b1b;--red-light:#fee2e2;
+  --surface:#ffffff;--bg:#f4f6fa;--border:#e2e6ee;
+  --text:#1a1f2e;--muted:#6b7385;--small:#9399a8;
+  --radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);display:flex;height:100vh;overflow:hidden;}
+nav{width:220px;background:var(--nav);display:flex;flex-direction:column;flex-shrink:0;height:100vh;}
+.nav-brand{display:flex;align-items:center;gap:10px;padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.nav-brand svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.8;}
+.nav-brand-name{font-family:'DM Serif Display',serif;font-size:17px;color:#fff;line-height:1;}
+.nav-brand-sub{font-size:10px;color:rgba(255,255,255,0.4);margin-top:1px;}
+.nav-section{padding:14px 14px 4px;font-size:10px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.3);}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 14px;margin:1px 8px;border-radius:9px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.65);border:none;background:transparent;width:calc(100% - 16px);text-align:left;font-family:'DM Sans',sans-serif;transition:background 0.15s,color 0.15s;text-decoration:none;}
+.nav-item svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;flex-shrink:0;}
+.nav-item:hover{background:var(--nav-hover);color:#fff;}
+.nav-item.active{background:var(--nav-active);color:#fff;font-weight:500;}
+.nav-badge{margin-left:auto;background:rgba(255,255,255,0.18);color:#fff;font-size:10px;padding:1px 7px;border-radius:999px;font-weight:600;}
+.nav-badge.warn{background:rgba(250,204,21,0.25);color:#fde68a;}
+.nav-scroll{flex:1;overflow-y:auto;}
+.nav-scroll::-webkit-scrollbar{width:3px;}
+.nav-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px;}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;}
+.breadcrumb{font-size:13px;color:var(--muted);}
+.breadcrumb b{color:var(--text);font-weight:500;}
+.topbar-right{display:flex;align-items:center;gap:6px;}
+.tb-icon-btn{width:36px;height:36px;border-radius:9px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);position:relative;transition:background 0.15s,color 0.15s;}
+.tb-icon-btn:hover{background:var(--bg);color:var(--text);}
+.tb-icon-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;}
+.notif-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;background:#ef4444;border-radius:50%;border:1.5px solid #fff;display:none;}
+.tb-divider{width:1px;height:24px;background:var(--border);margin:0 4px;}
+.user-pill{display:flex;align-items:center;gap:8px;padding:5px 10px 5px 6px;border-radius:999px;border:1px solid var(--border);background:var(--surface);cursor:pointer;position:relative;transition:background 0.15s;}
+.user-pill:hover{background:var(--bg);}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;}
+.user-pill-name{font-size:13px;font-weight:500;color:var(--text);}
+.user-pill-role{font-size:10px;color:var(--muted);}
+.user-pill-chevron{width:14px;height:14px;fill:none;stroke:var(--small);stroke-width:2;flex-shrink:0;transition:transform 0.15s;}
+.user-pill.open .user-pill-chevron{transform:rotate(180deg);}
+.dropdown{position:absolute;top:calc(100% + 8px);right:0;width:220px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,0.1);z-index:999;display:none;overflow:hidden;}
+.dropdown.show{display:block;}
+.dd-header{padding:12px 14px;border-bottom:1px solid var(--border);}
+.dd-name{font-size:13px;font-weight:600;color:var(--text);}
+.dd-email{font-size:11px;color:var(--small);margin-top:1px;}
+.dd-role-chip{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--accent-light);color:var(--accent);margin-top:6px;}
+.dd-item{display:flex;align-items:center;gap:10px;padding:9px 14px;font-size:13px;color:var(--text);cursor:pointer;transition:background 0.12s;}
+.dd-item:hover{background:var(--bg);}
+.dd-item svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;color:var(--muted);}
+.dd-sep{height:1px;background:var(--border);margin:4px 0;}
+.dd-item.danger{color:var(--red);}
+.dd-item.danger svg{color:var(--red);}
+.dd-item.danger:hover{background:var(--red-light);}
+.notif-panel{position:absolute;top:calc(100% + 8px);right:0;width:320px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,0.1);z-index:999;display:none;}
+.notif-panel.show{display:block;}
+.np-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border);}
+.np-title{font-size:13px;font-weight:600;color:var(--text);}
+.np-clear{font-size:11px;color:var(--accent);cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;}
+.np-item{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.12s;}
+.np-item:last-child{border-bottom:none;}
+.np-item:hover{background:var(--bg);}
+.np-item.unread{background:#fafbff;}
+.np-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:4px;}
+.np-dot.read{background:transparent;border:1.5px solid var(--border);}
+.np-msg{font-size:12px;color:var(--text);line-height:1.5;}
+.np-time{font-size:11px;color:var(--small);margin-top:2px;}
+.np-empty{padding:20px;text-align:center;font-size:12px;color:var(--small);}
+/* ── Page ── */
+.content{flex:1;overflow-y:auto;padding:28px;}
+.page-heading{font-family:'DM Serif Display',serif;font-size:22px;color:var(--text);margin-bottom:4px;}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:24px;}
+/* Filter bar */
+.filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.filter-pill{padding:5px 14px;border-radius:999px;font-size:12px;font-weight:600;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s,border-color 0.15s,color 0.15s;}
+.filter-pill:hover{border-color:var(--accent);color:var(--accent);}
+.filter-pill.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.filter-pill .cnt{font-size:10px;opacity:0.8;margin-left:4px;}
+.refresh-btn{margin-left:auto;display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:9px;border:1.5px solid var(--border);background:var(--surface);font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s;}
+.refresh-btn:hover{background:var(--bg);color:var(--text);}
+.refresh-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;}
+/* Queue card */
+.queue{display:flex;flex-direction:column;gap:10px;}
+.q-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;display:flex;align-items:flex-start;gap:14px;}
+.q-card:hover{border-color:#c5cfde;}
+.q-type-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;}
+.q-body{flex:1;min-width:0;}
+.q-name{font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.q-path{font-size:12px;color:var(--small);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.q-meta{display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap;}
+.q-type-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:0.5px;}
+.badge-category{background:var(--accent-light);color:var(--accent);}
+.badge-subject{background:var(--green-light);color:var(--green);}
+.badge-topic{background:var(--amber-light);color:var(--amber);}
+.badge-question{background:var(--purple-light);color:var(--purple);}
+.badge-exam{background:#fce7f3;color:#9d174d;}
+.q-by{font-size:11px;color:var(--small);}
+.q-date{font-size:11px;color:var(--small);}
+.q-actions{display:flex;gap:8px;flex-shrink:0;align-items:center;}
+.btn-approve{padding:6px 16px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:600;border:none;border-radius:8px;cursor:pointer;color:#fff;background:var(--green);white-space:nowrap;transition:opacity 0.15s;}
+.btn-approve:hover{opacity:0.88;}
+.btn-reject{padding:6px 16px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:600;border:1.5px solid #fca5a5;border-radius:8px;cursor:pointer;color:var(--red);background:transparent;white-space:nowrap;transition:background 0.15s;}
+.btn-reject:hover{background:var(--red-light);}
+.empty-state{text-align:center;padding:60px 20px;color:var(--small);}
+.empty-state svg{width:40px;height:40px;stroke:var(--border);stroke-width:1.5;fill:none;margin-bottom:12px;}
+.empty-state p{font-size:14px;}
+.loading-state{text-align:center;padding:40px;color:var(--small);font-size:13px;}
+.toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;color:#fff;z-index:9999;display:none;box-shadow:0 4px 16px rgba(0,0,0,0.15);}
+.toast.success{background:var(--green);}
+.toast.error{background:var(--red);}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <svg viewBox="0 0 24 24"><path d="M12 3L2 8l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+    <div><div class="nav-brand-name">EduLearn</div><div class="nav-brand-sub">Admin Portal</div></div>
+  </div>
+  <div class="nav-scroll">
+    <div class="nav-section">Main</div>
+    <a class="nav-item" href="/admin/dashboard.html">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
+    </a>
+    <a class="nav-item" href="/admin/courses.html">
+      <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Courses
+    </a>
+    <a class="nav-item active" href="/admin/approvals.html">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Approvals<span class="nav-badge warn" id="navApprovalBadge"></span>
+    </a>
+    <div class="nav-section">Assess</div>
+    <a class="nav-item" href="/admin/exams.html">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Exams
+    </a>
+    <a class="nav-item" href="/admin/schedules.html">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedules
+    </a>
+    <div class="nav-section">Manage</div>
+    <a class="nav-item" href="/admin/students.html">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Students
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Teachers
+    </a>
+    <div class="nav-section">System</div>
+    <a class="nav-item" href="/admin/dashboard.html">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Organisation
+    </a>
+    <a class="nav-item" href="/admin/demo-data.html"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/></svg>Demo Data</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <div class="breadcrumb">Admin <b>Approvals</b></div>
+    <div class="topbar-right">
+      <div style="position:relative">
+        <button class="tb-icon-btn" id="notifBtn" title="Notifications" onclick="toggleNotif()">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="notif-dot" id="notifDot"></span>
+        </button>
+        <div class="notif-panel" id="notifPanel">
+          <div class="np-header"><span class="np-title">Notifications</span><button class="np-clear" onclick="clearNotifs()">Mark all read</button></div>
+          <div id="notifList"><div class="np-empty">Loading…</div></div>
+        </div>
+      </div>
+      <div class="tb-divider"></div>
+      <div style="position:relative">
+        <div class="user-pill" id="userPill" onclick="toggleUserMenu()">
+          <div class="user-avatar" id="topbarAvatar">AD</div>
+          <div><div class="user-pill-name" id="topbarName">Admin</div><div class="user-pill-role">Administrator</div></div>
+          <svg class="user-pill-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="dropdown" id="userDropdown">
+          <div class="dd-header">
+            <div class="dd-name" id="ddName">Admin</div>
+            <div class="dd-email" id="ddEmail"></div>
+            <div class="dd-role-chip">Administrator</div>
+          </div>
+          <div class="dd-sep"></div>
+          <div class="dd-item" onclick="window.location.href='/admin/dashboard.html'">
+            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Organisation Settings
+          </div>
+          <div class="dd-sep"></div>
+          <div class="dd-item danger" onclick="logout()">
+            <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-heading">Approval Queue</div>
+    <div class="page-sub">Review and action all pending content submitted by teachers.</div>
+
+    <div class="filter-bar">
+      <button class="filter-pill active" data-type="" onclick="setFilter(this,'')">All <span class="cnt" id="cnt-all"></span></button>
+      <button class="filter-pill" data-type="CATEGORY" onclick="setFilter(this,'CATEGORY')">Categories <span class="cnt" id="cnt-CATEGORY"></span></button>
+      <button class="filter-pill" data-type="SUBJECT" onclick="setFilter(this,'SUBJECT')">Subjects <span class="cnt" id="cnt-SUBJECT"></span></button>
+      <button class="filter-pill" data-type="TOPIC" onclick="setFilter(this,'TOPIC')">Topics <span class="cnt" id="cnt-TOPIC"></span></button>
+      <button class="filter-pill" data-type="QUESTION" onclick="setFilter(this,'QUESTION')">Questions <span class="cnt" id="cnt-QUESTION"></span></button>
+      <button class="filter-pill" data-type="EXAM" onclick="setFilter(this,'EXAM')">Exams <span class="cnt" id="cnt-EXAM"></span></button>
+      <button class="refresh-btn" onclick="loadQueue()">
+        <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        Refresh
+      </button>
+    </div>
+
+    <div class="queue" id="queueEl">
+      <div class="loading-state">Loading pending items…</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="/js/auth.js"></script>
+<script src="/js/api.js"></script>
+<script>
+if (!requireAuth('ADMIN')) { /* redirected */ }
+initUserDisplay();
+
+const name = getName();
+document.getElementById('topbarName').textContent = name || 'Admin';
+document.getElementById('ddName').textContent = name || 'Admin';
+const initials = (name||'Admin').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+document.getElementById('topbarAvatar').textContent = initials;
+
+// ── Topbar ──
+function toggleUserMenu(){const d=document.getElementById('userDropdown'),p=document.getElementById('userPill');document.getElementById('notifPanel').classList.remove('show');d.classList.toggle('show');p.classList.toggle('open');}
+function toggleNotif(){const np=document.getElementById('notifPanel');document.getElementById('userDropdown').classList.remove('show');document.getElementById('userPill').classList.remove('open');np.classList.toggle('show');if(np.classList.contains('show'))loadNotifications();}
+function closeMenus(){document.getElementById('userDropdown').classList.remove('show');document.getElementById('notifPanel').classList.remove('show');document.getElementById('userPill').classList.remove('open');}
+document.addEventListener('click',e=>{if(!e.target.closest('#userPill')&&!e.target.closest('#userDropdown')){document.getElementById('userDropdown').classList.remove('show');document.getElementById('userPill').classList.remove('open');}if(!e.target.closest('#notifBtn')&&!e.target.closest('#notifPanel'))document.getElementById('notifPanel').classList.remove('show');});
+
+async function loadNotifications(){const list=document.getElementById('notifList');try{const r=await apiGet('/notifications?page=0&size=10');const items=r?.data||[];if(!items.length){list.innerHTML='<div class="np-empty">No notifications</div>';return;}list.innerHTML=items.map(n=>`<div class="np-item ${n.read?'':'unread'}" onclick="markNotifRead('${n.id}',this)"><span class="np-dot ${n.read?'read':''}"></span><div><div class="np-msg">${esc(n.message)}</div><div class="np-time">${timeAgo(n.createdAt)}</div></div></div>`).join('');}catch(e){list.innerHTML='<div class="np-empty">Could not load</div>';}}
+async function markNotifRead(id,el){try{await apiPut('/notifications/'+id+'/read',{});el.classList.remove('unread');el.querySelector('.np-dot').classList.add('read');}catch(e){}}
+async function clearNotifs(){try{await apiPut('/notifications/read-all',{});document.querySelectorAll('.np-item').forEach(i=>{i.classList.remove('unread');i.querySelector('.np-dot').classList.add('read');});document.getElementById('notifDot').style.display='none';}catch(e){}}
+function timeAgo(iso){if(!iso)return'';const diff=Date.now()-new Date(iso).getTime();const m=Math.floor(diff/60000);if(m<1)return'just now';if(m<60)return m+' min ago';const h=Math.floor(m/60);if(h<24)return h+'h ago';return Math.floor(h/24)+'d ago';}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function showToast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';setTimeout(()=>{t.style.display='none';},3000);}
+
+// ── Approval endpoints by entity type ──
+const APPROVE_EP={
+  CATEGORY:id=>`/categories/${id}/approve`,
+  SUBJECT:id=>`/subjects/${id}/approve`,
+  TOPIC:id=>`/topics/${id}/approve`,
+  QUESTION:id=>`/questions/${id}/approve`,
+  EXAM:id=>`/exams/${id}/approve`
+};
+const REJECT_EP={
+  CATEGORY:id=>`/categories/${id}/reject`,
+  SUBJECT:id=>`/subjects/${id}/reject`,
+  TOPIC:id=>`/topics/${id}/reject`,
+  QUESTION:id=>`/questions/${id}/reject`,
+  EXAM:id=>`/exams/${id}/reject`
+};
+const TYPE_ICON={CATEGORY:'📁',SUBJECT:'📚',TOPIC:'📂',QUESTION:'❓',EXAM:'📝'};
+const TYPE_COLOR={CATEGORY:'#e8f0fc',SUBJECT:'#e4f5ee',TOPIC:'#fef3c7',QUESTION:'#ede9fe',EXAM:'#fce7f3'};
+
+let allItems = [];
+let currentFilter = '';
+
+function setFilter(btn, type) {
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  currentFilter = type;
+  renderQueue();
+}
+
+async function loadQueue() {
+  const el = document.getElementById('queueEl');
+  el.innerHTML = '<div class="loading-state">Loading pending items…</div>';
+  try {
+    const r = await apiGet('/approvals/pending?page=0&size=200');
+    allItems = r?.data || [];
+    // Also load pending exams via the exam endpoint in case they're not in approvals
+    try {
+      const er = await apiGet('/exams?status=PENDING');
+      const examItems = (er?.data || []).map(e => ({
+        entityId: e.id,
+        entityType: 'EXAM',
+        name: e.name,
+        path: 'Exam',
+        createdByName: e.createdByName || 'Teacher',
+        submittedAt: e.createdAt,
+        status: 'PENDING'
+      }));
+      // Merge exams not already in the list
+      const existingIds = new Set(allItems.map(i => i.entityId));
+      examItems.forEach(ei => { if (!existingIds.has(ei.entityId)) allItems.push(ei); });
+    } catch(e) {}
+
+    // Update filter counts
+    const counts = {};
+    allItems.forEach(i => { counts[i.entityType] = (counts[i.entityType]||0)+1; });
+    document.getElementById('cnt-all').textContent = allItems.length ? `(${allItems.length})` : '';
+    ['CATEGORY','SUBJECT','TOPIC','QUESTION','EXAM'].forEach(t => {
+      const el2 = document.getElementById('cnt-'+t);
+      if (el2) el2.textContent = counts[t] ? `(${counts[t]})` : '';
+    });
+    document.getElementById('navApprovalBadge').textContent = allItems.length || '';
+
+    renderQueue();
+  } catch(e) {
+    el.innerHTML = '<div class="loading-state">Could not load approval queue.</div>';
+  }
+}
+
+function renderQueue() {
+  const el = document.getElementById('queueEl');
+  const items = currentFilter ? allItems.filter(i => i.entityType === currentFilter) : allItems;
+  if (!items.length) {
+    el.innerHTML = `<div class="empty-state">
+      <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <p>${currentFilter ? 'No pending ' + currentFilter.toLowerCase() + 's' : 'No pending items — all caught up!'}
+    </div>`;
+    return;
+  }
+  el.innerHTML = items.map(item => {
+    const type = item.entityType || 'CONTENT';
+    const badgeCls = 'badge-' + type.toLowerCase();
+    const icon = TYPE_ICON[type] || '📄';
+    const bg = TYPE_COLOR[type] || '#f4f6fa';
+    const date = item.submittedAt ? new Date(item.submittedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
+    return `<div class="q-card" id="card-${esc(item.entityId)}">
+      <div class="q-type-icon" style="background:${bg}">${icon}</div>
+      <div class="q-body">
+        <div class="q-name">${esc(item.name)}</div>
+        <div class="q-path">${esc(item.path||'')}</div>
+        <div class="q-meta">
+          <span class="q-type-badge ${badgeCls}">${esc(type)}</span>
+          <span class="q-by">by ${esc(item.createdByName||'')}</span>
+          ${date ? `<span class="q-date">${date}</span>` : ''}
+        </div>
+      </div>
+      <div class="q-actions">
+        <button class="btn-approve" onclick="approveItem('${esc(item.entityId)}','${esc(type)}')">✓ Approve</button>
+        <button class="btn-reject" onclick="rejectItem('${esc(item.entityId)}','${esc(type)}')">✗ Reject</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function approveItem(id, type) {
+  const ep = APPROVE_EP[type];
+  if (!ep) { showToast('Unknown type: '+type,'error'); return; }
+  try {
+    const r = await apiPut(ep(id), {});
+    if (r?.status === 'success') {
+      showToast('Approved!');
+      allItems = allItems.filter(i => i.entityId !== id);
+      renderQueue();
+      // Update badge
+      document.getElementById('navApprovalBadge').textContent = allItems.length || '';
+      const counts = {};
+      allItems.forEach(i => { counts[i.entityType] = (counts[i.entityType]||0)+1; });
+      document.getElementById('cnt-all').textContent = allItems.length ? `(${allItems.length})` : '';
+      ['CATEGORY','SUBJECT','TOPIC','QUESTION','EXAM'].forEach(t => {
+        const el2 = document.getElementById('cnt-'+t);
+        if (el2) el2.textContent = counts[t] ? `(${counts[t]})` : '';
+      });
+    } else {
+      showToast(r?.message || 'Approval failed', 'error');
+    }
+  } catch(e) { showToast('Approval failed','error'); }
+}
+
+async function rejectItem(id, type) {
+  const reason = prompt('Rejection reason (required):');
+  if (!reason || !reason.trim()) return;
+  const ep = REJECT_EP[type];
+  if (!ep) { showToast('Unknown type: '+type,'error'); return; }
+  try {
+    const r = await apiPut(ep(id), { note: reason.trim() });
+    if (r?.status === 'success') {
+      showToast('Rejected.');
+      allItems = allItems.filter(i => i.entityId !== id);
+      renderQueue();
+      document.getElementById('navApprovalBadge').textContent = allItems.length || '';
+      const counts = {};
+      allItems.forEach(i => { counts[i.entityType] = (counts[i.entityType]||0)+1; });
+      document.getElementById('cnt-all').textContent = allItems.length ? `(${allItems.length})` : '';
+      ['CATEGORY','SUBJECT','TOPIC','QUESTION','EXAM'].forEach(t => {
+        const el2 = document.getElementById('cnt-'+t);
+        if (el2) el2.textContent = counts[t] ? `(${counts[t]})` : '';
+      });
+    } else {
+      showToast(r?.message || 'Rejection failed', 'error');
+    }
+  } catch(e) { showToast('Rejection failed','error'); }
+}
+
+loadQueue();
+</script>
+</body>
+</html>

@@ -3,6 +3,7 @@ package com.edulearn.controller;
 import com.edulearn.dto.response.SubmissionResponse;
 import com.edulearn.entity.User;
 import com.edulearn.enums.ContentStatus;
+import com.edulearn.enums.ExamStatus;
 import com.edulearn.exception.ResourceNotFoundException;
 import com.edulearn.repository.*;
 import com.edulearn.util.ApiResponse;
@@ -27,15 +28,17 @@ public class ApprovalController {
     private final SubjectRepository subjectRepo;
     private final TopicRepository topicRepo;
     private final QuestionRepository questionRepo;
+    private final ExamRepository examRepo;
     private final UserRepository userRepo;
 
     public ApprovalController(CategoryRepository categoryRepo, SubjectRepository subjectRepo,
                                TopicRepository topicRepo, QuestionRepository questionRepo,
-                               UserRepository userRepo) {
+                               ExamRepository examRepo, UserRepository userRepo) {
         this.categoryRepo = categoryRepo;
         this.subjectRepo = subjectRepo;
         this.topicRepo = topicRepo;
         this.questionRepo = questionRepo;
+        this.examRepo = examRepo;
         this.userRepo = userRepo;
     }
 
@@ -73,6 +76,13 @@ public class ApprovalController {
                     q.getStatus(), q.getRejectionReason(),
                     q.getTopic().getSubject().getCategory().getName() + " > " + q.getTopic().getSubject().getName() + " > " + q.getTopic().getName(),
                     q.getCreatedBy().getFullName(), q.getCreatedAt(), q.getUpdatedAt())));
+        }
+        if (type == null || "EXAM".equalsIgnoreCase(type)) {
+            examRepo.findByStatus(ExamStatus.PENDING).forEach(e ->
+                items.add(new SubmissionResponse(e.getId(), "EXAM", e.getName(),
+                    ContentStatus.PENDING, e.getRejectionReason(),
+                    e.getName(),
+                    e.getCreatedBy().getFullName(), e.getCreatedAt(), e.getUpdatedAt())));
         }
 
         return ResponseEntity.ok(new ApiResponse<>("success", "OK", items,

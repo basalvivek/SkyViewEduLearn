@@ -64,6 +64,7 @@ public class StudentService {
                 .email(request.email())
                 .passwordHash(passwordEncoder.encode(password))
                 .role(UserRole.STUDENT)
+                .mustChangePassword(true)
                 .isActive(true)
                 .build();
         student = userRepo.save(student);
@@ -102,6 +103,7 @@ public class StudentService {
         User student = findStudentById(id);
         String newPassword = generateTempPassword();
         student.setPasswordHash(passwordEncoder.encode(newPassword));
+        student.setMustChangePassword(true);
         userRepo.save(student);
         return newPassword;
     }

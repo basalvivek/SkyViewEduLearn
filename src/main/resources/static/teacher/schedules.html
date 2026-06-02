@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EduLearn — Teacher Schedules</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --nav:#0f5940;--nav-hover:rgba(255,255,255,0.1);--nav-active:rgba(255,255,255,0.18);
+  --accent:#1a8a5a;--accent-light:#e4f5ee;
+  --green:#0f5940;--green-light:#e4f5ee;
+  --amber:#92400e;--amber-light:#fef3c7;
+  --purple:#4c1d95;--purple-light:#ede9fe;
+  --red:#991b1b;--red-light:#fee2e2;
+  --blue:#2563a8;--blue-light:#e8f0fc;
+  --surface:#ffffff;--bg:#f4f6fa;--border:#e2e6ee;
+  --text:#1a1f2e;--muted:#6b7385;--small:#9399a8;
+  --radius:12px;
+  --c-exam:#2563a8;--c-class:#0f5940;--c-event:#92400e;--c-holiday:#4c1d95;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);display:flex;height:100vh;overflow:hidden;}
+nav{width:220px;background:var(--nav);display:flex;flex-direction:column;flex-shrink:0;height:100vh;}
+.nav-brand{display:flex;align-items:center;gap:10px;padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.nav-brand svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.8;}
+.nav-brand-name{font-family:'DM Serif Display',serif;font-size:17px;color:#fff;line-height:1;}
+.nav-brand-sub{font-size:10px;color:rgba(255,255,255,0.4);margin-top:1px;}
+.nav-section{padding:14px 14px 4px;font-size:10px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.3);}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 14px;margin:1px 8px;border-radius:9px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.65);border:none;background:transparent;width:calc(100% - 16px);text-align:left;font-family:'DM Sans',sans-serif;transition:background 0.15s,color 0.15s;text-decoration:none;}
+.nav-item svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;flex-shrink:0;}
+.nav-item:hover{background:var(--nav-hover);color:#fff;}
+.nav-item.active{background:var(--nav-active);color:#fff;font-weight:500;}
+.nav-scroll{flex:1;overflow-y:auto;}
+.nav-scroll::-webkit-scrollbar{width:3px;}
+.nav-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px;}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;}
+.breadcrumb{font-size:13px;color:var(--muted);}
+.breadcrumb b{color:var(--text);font-weight:500;}
+.topbar-right{display:flex;align-items:center;gap:6px;}
+.tb-icon-btn{width:36px;height:36px;border-radius:9px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);position:relative;transition:background 0.15s,color 0.15s;}
+.tb-icon-btn:hover{background:var(--bg);color:var(--text);}
+.tb-icon-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;}
+.notif-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;background:#ef4444;border-radius:50%;border:1.5px solid #fff;display:none;}
+.tb-divider{width:1px;height:24px;background:var(--border);margin:0 4px;}
+.user-pill{display:flex;align-items:center;gap:8px;padding:5px 10px 5px 6px;border-radius:999px;border:1px solid var(--border);background:var(--surface);cursor:pointer;position:relative;transition:background 0.15s;}
+.user-pill:hover{background:var(--bg);}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;}
+.user-pill-name{font-size:13px;font-weight:500;color:var(--text);}
+.user-pill-role{font-size:10px;color:var(--muted);}
+.user-pill-chevron{width:14px;height:14px;fill:none;stroke:var(--small);stroke-width:2;flex-shrink:0;transition:transform 0.15s;}
+.user-pill.open .user-pill-chevron{transform:rotate(180deg);}
+.dropdown{position:absolute;top:calc(100% + 8px);right:0;width:220px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,0.1);z-index:999;display:none;overflow:hidden;}
+.dropdown.show{display:block;}
+.dd-header{padding:12px 14px;border-bottom:1px solid var(--border);}
+.dd-name{font-size:13px;font-weight:600;color:var(--text);}
+.dd-role-chip{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--accent-light);color:var(--accent);margin-top:6px;}
+.dd-item{display:flex;align-items:center;gap:10px;padding:9px 14px;font-size:13px;color:var(--text);cursor:pointer;transition:background 0.12s;}
+.dd-item:hover{background:var(--bg);}
+.dd-item svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;color:var(--muted);}
+.dd-sep{height:1px;background:var(--border);margin:4px 0;}
+.dd-item.danger{color:var(--red);}
+.dd-item.danger svg{color:var(--red);}
+.dd-item.danger:hover{background:var(--red-light);}
+.notif-panel{position:absolute;top:calc(100% + 8px);right:0;width:320px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,0.1);z-index:999;display:none;}
+.notif-panel.show{display:block;}
+.np-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border);}
+.np-title{font-size:13px;font-weight:600;color:var(--text);}
+.np-clear{font-size:11px;color:var(--accent);cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;}
+.np-item{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.12s;}
+.np-item:last-child{border-bottom:none;}
+.np-item:hover{background:var(--bg);}
+.np-item.unread{background:#f4faf7;}
+.np-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:4px;}
+.np-dot.read{background:transparent;border:1.5px solid var(--border);}
+.np-msg{font-size:12px;color:var(--text);line-height:1.5;}
+.np-time{font-size:11px;color:var(--small);margin-top:2px;}
+.np-empty{padding:20px;text-align:center;font-size:12px;color:var(--small);}
+/* ── Calendar ── */
+.cal-wrap{flex:1;overflow:hidden;display:flex;flex-direction:column;padding:0;}
+.cal-toolbar{display:flex;align-items:center;gap:10px;padding:14px 24px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;}
+.cal-nav{display:flex;align-items:center;gap:6px;}
+.cal-nav-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--muted);transition:background 0.15s;}
+.cal-nav-btn:hover{background:var(--border);color:var(--text);}
+.cal-month-label{font-family:'DM Serif Display',serif;font-size:18px;color:var(--text);min-width:160px;text-align:center;}
+.cal-class-select{height:32px;padding:0 10px;font-size:12px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);outline:none;cursor:pointer;}
+.cal-class-select:focus{border-color:var(--accent);}
+.btn-add-event{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:9px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;white-space:nowrap;margin-left:auto;}
+.btn-add-event:hover{opacity:0.9;}
+.btn-add-event svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:2.5;}
+/* Legend */
+.legend{display:flex;align-items:center;gap:14px;padding:8px 24px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);}
+.leg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+/* Calendar grid */
+.cal-scroll{flex:1;overflow-y:auto;padding:16px 24px 24px;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border-radius:var(--radius);overflow:hidden;}
+.cal-dow{background:var(--surface);padding:8px 10px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);text-align:center;}
+.cal-cell{background:var(--surface);min-height:110px;padding:6px 8px;cursor:pointer;position:relative;transition:background 0.1s;}
+.cal-cell:hover{background:#f8faf8;}
+.cal-cell.other-month{background:#fafbff;}
+.cal-cell.other-month .cal-date{color:var(--border);}
+.cal-cell.today{background:#f0faf5;}
+.cal-cell.today .cal-date{background:var(--accent);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;}
+.cal-cell.drag-over{background:#e4f5ee!important;outline:2px dashed var(--accent);}
+.cal-date{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;}
+.event-pill{display:flex;align-items:center;gap:4px;padding:2px 6px;border-radius:5px;font-size:11px;font-weight:500;color:#fff;cursor:grab;margin-bottom:2px;overflow:hidden;user-select:none;position:relative;}
+.event-pill:hover{opacity:0.88;}
+.event-pill.dragging{opacity:0.4;}
+.pill-recur{font-size:9px;opacity:0.8;margin-left:auto;flex-shrink:0;}
+.more-pill{font-size:10px;color:var(--small);padding:1px 4px;cursor:pointer;}
+/* Context menu */
+.ctx-menu{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);z-index:9999;display:none;min-width:160px;overflow:hidden;}
+.ctx-menu.show{display:block;}
+.ctx-item{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:13px;color:var(--text);cursor:pointer;transition:background 0.1s;}
+.ctx-item:hover{background:var(--bg);}
+.ctx-item svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;color:var(--muted);}
+.ctx-sep{height:1px;background:var(--border);margin:4px 0;}
+/* Modal overlay */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:1000;display:none;align-items:center;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal{background:var(--surface);border-radius:var(--radius);width:500px;max-width:94vw;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 14px;border-bottom:1px solid var(--border);}
+.modal-title{font-size:15px;font-weight:600;color:var(--text);}
+.modal-close{width:28px;height:28px;border-radius:7px;border:none;background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--muted);}
+.modal-close:hover{background:var(--border);}
+.modal-body{padding:20px;}
+/* Booking tabs */
+.booking-tabs{display:flex;gap:0;margin-bottom:18px;border:1.5px solid var(--border);border-radius:9px;overflow:hidden;}
+.booking-tab{flex:1;padding:7px 0;font-size:12px;font-weight:600;text-align:center;cursor:pointer;background:transparent;border:none;font-family:'DM Sans',sans-serif;color:var(--muted);transition:background 0.15s,color 0.15s;}
+.booking-tab:not(:last-child){border-right:1px solid var(--border);}
+.booking-tab.active{background:var(--accent);color:#fff;}
+/* Type selector */
+.type-pills{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+.type-pill{padding:4px 12px;border-radius:999px;font-size:12px;font-weight:600;border:1.5px solid var(--border);background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--muted);transition:all 0.15s;}
+.type-pill.sel-exam{background:#e8f0fc;border-color:var(--blue);color:var(--blue);}
+.type-pill.sel-class{background:var(--green-light);border-color:var(--green);color:var(--green);}
+.type-pill.sel-event{background:var(--amber-light);border-color:var(--amber);color:var(--amber);}
+.type-pill.sel-holiday{background:var(--purple-light);border-color:var(--purple);color:var(--purple);}
+/* Form elements */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-group{margin-bottom:14px;}
+.form-label{font-size:11px;font-weight:600;letter-spacing:0.3px;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:5px;}
+.form-input,.form-select{width:100%;height:36px;padding:0 10px;font-size:13px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);outline:none;}
+.form-input:focus,.form-select:focus{border-color:var(--accent);}
+.day-pills{display:flex;gap:4px;flex-wrap:wrap;}
+.day-pill{width:34px;height:30px;border-radius:7px;border:1.5px solid var(--border);background:transparent;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--muted);transition:all 0.15s;}
+.day-pill.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+/* Preview box */
+.preview-box{background:var(--bg);border-radius:9px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--muted);max-height:120px;overflow-y:auto;}
+.preview-box .pv-count{font-weight:600;color:var(--text);margin-bottom:6px;}
+.preview-box .pv-date{padding:1px 0;}
+/* Modal footer */
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--border);}
+.btn-cancel-modal{padding:7px 16px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;border:1.5px solid var(--border);border-radius:8px;background:transparent;cursor:pointer;color:var(--muted);}
+.btn-cancel-modal:hover{background:var(--bg);}
+.btn-save-modal{padding:7px 18px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;border:none;border-radius:8px;background:var(--accent);color:#fff;cursor:pointer;}
+.btn-save-modal:hover{opacity:0.9;}
+/* Series-move dialog */
+.series-choice{display:flex;flex-direction:column;gap:8px;margin:14px 0;}
+.s-opt{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:9px;border:1.5px solid var(--border);cursor:pointer;transition:border-color 0.15s,background 0.15s;}
+.s-opt:hover{background:var(--bg);}
+.s-opt.sel{border-color:var(--accent);background:var(--accent-light);}
+.s-opt input{margin-top:1px;accent-color:var(--accent);}
+.s-opt-lbl{font-size:13px;font-weight:500;color:var(--text);}
+.s-opt-sub{font-size:11px;color:var(--small);margin-top:2px;}
+/* Status bar */
+.status-bar{position:fixed;bottom:0;left:220px;right:0;height:28px;background:rgba(15,89,64,0.9);color:rgba(255,255,255,0.7);font-size:11px;display:flex;align-items:center;padding:0 24px;z-index:50;transition:opacity 0.3s;}
+.status-bar.hidden{opacity:0;pointer-events:none;}
+.toast{position:fixed;bottom:36px;right:24px;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:500;color:#fff;z-index:9999;display:none;box-shadow:0 4px 16px rgba(0,0,0,0.15);}
+.toast.success{background:var(--green);}
+.toast.error{background:var(--red);}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <svg viewBox="0 0 24 24"><path d="M12 3L2 8l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+    <div><div class="nav-brand-name">EduLearn</div><div class="nav-brand-sub">Teacher Portal</div></div>
+  </div>
+  <div class="nav-scroll">
+    <div class="nav-section">Main</div>
+    <a class="nav-item" href="/teacher/dashboard.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+    <a class="nav-item" href="/teacher/courses.html"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Courses</a>
+    <a class="nav-item" href="/teacher/submissions.html"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Submissions</a>
+    <div class="nav-section">Assess</div>
+    <a class="nav-item" href="/teacher/exams.html"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Exams</a>
+    <a class="nav-item active" href="/teacher/schedules.html"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedules</a>
+    <a class="nav-item" href="/teacher/marking.html"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Marking</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <div class="breadcrumb">Teacher <b>Schedules</b></div>
+    <div class="topbar-right">
+      <div style="position:relative">
+        <button class="tb-icon-btn" id="notifBtn" onclick="toggleNotif()">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="notif-dot" id="notifDot"></span>
+        </button>
+        <div class="notif-panel" id="notifPanel">
+          <div class="np-header"><span class="np-title">Notifications</span><button class="np-clear" onclick="clearNotifs()">Mark all read</button></div>
+          <div id="notifList"><div class="np-empty">Loading…</div></div>
+        </div>
+      </div>
+      <div class="tb-divider"></div>
+      <div style="position:relative">
+        <div class="user-pill" id="userPill" onclick="toggleUserMenu()">
+          <div class="user-avatar" id="topbarAvatar">TC</div>
+          <div><div class="user-pill-name" id="topbarName">Teacher</div><div class="user-pill-role">Teacher</div></div>
+          <svg class="user-pill-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="dropdown" id="userDropdown">
+          <div class="dd-header"><div class="dd-name" id="ddName">Teacher</div><div class="dd-role-chip">Teacher</div></div>
+          <div class="dd-sep"></div>
+          <div class="dd-item danger" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cal-wrap">
+    <!-- Toolbar -->
+    <div class="cal-toolbar">
+      <div class="cal-nav">
+        <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+        <div class="cal-month-label" id="calTitle">Loading…</div>
+        <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+      </div>
+      <select class="cal-class-select" id="classFilter" onchange="loadCalendar()">
+        <option value="">All Classes</option>
+      </select>
+      <button class="btn-add-event" onclick="openAddModal(null)">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Event
+      </button>
+    </div>
+    <!-- Legend -->
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:var(--c-exam)"></div>Exam</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--c-class)"></div>Class</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--c-event)"></div>Event</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--c-holiday)"></div>Holiday</div>
+      <div class="leg-item" style="margin-left:10px;font-size:11px;color:var(--small)">↻ = recurring &nbsp; Drag your events to reschedule</div>
+      <div class="leg-item" style="margin-left:auto;font-size:11px;color:var(--accent);font-weight:600">Showing your assigned schedules</div>
+    </div>
+    <!-- Calendar -->
+    <div class="cal-scroll">
+      <div class="cal-grid" id="calGrid">
+        <div class="cal-dow">Mon</div><div class="cal-dow">Tue</div><div class="cal-dow">Wed</div>
+        <div class="cal-dow">Thu</div><div class="cal-dow">Fri</div><div class="cal-dow">Sat</div>
+        <div class="cal-dow">Sun</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Context menu (no delete for teachers) -->
+<div class="ctx-menu" id="ctxMenu">
+  <div class="ctx-item" onclick="ctxEdit()"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</div>
+  <div class="ctx-item" onclick="ctxViewSeries()" id="ctxSeriesItem" style="display:none"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>View series</div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="addModalOverlay">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title" id="modalTitle">Add Event</div>
+      <button class="modal-close" onclick="closeAddModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <!-- Booking type tabs -->
+      <div class="booking-tabs" id="bookingTabs">
+        <button class="booking-tab active" onclick="setBookingMode('single',this)">Single</button>
+        <button class="booking-tab" onclick="setBookingMode('range',this)">Date Range</button>
+        <button class="booking-tab" onclick="setBookingMode('recurring',this)">Recurring</button>
+      </div>
+
+      <!-- Event type selector -->
+      <div style="margin-bottom:12px">
+        <div class="form-label">Event type</div>
+        <div class="type-pills" id="typePills">
+          <button class="type-pill sel-exam" data-t="EXAM" onclick="selectType(this)">Exam</button>
+          <button class="type-pill" data-t="CLASS" onclick="selectType(this)">Class</button>
+          <button class="type-pill" data-t="EVENT" onclick="selectType(this)">Event</button>
+          <button class="type-pill" data-t="HOLIDAY" onclick="selectType(this)">Holiday</button>
+        </div>
+      </div>
+
+      <!-- Exam selector (shown only when type=EXAM) -->
+      <div class="form-group" id="examGroup">
+        <label class="form-label">Exam</label>
+        <select class="form-select" id="fExam"><option value="">— select exam —</option></select>
+      </div>
+
+      <!-- Title (shown when type ≠ EXAM) -->
+      <div class="form-group" id="titleGroup" style="display:none">
+        <label class="form-label">Title</label>
+        <input class="form-input" id="fTitle" placeholder="e.g. Year 10A English lecture"/>
+      </div>
+
+      <!-- Class -->
+      <div class="form-group">
+        <label class="form-label">Class <span style="font-weight:400;color:var(--small)">(optional)</span></label>
+        <select class="form-select" id="fClass"><option value="">— all classes —</option></select>
+      </div>
+
+      <!-- ── SINGLE mode ── -->
+      <div id="modeSingle">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="fDate" type="date"/></div>
+          <div class="form-group"><label class="form-label">Start time</label><input class="form-input" id="fTime" type="time" value="09:00"/></div>
+        </div>
+        <div class="form-group"><label class="form-label">Duration (minutes)</label><input class="form-input" id="fDuration" type="number" value="60" min="5" style="width:120px"/></div>
+        <!-- Exam-specific fields -->
+        <div id="examExtras">
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Max attempts</label><input class="form-input" id="fMaxAttempts" type="number" value="1" min="1" style="width:80px"/></div>
+            <div class="form-group"><label class="form-label">Show results immediately</label><br/><input type="checkbox" id="fShowResults" style="margin-top:8px"/></div>
+          </div>
+          <div class="form-group"><label class="form-label">Instructions</label><input class="form-input" id="fInstructions" placeholder="Optional instructions for students"/></div>
+        </div>
+      </div>
+
+      <!-- ── RANGE mode ── -->
+      <div id="modeRange" style="display:none">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">From date</label><input class="form-input" id="fRangeFrom" type="date" onchange="updateRangePreview()"/></div>
+          <div class="form-group"><label class="form-label">To date</label><input class="form-input" id="fRangeTo" type="date" onchange="updateRangePreview()"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Start time</label><input class="form-input" id="fRangeTime" type="time" value="09:00"/></div>
+          <div class="form-group"><label class="form-label">Duration (min)</label><input class="form-input" id="fRangeDuration" type="number" value="60" min="5"/></div>
+        </div>
+        <div class="preview-box" id="rangePreview">Select dates to see preview.</div>
+      </div>
+
+      <!-- ── RECURRING mode ── -->
+      <div id="modeRecurring" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Frequency</label>
+          <select class="form-select" id="fFreq" onchange="updateRecurringPreview()">
+            <option value="WEEKLY">Weekly</option>
+            <option value="FORTNIGHTLY">Fortnightly</option>
+            <option value="MONTHLY">Monthly (same date)</option>
+          </select>
+        </div>
+        <div class="form-group" id="dowGroup">
+          <label class="form-label">Days of week</label>
+          <div class="day-pills">
+            <button class="day-pill" data-dow="1" onclick="toggleDow(this)">Mo</button>
+            <button class="day-pill" data-dow="2" onclick="toggleDow(this)">Tu</button>
+            <button class="day-pill" data-dow="3" onclick="toggleDow(this)">We</button>
+            <button class="day-pill" data-dow="4" onclick="toggleDow(this)">Th</button>
+            <button class="day-pill" data-dow="5" onclick="toggleDow(this)">Fr</button>
+            <button class="day-pill" data-dow="6" onclick="toggleDow(this)">Sa</button>
+            <button class="day-pill" data-dow="7" onclick="toggleDow(this)">Su</button>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Start date</label><input class="form-input" id="fRecurStart" type="date" onchange="updateRecurringPreview()"/></div>
+          <div class="form-group"><label class="form-label">End date</label><input class="form-input" id="fRecurEnd" type="date" onchange="updateRecurringPreview()"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Start time</label><input class="form-input" id="fRecurTime" type="time" value="09:00"/></div>
+          <div class="form-group"><label class="form-label">Duration (min)</label><input class="form-input" id="fRecurDuration" type="number" value="60" min="5"/></div>
+        </div>
+        <div class="preview-box" id="recurPreview">Select dates and frequency to see preview.</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel-modal" onclick="closeAddModal()">Cancel</button>
+      <button class="btn-save-modal" id="saveEventBtn" onclick="saveEvent()">Create event</button>
+    </div>
+  </div>
+</div>
+
+<!-- Series-move dialog -->
+<div class="modal-overlay" id="moveModalOverlay">
+  <div class="modal" style="width:420px">
+    <div class="modal-hdr">
+      <div class="modal-title">Reschedule recurring event</div>
+      <button class="modal-close" onclick="closeMoveModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:14px" id="moveModalDesc"></p>
+      <div class="series-choice">
+        <label class="s-opt sel">
+          <input type="radio" name="moveScope" value="THIS" checked/>
+          <div><div class="s-opt-lbl">This event only</div><div class="s-opt-sub">Move just this occurrence</div></div>
+        </label>
+        <label class="s-opt">
+          <input type="radio" name="moveScope" value="THIS_AND_FORWARD"/>
+          <div><div class="s-opt-lbl">This and all following</div><div class="s-opt-sub">Move this and every event after it in the series</div></div>
+        </label>
+        <label class="s-opt">
+          <input type="radio" name="moveScope" value="ALL"/>
+          <div><div class="s-opt-lbl">All events in the series</div><div class="s-opt-sub">Shift the entire series by the same number of days</div></div>
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel-modal" onclick="closeMoveModal()">Cancel</button>
+      <button class="btn-save-modal" onclick="confirmMove()">Move</button>
+    </div>
+  </div>
+</div>
+
+<div class="status-bar hidden" id="statusBar"></div>
+<div class="toast" id="toast"></div>
+
+<script src="/js/auth.js"></script>
+<script src="/js/api.js"></script>
+<script>
+if (!requireAuth('TEACHER')) {}
+initUserDisplay();
+const _n = getName();
+document.getElementById('topbarName').textContent = _n || 'Teacher';
+document.getElementById('ddName').textContent = _n || 'Teacher';
+document.getElementById('topbarAvatar').textContent = (_n||'Teacher').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+
+function toggleUserMenu(){const d=document.getElementById('userDropdown'),p=document.getElementById('userPill');d.classList.toggle('show');p.classList.toggle('open');}
+function toggleNotif(){const p=document.getElementById('notifPanel');p.classList.toggle('show');if(p.classList.contains('show'))loadNotifs();}
+async function loadNotifs(){const list=document.getElementById('notifList');try{const r=await apiGet('/notifications?page=0&size=10');const items=r?.data||[];list.innerHTML=items.length?items.map(n=>`<div class="np-item ${n.read?'':'unread'}"><span class="np-dot ${n.read?'read':''}"></span><div><div class="np-msg">${esc(n.message)}</div><div class="np-time">${timeAgo(n.createdAt)}</div></div></div>`).join(''):'<div class="np-empty">No notifications</div>';}catch(e){list.innerHTML='<div class="np-empty">Could not load</div>';}}
+async function clearNotifs(){try{await apiPut('/notifications/read-all',{});}catch(e){}}
+function timeAgo(iso){if(!iso)return '';const diff=Date.now()-new Date(iso).getTime();const m=Math.floor(diff/60000);if(m<1)return 'just now';if(m<60)return m+' min ago';const h=Math.floor(m/60);if(h<24)return h+' hr ago';return Math.floor(h/24)+' d ago';}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#userPill')&&!e.target.closest('#userDropdown')){document.getElementById('userDropdown').classList.remove('show');document.getElementById('userPill').classList.remove('open');}
+  if(!e.target.closest('#notifBtn')&&!e.target.closest('#notifPanel'))document.getElementById('notifPanel').classList.remove('show');
+  hideCtxMenu();
+});
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function showToast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';setTimeout(()=>{t.style.display='none';},3000);}
+function statusMsg(msg){const sb=document.getElementById('statusBar');sb.textContent=msg;sb.classList.remove('hidden');setTimeout(()=>sb.classList.add('hidden'),3000);}
+
+// ── State ──────────────────────────────────────────────────────
+let curYear = new Date().getFullYear();
+let curMonth = new Date().getMonth() + 1;
+let calEvents = [];
+let classes = [];
+let exams = [];
+let bookingMode = 'single';
+let selEventType = 'EXAM';
+let ctxEvent = null;
+let pendingMove = null;
+
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const TYPE_COLOR = {EXAM:'var(--c-exam)',CLASS:'var(--c-class)',EVENT:'var(--c-event)',HOLIDAY:'var(--c-holiday)'};
+
+// ── Month navigation ───────────────────────────────────────────
+function changeMonth(dir){
+  curMonth += dir;
+  if(curMonth > 12){curMonth=1;curYear++;}
+  if(curMonth < 1){curMonth=12;curYear--;}
+  loadCalendar();
+}
+
+// ── Load data ──────────────────────────────────────────────────
+async function loadClasses(){
+  try{
+    const r = await apiGet('/classes');
+    classes = r?.data || [];
+    const sel = document.getElementById('classFilter');
+    const fCls = document.getElementById('fClass');
+    classes.forEach(c=>{
+      sel.add(new Option(c.name, c.id));
+      fCls.add(new Option(c.name, c.id));
+    });
+  }catch(e){}
+}
+
+async function loadExams(){
+  try{
+    const r = await apiGet('/exams');
+    exams = (r?.data || []).filter(e=>e.status==='APPROVED');
+    const sel = document.getElementById('fExam');
+    exams.forEach(e=> sel.add(new Option(e.name, e.id)));
+  }catch(e){}
+}
+
+async function loadCalendar(){
+  document.getElementById('calTitle').textContent = MONTHS[curMonth-1] + ' ' + curYear;
+  const classId = document.getElementById('classFilter').value;
+  let url = `/schedules/calendar?year=${curYear}&month=${curMonth}`;
+  if(classId) url += `&classId=${classId}`;
+  try{
+    const r = await apiGet(url);
+    calEvents = r?.data || [];
+  }catch(e){ calEvents = []; }
+  renderCalendar();
+}
+
+// ── Calendar render ────────────────────────────────────────────
+function renderCalendar(){
+  const grid = document.getElementById('calGrid');
+  while(grid.children.length > 7) grid.removeChild(grid.lastChild);
+
+  const firstDay = new Date(curYear, curMonth-1, 1);
+  let startDow = firstDay.getDay() || 7;
+  const daysInMonth = new Date(curYear, curMonth, 0).getDate();
+  const today = new Date();
+
+  for(let i = 1; i < startDow; i++){
+    const prev = new Date(curYear, curMonth-1, 1 - (startDow - i));
+    grid.appendChild(makeCell(prev, true));
+  }
+  for(let d = 1; d <= daysInMonth; d++){
+    const date = new Date(curYear, curMonth-1, d);
+    const isToday = date.toDateString() === today.toDateString();
+    grid.appendChild(makeCell(date, false, isToday));
+  }
+  const total = (startDow - 1) + daysInMonth;
+  const trailing = total % 7 === 0 ? 0 : 7 - (total % 7);
+  for(let i = 1; i <= trailing; i++){
+    const next = new Date(curYear, curMonth, i);
+    grid.appendChild(makeCell(next, true));
+  }
+}
+
+function makeCell(date, otherMonth, isToday){
+  const iso = fmtDate(date);
+  const cell = document.createElement('div');
+  cell.className = 'cal-cell' + (otherMonth?' other-month':'') + (isToday?' today':'');
+  cell.dataset.date = iso;
+
+  const dn = document.createElement('div');
+  dn.className = 'cal-date';
+  dn.textContent = date.getDate();
+  cell.appendChild(dn);
+
+  const dayEvs = calEvents.filter(e => e.startAt && e.startAt.startsWith(iso));
+  dayEvs.slice(0,3).forEach(ev => cell.appendChild(makePill(ev)));
+  if(dayEvs.length > 3){
+    const more = document.createElement('div');
+    more.className = 'more-pill';
+    more.textContent = `+${dayEvs.length-3} more`;
+    cell.appendChild(more);
+  }
+
+  cell.addEventListener('click', e => {
+    if(e.target.classList.contains('event-pill') || e.target.closest('.event-pill')) return;
+    openAddModal(iso);
+  });
+
+  cell.addEventListener('dragover', e => { e.preventDefault(); cell.classList.add('drag-over'); });
+  cell.addEventListener('dragleave', () => cell.classList.remove('drag-over'));
+  cell.addEventListener('drop', e => {
+    e.preventDefault(); cell.classList.remove('drag-over');
+    const id = e.dataTransfer.getData('text/plain');
+    const ev = calEvents.find(x => x.id === id);
+    if(!ev) return;
+    const newDate = cell.dataset.date;
+    if(ev.startAt && ev.startAt.startsWith(newDate)){ statusMsg('Already on this day.'); return; }
+    if(ev.seriesId){
+      pendingMove = {id: ev.id, seriesId: ev.seriesId, oldDate: ev.startAt?.slice(0,10), newDate};
+      document.getElementById('moveModalDesc').textContent =
+        `Moving "${esc(ev.title)}" from ${fmtDisplay(ev.startAt?.slice(0,10))} to ${fmtDisplay(newDate)}. What would you like to update?`;
+      document.getElementById('moveModalOverlay').classList.add('show');
+    } else {
+      doMove(ev.id, newDate, 'THIS');
+    }
+  });
+
+  return cell;
+}
+
+function makePill(ev){
+  const pill = document.createElement('div');
+  pill.className = 'event-pill';
+  pill.style.background = TYPE_COLOR[ev.scheduleType] || 'var(--c-exam)';
+  pill.dataset.id = ev.id;
+  pill.draggable = true;
+  pill.innerHTML = esc(ev.title || '').slice(0,22) + (ev.seriesId ? '<span class="pill-recur">↻</span>' : '');
+
+  pill.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('text/plain', ev.id);
+    e.dataTransfer.effectAllowed = 'move';
+    pill.classList.add('dragging');
+  });
+  pill.addEventListener('dragend', () => pill.classList.remove('dragging'));
+
+  pill.addEventListener('contextmenu', e => {
+    e.preventDefault(); e.stopPropagation();
+    ctxEvent = ev;
+    showCtxMenu(e.clientX, e.clientY, ev);
+  });
+  return pill;
+}
+
+// ── Context menu ───────────────────────────────────────────────
+function showCtxMenu(x, y, ev){
+  const m = document.getElementById('ctxMenu');
+  document.getElementById('ctxSeriesItem').style.display = ev.seriesId ? 'flex' : 'none';
+  m.style.left = x + 'px'; m.style.top = y + 'px';
+  m.classList.add('show');
+}
+function hideCtxMenu(){ document.getElementById('ctxMenu').classList.remove('show'); }
+async function ctxEdit(){
+  hideCtxMenu();
+  if(!ctxEvent) return;
+  openAddModal(null, ctxEvent);
+}
+function ctxViewSeries(){
+  hideCtxMenu();
+  if(ctxEvent?.seriesId) window.open(`/teacher/schedules.html?series=${ctxEvent.seriesId}`, '_self');
+}
+
+// ── Drag-drop move ─────────────────────────────────────────────
+async function doMove(id, newDate, applyTo){
+  try{
+    const r = await apiPut('/schedules/' + id + '/move', {newDate, applyTo});
+    if(r?.status !== 'success'){ showToast(r?.message||'Move failed','error'); return; }
+    showToast('Event moved');
+    statusMsg('Moved to ' + fmtDisplay(newDate));
+    loadCalendar();
+  }catch(e){ showToast('Move failed','error'); }
+}
+function closeMoveModal(){ document.getElementById('moveModalOverlay').classList.remove('show'); pendingMove=null; }
+async function confirmMove(){
+  if(!pendingMove) return;
+  const {id: moveId, newDate: moveDate} = pendingMove;
+  const scope = document.querySelector('input[name="moveScope"]:checked')?.value || 'THIS';
+  closeMoveModal();
+  await doMove(moveId, moveDate, scope);
+}
+document.querySelectorAll('input[name="moveScope"]').forEach(r=>{
+  r.addEventListener('change', ()=>{
+    document.querySelectorAll('.s-opt').forEach(o=>o.classList.remove('sel'));
+    r.closest('.s-opt').classList.add('sel');
+  });
+});
+
+// ── Add/Edit Modal ─────────────────────────────────────────────
+let editEventId = null;
+
+function openAddModal(date, existingEvent){
+  editEventId = existingEvent?.id || null;
+  document.getElementById('modalTitle').textContent = existingEvent ? 'Edit Event' : 'Add Event';
+  document.getElementById('saveEventBtn').textContent = existingEvent ? 'Save changes' : 'Create event';
+  document.getElementById('bookingTabs').style.display = existingEvent ? 'none' : 'flex';
+  setBookingMode('single', document.querySelector('.booking-tab'));
+
+  if(existingEvent){
+    const typeBtn = document.querySelector(`.type-pill[data-t="${existingEvent.scheduleType||'EXAM'}"]`);
+    if(typeBtn) selectType(typeBtn);
+    document.getElementById('fTitle').value = existingEvent.title || '';
+    document.getElementById('fClass').value = existingEvent.classId || '';
+    document.getElementById('fExam').value = existingEvent.examId || '';
+    if(existingEvent.startAt){
+      document.getElementById('fDate').value = existingEvent.startAt.slice(0,10);
+      document.getElementById('fTime').value = existingEvent.startAt.slice(11,16);
+    }
+  } else if(date){
+    document.getElementById('fDate').value = date;
+    document.getElementById('fRangeFrom').value = date;
+    document.getElementById('fRangeTo').value = date;
+    document.getElementById('fRecurStart').value = date;
+  }
+
+  document.getElementById('addModalOverlay').classList.add('show');
+}
+function closeAddModal(){ document.getElementById('addModalOverlay').classList.remove('show'); editEventId=null; }
+
+function setBookingMode(mode, btn){
+  bookingMode = mode;
+  document.querySelectorAll('.booking-tab').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  document.getElementById('modeSingle').style.display = mode==='single' ? 'block' : 'none';
+  document.getElementById('modeRange').style.display = mode==='range' ? 'block' : 'none';
+  document.getElementById('modeRecurring').style.display = mode==='recurring' ? 'block' : 'none';
+}
+
+function selectType(btn){
+  document.querySelectorAll('.type-pill').forEach(p=>p.className='type-pill');
+  const t = btn.dataset.t;
+  btn.classList.add('sel-'+t.toLowerCase());
+  selEventType = t;
+  document.getElementById('examGroup').style.display = t==='EXAM' ? 'block' : 'none';
+  document.getElementById('titleGroup').style.display = t!=='EXAM' ? 'block' : 'none';
+  document.getElementById('examExtras').style.display = t==='EXAM' ? 'block' : 'none';
+}
+
+function toggleDow(btn){
+  btn.classList.toggle('active');
+  updateRecurringPreview();
+}
+
+function getSelectedDows(){
+  return [...document.querySelectorAll('.day-pill.active')].map(b=>parseInt(b.dataset.dow));
+}
+
+function updateRangePreview(){
+  const from = document.getElementById('fRangeFrom').value;
+  const to = document.getElementById('fRangeTo').value;
+  const el = document.getElementById('rangePreview');
+  if(!from || !to || from > to){ el.innerHTML='Select valid date range.'; return; }
+  let d = new Date(from+'T12:00'), e = new Date(to+'T12:00'), count=0;
+  const lines = [];
+  while(d <= e){ lines.push(fmtDisplay(fmtDate(d))); d.setDate(d.getDate()+1); count++; if(count>30) break; }
+  el.innerHTML = `<div class="pv-count">${count} daily session${count!==1?'s':''} will be created</div>`
+    + lines.slice(0,8).map(x=>`<div class="pv-date">▸ ${x}</div>`).join('')
+    + (count>8 ? `<div class="pv-date" style="color:var(--small)">… and ${count-8} more</div>` : '');
+}
+
+function updateRecurringPreview(){
+  const from = document.getElementById('fRecurStart').value;
+  const to = document.getElementById('fRecurEnd').value;
+  const freq = document.getElementById('fFreq').value;
+  const dows = getSelectedDows();
+  const el = document.getElementById('recurPreview');
+  if(!from || !to || from > to){ el.innerHTML='Select dates and frequency to see preview.'; return; }
+  const dates = buildPreviewDates(from, to, freq, new Set(dows));
+  el.innerHTML = `<div class="pv-count">${dates.length} session${dates.length!==1?'s':''} will be created</div>`
+    + dates.slice(0,8).map(x=>`<div class="pv-date">▸ ${fmtDisplay(x)}</div>`).join('')
+    + (dates.length>8 ? `<div class="pv-date" style="color:var(--small)">… and ${dates.length-8} more</div>` : '');
+}
+
+document.getElementById('fFreq').addEventListener('change', ()=>{
+  const f = document.getElementById('fFreq').value;
+  document.getElementById('dowGroup').style.display = f==='MONTHLY' ? 'none' : 'block';
+  updateRecurringPreview();
+});
+
+function buildPreviewDates(start, end, freq, selDows){
+  const dates=[];
+  let d = new Date(start+'T12:00');
+  const e = new Date(end+'T12:00');
+  while(d <= e){
+    const dow = d.getDay()===0?7:d.getDay();
+    if(freq==='MONTHLY'){
+      dates.push(fmtDate(d)); d.setMonth(d.getMonth()+1);
+    } else if(freq==='FORTNIGHTLY'){
+      if(selDows.size===0||selDows.has(dow)) dates.push(fmtDate(d));
+      d.setDate(d.getDate() + ((selDows.size===0||selDows.has(dow))?14:1));
+    } else {
+      if(selDows.size===0||selDows.has(dow)) dates.push(fmtDate(d));
+      d.setDate(d.getDate()+1);
+    }
+  }
+  return dates;
+}
+
+async function saveEvent(){
+  if(editEventId) { await updateExistingEvent(); return; }
+
+  const type = selEventType;
+  const classId = document.getElementById('fClass').value || null;
+
+  if(bookingMode === 'single'){
+    const date = document.getElementById('fDate').value;
+    const time = document.getElementById('fTime').value;
+    const dur = parseInt(document.getElementById('fDuration').value) || 60;
+    if(!date||!time){ showToast('Date and time required','error'); return; }
+    const startAt = date+'T'+time+':00Z';
+    const endAt = addMinutes(startAt, dur);
+
+    if(type === 'EXAM'){
+      const examId = document.getElementById('fExam').value;
+      if(!examId){ showToast('Select an exam','error'); return; }
+      const maxAttempts = parseInt(document.getElementById('fMaxAttempts').value)||1;
+      const showResults = document.getElementById('fShowResults').checked;
+      const instructions = document.getElementById('fInstructions').value||null;
+      const body = {examId, classId, startAt, endAt, maxAttempts, showResultsImmediately:showResults, instructions};
+      const r = await apiPost('/schedules', body);
+      if(r?.status==='success'){ showToast('Exam scheduled'); closeAddModal(); loadCalendar(); }
+      else showToast(r?.message||'Failed','error');
+    } else {
+      const title = document.getElementById('fTitle').value.trim();
+      if(!title){ showToast('Title required','error'); return; }
+      const r = await apiPost('/schedules/class-event', {scheduleType:type, title, classId, startAt, endAt});
+      if(r?.status==='success'){ showToast('Event created'); closeAddModal(); loadCalendar(); }
+      else showToast(r?.message||'Failed','error');
+    }
+  } else if(bookingMode === 'range'){
+    const fromDate = document.getElementById('fRangeFrom').value;
+    const toDate = document.getElementById('fRangeTo').value;
+    if(!fromDate || !toDate){ showToast('Start and end dates required','error'); return; }
+    if(fromDate > toDate){ showToast('End date must be on or after start date','error'); return; }
+    const title = type==='EXAM' ? (exams.find(e=>e.id===document.getElementById('fExam').value)?.name||'Exam') : document.getElementById('fTitle').value.trim();
+    if(!title){ showToast('Title required','error'); return; }
+    try{
+      const body = {
+        scheduleType: type, title, classId,
+        fromDate, toDate,
+        startTime: document.getElementById('fRangeTime').value,
+        durationMinutes: parseInt(document.getElementById('fRangeDuration').value)||60
+      };
+      const r = await apiPost('/schedules/range', body);
+      if(r?.status==='success'){ showToast(`Created ${r.data.created} sessions`); closeAddModal(); loadCalendar(); }
+      else showToast(r?.message||'Failed','error');
+    }catch(e){ showToast('Request failed','error'); }
+  } else if(bookingMode === 'recurring'){
+    const seriesStart = document.getElementById('fRecurStart').value;
+    const seriesEnd = document.getElementById('fRecurEnd').value;
+    if(!seriesStart || !seriesEnd){ showToast('Start and end dates required','error'); return; }
+    if(seriesStart > seriesEnd){ showToast('End date must be on or after start date','error'); return; }
+    const title = type==='EXAM' ? (exams.find(e=>e.id===document.getElementById('fExam').value)?.name||'Exam') : document.getElementById('fTitle').value.trim();
+    if(!title){ showToast('Title required','error'); return; }
+    try{
+      const freq = document.getElementById('fFreq').value;
+      const dows = getSelectedDows().join(',');
+      const body = {
+        scheduleType: type, title, classId,
+        recurrenceType: freq,
+        recurrenceDays: dows || null,
+        seriesStart, seriesEnd,
+        startTime: document.getElementById('fRecurTime').value,
+        durationMinutes: parseInt(document.getElementById('fRecurDuration').value)||60
+      };
+      const r = await apiPost('/schedules/recurring', body);
+      if(r?.status==='success'){ showToast(`Created ${r.data.created} sessions`); closeAddModal(); loadCalendar(); }
+      else showToast(r?.message||'Failed','error');
+    }catch(e){ showToast('Request failed','error'); }
+  }
+}
+
+async function updateExistingEvent(){
+  const type = selEventType;
+  const classId = document.getElementById('fClass').value || null;
+  const date = document.getElementById('fDate').value;
+  const time = document.getElementById('fTime').value;
+  const dur = parseInt(document.getElementById('fDuration').value)||60;
+  if(!date||!time){ showToast('Date and time required','error'); return; }
+  const startAt = date+'T'+time+':00Z';
+  const endAt = addMinutes(startAt, dur);
+
+  if(type==='EXAM'){
+    const examId = document.getElementById('fExam').value;
+    if(!examId){ showToast('Select an exam','error'); return; }
+    const body = {examId, classId, startAt, endAt,
+      maxAttempts: parseInt(document.getElementById('fMaxAttempts').value)||1,
+      showResultsImmediately: document.getElementById('fShowResults').checked,
+      instructions: document.getElementById('fInstructions').value||null};
+    const r = await apiPut('/schedules/'+editEventId, body);
+    if(r?.status==='success'){ showToast('Saved'); closeAddModal(); loadCalendar(); }
+    else showToast(r?.message||'Failed','error');
+  } else {
+    const title = document.getElementById('fTitle').value.trim();
+    if(!title){ showToast('Title required','error'); return; }
+    const r = await apiPut('/schedules/'+editEventId+'/class-event', {scheduleType:type, title, classId, startAt, endAt});
+    if(r?.status==='success'){ showToast('Saved'); closeAddModal(); loadCalendar(); }
+    else showToast(r?.message||'Failed','error');
+  }
+}
+
+// ── Utility ────────────────────────────────────────────────────
+function fmtDate(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function fmtDisplay(iso){ if(!iso)return''; const p=iso.split('-'); return `${p[2]}/${p[1]}/${p[0]}`; }
+function addMinutes(isoStr, mins){
+  const d = new Date(isoStr); d.setMinutes(d.getMinutes()+mins);
+  return d.toISOString().replace('.000Z','Z');
+}
+
+// ── Init ───────────────────────────────────────────────────────
+selectType(document.querySelector('.type-pill[data-t="EXAM"]'));
+loadClasses();
+loadExams();
+loadCalendar();
+</script>
+</body>
+</html>

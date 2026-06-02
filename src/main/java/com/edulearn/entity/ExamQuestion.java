@@ -30,7 +30,8 @@ public class ExamQuestion {
     @Column(name = "marks_override")
     private Short marksOverride;
 
-    @Column(name = "partial_marking")
+    @Builder.Default
+    @Column(name = "partial_marking", nullable = false)
     private Boolean partialMarking = false;
 
     @CreationTimestamp

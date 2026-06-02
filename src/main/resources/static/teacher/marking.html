@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EduLearn — Marking</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --nav:#0f5940;--nav-hover:rgba(255,255,255,0.1);--nav-active:rgba(255,255,255,0.18);
+  --accent:#1a8a5a;--accent-light:#e4f5ee;
+  --blue:#2563a8;--blue-light:#e8f0fc;
+  --amber:#92400e;--amber-light:#fef3c7;
+  --red:#991b1b;--red-light:#fee2e2;
+  --surface:#ffffff;--bg:#f4f6fa;--border:#e2e6ee;
+  --text:#1a1f2e;--muted:#6b7385;--small:#9399a8;
+  --radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);display:flex;height:100vh;overflow:hidden;}
+nav{width:220px;background:var(--nav);display:flex;flex-direction:column;flex-shrink:0;height:100vh;}
+.nav-brand{display:flex;align-items:center;gap:10px;padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.nav-brand svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.8;}
+.nav-brand-name{font-family:'DM Serif Display',serif;font-size:17px;color:#fff;line-height:1;}
+.nav-brand-sub{font-size:10px;color:rgba(255,255,255,0.4);margin-top:1px;}
+.nav-section{padding:14px 14px 4px;font-size:10px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.3);}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 14px;margin:1px 8px;border-radius:9px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.65);border:none;background:transparent;width:calc(100% - 16px);text-align:left;font-family:'DM Sans',sans-serif;transition:background 0.15s,color 0.15s;text-decoration:none;}
+.nav-item svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;flex-shrink:0;}
+.nav-item:hover{background:var(--nav-hover);color:#fff;}
+.nav-item.active{background:var(--nav-active);color:#fff;font-weight:500;}
+.nav-badge{margin-left:auto;background:rgba(255,255,255,0.18);color:#fff;font-size:10px;padding:1px 7px;border-radius:999px;font-weight:600;}
+.nav-badge.warn{background:rgba(250,204,21,0.25);color:#fde68a;}
+.nav-scroll{flex:1;overflow-y:auto;}
+.nav-scroll::-webkit-scrollbar{width:3px;}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;}
+.breadcrumb{font-size:13px;color:var(--muted);}
+.breadcrumb b{color:var(--text);font-weight:500;}
+.topbar-right{display:flex;align-items:center;gap:6px;}
+.tb-icon-btn{width:36px;height:36px;border-radius:9px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);position:relative;transition:background 0.15s,color 0.15s;}
+.tb-icon-btn:hover{background:var(--bg);color:var(--text);}
+.tb-icon-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;}
+.notif-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;background:#ef4444;border-radius:50%;border:1.5px solid #fff;display:none;}
+.tb-divider{width:1px;height:24px;background:var(--border);margin:0 4px;}
+.user-pill{display:flex;align-items:center;gap:8px;padding:5px 10px 5px 6px;border-radius:999px;border:1px solid var(--border);background:var(--surface);cursor:pointer;position:relative;}
+.user-pill:hover{background:var(--bg);}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;}
+.user-pill-name{font-size:13px;font-weight:500;color:var(--text);}
+.user-pill-role{font-size:10px;color:var(--muted);}
+.user-pill-chevron{width:14px;height:14px;fill:none;stroke:var(--small);stroke-width:2;flex-shrink:0;transition:transform 0.15s;}
+.user-pill.open .user-pill-chevron{transform:rotate(180deg);}
+.dropdown{position:absolute;top:calc(100% + 8px);right:0;width:220px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,0.1);z-index:999;display:none;overflow:hidden;}
+.dropdown.show{display:block;}
+.dd-header{padding:12px 14px;border-bottom:1px solid var(--border);}
+.dd-name{font-size:13px;font-weight:600;color:var(--text);}
+.dd-role-chip{display:inline-flex;font-size:10px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--accent-light);color:var(--accent);margin-top:6px;}
+.dd-item{display:flex;align-items:center;gap:10px;padding:9px 14px;font-size:13px;color:var(--text);cursor:pointer;transition:background 0.12s;}
+.dd-item:hover{background:var(--bg);}
+.dd-item svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;color:var(--muted);}
+.dd-sep{height:1px;background:var(--border);margin:4px 0;}
+.dd-item.danger{color:var(--red);}
+.dd-item.danger svg{color:var(--red);}
+.dd-item.danger:hover{background:var(--red-light);}
+.notif-panel{position:absolute;top:calc(100% + 8px);right:0;width:320px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,0.1);z-index:999;display:none;}
+.notif-panel.show{display:block;}
+.np-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border);}
+.np-title{font-size:13px;font-weight:600;color:var(--text);}
+.np-clear{font-size:11px;color:var(--accent);cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;}
+.np-item{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.12s;}
+.np-item:last-child{border-bottom:none;}
+.np-item:hover{background:var(--bg);}
+.np-item.unread{background:#f4faf7;}
+.np-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:4px;}
+.np-dot.read{background:transparent;border:1.5px solid var(--border);}
+.np-msg{font-size:12px;color:var(--text);line-height:1.5;}
+.np-time{font-size:11px;color:var(--small);margin-top:2px;}
+.np-empty{padding:20px;text-align:center;font-size:12px;color:var(--small);}
+/* ── Dual-panel layout ── */
+.content{flex:1;overflow:hidden;display:flex;}
+.queue-panel{width:360px;flex-shrink:0;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;background:var(--surface);}
+.queue-header{padding:16px;border-bottom:1px solid var(--border);}
+.queue-title{font-size:13px;font-weight:600;color:var(--text);}
+.queue-sub{font-size:11px;color:var(--small);margin-top:2px;}
+.queue-list{flex:1;overflow-y:auto;}
+.queue-list::-webkit-scrollbar{width:3px;}
+.queue-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+.q-row{padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.12s;}
+.q-row:hover,.q-row.active{background:var(--accent-light);}
+.q-row:last-child{border-bottom:none;}
+.qr-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;}
+.qr-name{font-size:13px;font-weight:500;color:var(--text);}
+.qr-exam{font-size:11px;color:var(--muted);margin-top:2px;}
+.qr-sub{font-size:11px;color:var(--small);margin-top:2px;}
+.qr-progress{display:flex;align-items:center;gap:6px;margin-top:6px;}
+.prog-bar{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width 0.3s;}
+.prog-txt{font-size:10px;color:var(--muted);white-space:nowrap;}
+.mark-badge{font-size:10px;font-weight:600;padding:1px 7px;border-radius:999px;background:var(--amber-light);color:var(--amber);flex-shrink:0;}
+.mark-badge.done{background:var(--accent-light);color:var(--accent);}
+/* ── Marking screen ── */
+.marking-area{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.marking-empty{flex:1;display:flex;align-items:center;justify-content:center;color:var(--small);font-size:13px;flex-direction:column;gap:8px;}
+.marking-empty svg{width:40px;height:40px;stroke:var(--border);fill:none;stroke-width:1.5;}
+.marking-header{padding:16px 24px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.mh-title{font-size:15px;font-weight:600;color:var(--text);}
+.mh-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.marking-nav{display:flex;align-items:center;gap:8px;padding:10px 24px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--bg);}
+.q-nav-btn{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border);background:var(--surface);font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:center;}
+.q-nav-btn.needs-mark{border-color:var(--amber);color:var(--amber);background:var(--amber-light);}
+.q-nav-btn.marked{border-color:var(--accent);color:var(--accent);background:var(--accent-light);}
+.q-nav-btn.current{background:var(--accent);color:#fff;border-color:var(--accent);}
+.q-nav-btn.auto{background:var(--bg);color:var(--small);opacity:0.6;}
+.marking-body{flex:1;overflow-y:auto;padding:24px;}
+.marking-body::-webkit-scrollbar{width:4px;}
+.marking-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+.m-section{margin-bottom:20px;}
+.m-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:8px;}
+.m-text{font-size:14px;color:var(--text);line-height:1.6;}
+.answer-box{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:13px;color:var(--text);line-height:1.6;white-space:pre-wrap;}
+.scheme-box{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:14px;font-size:12px;color:#78350f;line-height:1.6;}
+.mark-input-row{display:flex;align-items:center;gap:12px;padding:12px 0;}
+.mark-input{width:70px;height:40px;text-align:center;font-size:18px;font-weight:600;font-family:'DM Sans',sans-serif;border:2px solid var(--border);border-radius:9px;outline:none;color:var(--text);}
+.mark-input:focus{border-color:var(--accent);}
+.mark-of{font-size:14px;color:var(--muted);}
+.feedback-input{flex:1;height:40px;padding:0 12px;font-size:13px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:9px;outline:none;color:var(--text);}
+.feedback-input:focus{border-color:var(--accent);}
+.marking-footer{padding:12px 24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;background:var(--surface);}
+.mf-info{font-size:12px;color:var(--muted);}
+.mf-actions{display:flex;gap:8px;}
+.btn-primary{padding:8px 18px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;border:none;border-radius:9px;cursor:pointer;color:#fff;background:var(--accent);transition:opacity 0.15s;}
+.btn-primary:hover{opacity:0.88;}
+.btn-secondary{padding:8px 14px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;border:1.5px solid var(--border);border-radius:9px;background:transparent;color:var(--muted);cursor:pointer;}
+.btn-secondary:hover{background:var(--bg);}
+.btn-success{padding:8px 18px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;border:none;border-radius:9px;cursor:pointer;color:#fff;background:var(--accent);}
+.btn-success:hover{opacity:0.88;}
+.empty-msg{text-align:center;padding:24px;color:var(--small);font-size:13px;}
+.toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;color:#fff;z-index:9999;display:none;}
+.toast.success{background:#0f5940;}
+.toast.error{background:#991b1b;}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-brand">
+    <svg viewBox="0 0 24 24"><path d="M12 3L2 8l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+    <div><div class="nav-brand-name">EduLearn</div><div class="nav-brand-sub">Teacher Portal</div></div>
+  </div>
+  <div class="nav-scroll">
+    <div class="nav-section">Main</div>
+    <a class="nav-item" href="/teacher/dashboard.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+    <a class="nav-item" href="/teacher/courses.html"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Courses</a>
+    <a class="nav-item" href="/teacher/submissions.html"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Submissions</a>
+    <div class="nav-section">Assess</div>
+    <a class="nav-item" href="/teacher/exams.html"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Exams</a>
+    <a class="nav-item" href="/teacher/schedules.html"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedules</a>
+    <a class="nav-item active" href="/teacher/marking.html"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Marking<span class="nav-badge warn" id="markingBadge" style="display:none"></span></a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <div class="breadcrumb">Teacher <b>Marking</b></div>
+    <div class="topbar-right">
+      <div style="position:relative">
+        <button class="tb-icon-btn" id="notifBtn" onclick="toggleNotif()"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot" id="notifDot"></span></button>
+        <div class="notif-panel" id="notifPanel"><div class="np-header"><span class="np-title">Notifications</span><button class="np-clear" onclick="clearNotifs()">Mark all read</button></div><div id="notifList"><div class="np-empty">Loading…</div></div></div>
+      </div>
+      <div class="tb-divider"></div>
+      <div style="position:relative">
+        <div class="user-pill" id="userPill" onclick="toggleUserMenu()">
+          <div class="user-avatar" id="topbarAvatar">TC</div>
+          <div><div class="user-pill-name" id="topbarName">Teacher</div><div class="user-pill-role">Teacher</div></div>
+          <svg class="user-pill-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="dropdown" id="userDropdown">
+          <div class="dd-header"><div class="dd-name" id="ddName">Teacher</div><div class="dd-role-chip">Teacher</div></div>
+          <div class="dd-sep"></div>
+          <div class="dd-item danger" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- Queue panel -->
+    <div class="queue-panel">
+      <div class="queue-header">
+        <div class="queue-title">Marking Queue</div>
+        <div class="queue-sub" id="queueSub">Loading…</div>
+      </div>
+      <div class="queue-list" id="queueList"><div class="empty-msg">Loading…</div></div>
+    </div>
+
+    <!-- Marking area -->
+    <div class="marking-area" id="markingArea">
+      <div class="marking-empty" id="markingEmpty">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Select an attempt from the queue to start marking</span>
+      </div>
+
+      <div id="markingScreen" style="display:none;flex:1;flex-direction:column;overflow:hidden">
+        <div class="marking-header">
+          <div class="mh-title" id="mhTitle">—</div>
+          <div class="mh-sub" id="mhSub">—</div>
+        </div>
+        <div class="marking-nav" id="markingNav"></div>
+        <div class="marking-body" id="markingBody"></div>
+        <div class="marking-footer">
+          <span class="mf-info" id="mfInfo">—</span>
+          <div class="mf-actions">
+            <button class="btn-secondary" id="prevQBtn" onclick="navigateQ(-1)">← Prev</button>
+            <button class="btn-primary" id="saveMarkBtn" onclick="saveMark()">Save &amp; Next →</button>
+            <button class="btn-success" id="finaliseBtn" onclick="finaliseAttempt()" style="display:none">Finalise Marking ✓</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="/js/auth.js"></script>
+<script src="/js/api.js"></script>
+<script>
+if (!requireAuth('TEACHER')) {}
+const uname=getName();
+document.getElementById('topbarName').textContent=uname||'Teacher';
+document.getElementById('ddName').textContent=uname||'Teacher';
+document.getElementById('topbarAvatar').textContent=(uname||'TC').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+
+function toggleUserMenu(){document.getElementById('userDropdown').classList.toggle('show');document.getElementById('userPill').classList.toggle('open');}
+function toggleNotif(){document.getElementById('notifPanel').classList.toggle('show');if(document.getElementById('notifPanel').classList.contains('show'))loadNotifs();}
+document.addEventListener('click',e=>{if(!e.target.closest('#userPill')&&!e.target.closest('#userDropdown')){document.getElementById('userDropdown').classList.remove('show');document.getElementById('userPill').classList.remove('open');}if(!e.target.closest('#notifBtn')&&!e.target.closest('#notifPanel'))document.getElementById('notifPanel').classList.remove('show');});
+async function loadNotifs(){const list=document.getElementById('notifList');try{const r=await apiGet('/notifications?page=0&size=10');const items=r?.data||[];list.innerHTML=items.length?items.map(n=>`<div class="np-item ${n.read?'':'unread'}"><span class="np-dot ${n.read?'read':''}"></span><div><div class="np-msg">${esc(n.message)}</div><div class="np-time">${timeAgo(n.createdAt)}</div></div></div>`).join(''):'<div class="np-empty">No notifications</div>';}catch(e){list.innerHTML='<div class="np-empty">Could not load</div>';}}
+async function clearNotifs(){try{await apiPut('/notifications/read-all',{});}catch(e){}}
+
+function showToast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';setTimeout(()=>{t.style.display='none';},3000);}
+function esc(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function timeAgo(iso){if(!iso)return '';const diff=Date.now()-new Date(iso).getTime();const m=Math.floor(diff/60000);if(m<1)return 'just now';if(m<60)return m+' min ago';const h=Math.floor(m/60);if(h<24)return h+' hr ago';return Math.floor(h/24)+' d ago';}
+function fmtDateTime(iso){if(!iso)return '—';return new Date(iso).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});}
+
+let queueItems=[];
+let currentAttempt=null;
+let currentAnswers=[];
+let currentAnswerIdx=0;
+
+const MANUAL_TYPES=['SHORT_ANSWER','ESSAY','CODE','IMAGE_BASED'];
+
+async function loadQueue(){
+  const list=document.getElementById('queueList');
+  const sub=document.getElementById('queueSub');
+  try{
+    const r=await apiGet('/marking/queue?page=0&size=50');
+    queueItems=r?.data||[];
+    const pending=queueItems.filter(a=>a.pendingCount>0).length;
+    sub.textContent=pending+' attempt'+(pending!==1?'s':'')+' need marking';
+    const badge=document.getElementById('markingBadge');
+    if(pending>0){badge.textContent=pending;badge.style.display='';}else{badge.style.display='none';}
+    if(!queueItems.length){list.innerHTML='<div class="empty-msg">No attempts pending marking</div>';return;}
+    list.innerHTML=queueItems.map((a,i)=>{
+      const total=a.manualCount||0;
+      const marked=total-(a.pendingCount||0);
+      const pct=total>0?Math.round(marked/total*100):100;
+      const done=a.pendingCount===0;
+      return `<div class="q-row ${done?'':'active-row'}" onclick="loadAttemptForMarking('${a.attemptId||a.id}',${i})">
+        <div class="qr-top"><div class="qr-name">${esc(a.studentName||'Student')}</div><span class="mark-badge ${done?'done':''}">${done?'Done':a.pendingCount+' left'}</span></div>
+        <div class="qr-exam">${esc(a.examName||'—')}</div>
+        <div class="qr-sub">Submitted ${fmtDateTime(a.submittedAt)}</div>
+        <div class="qr-progress"><div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div><span class="prog-txt">${marked}/${total} marked</span></div>
+      </div>`;
+    }).join('');
+  }catch(e){list.innerHTML='<div class="empty-msg">Could not load queue</div>';sub.textContent='Error loading';}
+}
+
+async function loadAttemptForMarking(attemptId,queueIdx){
+  document.querySelectorAll('.q-row').forEach((r,i)=>{r.classList.toggle('active',i===queueIdx);});
+  try{
+    const r=await apiGet('/marking/attempts/'+attemptId);
+    currentAttempt=r?.data||{};
+    currentAttempt.attemptId=attemptId;
+    const allAnswers=(currentAttempt.answers||[]);
+    currentAnswers=allAnswers.filter(a=>MANUAL_TYPES.includes(a.questionType));
+    if(!currentAnswers.length){showToast('No manual answers in this attempt','error');return;}
+    const firstUnmarked=currentAnswers.findIndex(a=>a.marksAwarded==null);
+    currentAnswerIdx=firstUnmarked>=0?firstUnmarked:0;
+    document.getElementById('markingEmpty').style.display='none';
+    const ms=document.getElementById('markingScreen');ms.style.display='flex';ms.style.flexDirection='column';
+    document.getElementById('mhTitle').textContent=(currentAttempt.studentName||'Student')+' — '+(currentAttempt.examName||'Exam');
+    const autoMarked=(currentAttempt.answers||[]).filter(a=>!MANUAL_TYPES.includes(a.questionType)&&a.marksAwarded!=null).length;
+    document.getElementById('mhSub').textContent='Auto-marked: '+autoMarked+' questions  |  Manual: '+currentAnswers.length+' questions';
+    renderNav();
+    renderCurrentAnswer();
+  }catch(e){showToast('Could not load attempt','error');}
+}
+
+function renderNav(){
+  document.getElementById('markingNav').innerHTML=currentAnswers.map((a,i)=>{
+    const marked=a.marksAwarded!=null;
+    let cls='q-nav-btn';
+    if(i===currentAnswerIdx)cls+=' current';
+    else if(marked)cls+=' marked';
+    else cls+=' needs-mark';
+    return `<button class="${cls}" onclick="jumpToAnswer(${i})" title="Q${i+1}: ${a.questionType}">${i+1}</button>`;
+  }).join('');
+}
+
+function jumpToAnswer(idx){currentAnswerIdx=idx;renderNav();renderCurrentAnswer();}
+
+function renderCurrentAnswer(){
+  const a=currentAnswers[currentAnswerIdx];
+  if(!a)return;
+  const maxMarks=a.marksOverride||a.marks||0;
+  const body=document.getElementById('markingBody');
+  let answerHtml='';
+  if(a.questionType==='TRUE_FALSE')answerHtml=`<div class="answer-box">${a.booleanAnswer!=null?(a.booleanAnswer?'True':'False'):'(no answer)'}</div>`;
+  else if(a.selectedOptionIds?.length)answerHtml=`<div class="answer-box">${esc(a.selectedOptionTexts?.join(', ')||a.selectedOptionIds.join(', '))}</div>`;
+  else answerHtml=`<div class="answer-box">${esc(a.textAnswer||'(no answer)')}</div>`;
+  body.innerHTML=`
+    <div class="m-section">
+      <div class="m-label">Question ${currentAnswerIdx+1} of ${currentAnswers.length} &nbsp;·&nbsp; ${esc(a.questionType||'')} &nbsp;·&nbsp; Max ${maxMarks} mark${maxMarks!==1?'s':''}</div>
+      <div class="m-text">${esc(a.questionText||a.question?.text||'Question text not available')}</div>
+    </div>
+    <div class="m-section">
+      <div class="m-label">Student's Answer</div>
+      ${answerHtml}
+    </div>
+    ${a.markingScheme?`<div class="m-section"><div class="m-label">Marking Scheme</div><div class="scheme-box">${esc(a.markingScheme)}</div></div>`:''}
+    ${a.answerExplanation?`<div class="m-section"><div class="m-label">Model Answer</div><div class="scheme-box">${esc(a.answerExplanation)}</div></div>`:''}
+    <div class="m-section">
+      <div class="m-label">Award Marks</div>
+      <div class="mark-input-row">
+        <input class="mark-input" id="marksInput" type="number" min="0" max="${maxMarks}" value="${a.marksAwarded!=null?a.marksAwarded:''}" placeholder="0"/>
+        <span class="mark-of">/ ${maxMarks}</span>
+        <input class="feedback-input" id="feedbackInput" placeholder="Feedback for student (optional)…" value="${esc(a.markerNote||'')}"/>
+      </div>
+    </div>`;
+  document.getElementById('mfInfo').textContent=`Question ${currentAnswerIdx+1} of ${currentAnswers.length}`;
+  const allMarked=currentAnswers.every(a=>a.marksAwarded!=null);
+  document.getElementById('finaliseBtn').style.display=allMarked?'':'none';
+  document.getElementById('saveMarkBtn').style.display=allMarked?'none':'';
+}
+
+async function saveMark(){
+  const marksInput=document.getElementById('marksInput');
+  const feedbackInput=document.getElementById('feedbackInput');
+  if(!marksInput||marksInput.value===''){showToast('Enter marks first','error');return;}
+  const marks=parseInt(marksInput.value);
+  const a=currentAnswers[currentAnswerIdx];
+  const maxMarks=a.marksOverride||a.marks||0;
+  if(marks<0||marks>maxMarks){showToast('Marks must be 0–'+maxMarks,'error');return;}
+  try{
+    await apiPut(`/marking/attempts/${currentAttempt.attemptId}/answers/${a.id}`,{marksAwarded:marks,markerNote:feedbackInput.value});
+    a.marksAwarded=marks;a.markerNote=feedbackInput.value;
+    const next=currentAnswers.findIndex((x,i)=>i>currentAnswerIdx&&x.marksAwarded==null);
+    if(next>=0)currentAnswerIdx=next;
+    renderNav();renderCurrentAnswer();
+    const allMarked=currentAnswers.every(x=>x.marksAwarded!=null);
+    if(allMarked)showToast('All manual answers marked! Click Finalise to complete.');
+    else showToast('Saved');
+  }catch(e){showToast('Save failed','error');}
+}
+
+function navigateQ(dir){
+  const n=currentAnswerIdx+dir;
+  if(n<0||n>=currentAnswers.length)return;
+  currentAnswerIdx=n;renderNav();renderCurrentAnswer();
+}
+
+async function finaliseAttempt(){
+  if(!confirm('Finalise marking? This will calculate the final score.'))return;
+  try{
+    await apiPost(`/marking/attempts/${currentAttempt.attemptId}/finalise`,{});
+    showToast('Marking finalised');
+    loadQueue();
+    document.getElementById('markingEmpty').style.display='flex';
+    document.getElementById('markingScreen').style.display='none';
+    currentAttempt=null;currentAnswers=[];
+  }catch(e){showToast('Finalise failed','error');}
+}
+
+loadQueue();
+</script>
+</body>
+</html>

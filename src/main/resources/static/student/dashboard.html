@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EduLearn — Student Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --nav:#0e7490;--nav-hover:rgba(255,255,255,0.1);--nav-active:rgba(255,255,255,0.18);
+  --accent:#0891b2;--accent-light:#ecfeff;
+  --green:#0f5940;--green-light:#e4f5ee;
+  --amber:#92400e;--amber-light:#fef3c7;
+  --red:#991b1b;--red-light:#fee2e2;
+  --surface:#ffffff;--bg:#f4f6fa;--border:#e2e6ee;
+  --text:#1a1f2e;--muted:#6b7385;--small:#9399a8;
+  --radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);display:flex;height:100vh;overflow:hidden;}
+nav{width:210px;background:var(--nav);display:flex;flex-direction:column;flex-shrink:0;height:100vh;}
+.nav-brand{display:flex;align-items:center;gap:10px;padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.nav-brand svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.8;}
+.nav-brand-name{font-family:'DM Serif Display',serif;font-size:17px;color:#fff;line-height:1;}
+.nav-brand-sub{font-size:10px;color:rgba(255,255,255,0.4);margin-top:1px;}
+.nav-section{padding:14px 14px 4px;font-size:10px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.3);}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 14px;margin:1px 8px;border-radius:9px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.65);border:none;background:transparent;width:calc(100% - 16px);text-align:left;font-family:'DM Sans',sans-serif;transition:background 0.15s,color 0.15s;text-decoration:none;}
+.nav-item svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;flex-shrink:0;}
+.nav-item:hover{background:var(--nav-hover);color:#fff;}
+.nav-item.active{background:var(--nav-active);color:#fff;font-weight:500;}
+.nav-badge{margin-left:auto;background:rgba(255,255,255,0.18);color:#fff;font-size:10px;padding:1px 7px;border-radius:999px;font-weight:600;}
+.nav-badge.warn{background:rgba(250,204,21,0.25);color:#fde68a;}
+.nav-scroll{flex:1;overflow-y:auto;}
+.nav-bottom{padding:12px;border-top:1px solid rgba(255,255,255,0.08);}
+.nav-user{display:flex;align-items:center;gap:8px;padding:8px;border-radius:9px;cursor:pointer;}
+.nav-user:hover{background:var(--nav-hover);}
+.nav-avatar{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;flex-shrink:0;}
+.nav-user-name{font-size:12px;font-weight:500;color:#fff;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.nav-user-role{font-size:10px;color:rgba(255,255,255,0.5);}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;}
+.breadcrumb{font-size:13px;color:var(--muted);}
+.breadcrumb b{color:var(--text);font-weight:500;}
+.topbar-right{display:flex;align-items:center;gap:6px;}
+.tb-icon-btn{width:36px;height:36px;border-radius:9px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);position:relative;}
+.tb-icon-btn:hover{background:var(--bg);}
+.tb-icon-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;}
+.notif-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;background:#ef4444;border-radius:50%;border:1.5px solid #fff;display:none;}
+.tb-divider{width:1px;height:24px;background:var(--border);margin:0 4px;}
+.user-pill{display:flex;align-items:center;gap:8px;padding:5px 10px 5px 6px;border-radius:999px;border:1px solid var(--border);background:var(--surface);cursor:pointer;position:relative;}
+.user-pill:hover{background:var(--bg);}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;}
+.user-pill-name{font-size:13px;font-weight:500;color:var(--text);}
+.user-pill-role{font-size:10px;color:var(--muted);}
+.user-pill-chevron{width:14px;height:14px;fill:none;stroke:var(--small);stroke-width:2;flex-shrink:0;transition:transform 0.15s;}
+.user-pill.open .user-pill-chevron{transform:rotate(180deg);}
+.dropdown{position:absolute;top:calc(100% + 8px);right:0;width:220px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,0.1);z-index:999;display:none;overflow:hidden;}
+.dropdown.show{display:block;}
+.dd-header{padding:12px 14px;border-bottom:1px solid var(--border);}
+.dd-name{font-size:13px;font-weight:600;color:var(--text);}
+.dd-email{font-size:11px;color:var(--small);margin-top:1px;}
+.dd-role-chip{display:inline-flex;font-size:10px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--accent-light);color:var(--accent);margin-top:6px;}
+.dd-item{display:flex;align-items:center;gap:10px;padding:9px 14px;font-size:13px;color:var(--text);cursor:pointer;transition:background 0.12s;}
+.dd-item:hover{background:var(--bg);}
+.dd-item svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;color:var(--muted);}
+.dd-sep{height:1px;background:var(--border);margin:4px 0;}
+.dd-item.danger{color:var(--red);}
+.dd-item.danger svg{color:var(--red);}
+.dd-item.danger:hover{background:var(--red-light);}
+.notif-panel{position:absolute;top:calc(100% + 8px);right:0;width:320px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,0.1);z-index:999;display:none;}
+.notif-panel.show{display:block;}
+.np-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border);}
+.np-title{font-size:13px;font-weight:600;color:var(--text);}
+.np-clear{font-size:11px;color:var(--accent);cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;}
+.np-item{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.12s;}
+.np-item:last-child{border-bottom:none;}
+.np-item:hover{background:var(--bg);}
+.np-item.unread{background:#f0fdfe;}
+.np-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:4px;}
+.np-dot.read{background:transparent;border:1.5px solid var(--border);}
+.np-msg{font-size:12px;color:var(--text);line-height:1.5;}
+.np-time{font-size:11px;color:var(--small);margin-top:2px;}
+.np-empty{padding:20px;text-align:center;font-size:12px;color:var(--small);}
+.content{flex:1;overflow-y:auto;padding:28px;}
+.content::-webkit-scrollbar{width:4px;}
+.content::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+.greeting{font-family:'DM Serif Display',serif;font-size:22px;color:var(--text);margin-bottom:3px;}
+.greeting-sub{font-size:13px;color:var(--muted);margin-bottom:24px;}
+/* Stat cards */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;position:relative;overflow:hidden;}
+.stat-bar{position:absolute;bottom:0;left:0;right:0;height:3px;}
+.stat-lbl{font-size:11px;font-weight:600;letter-spacing:0.3px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;}
+.stat-val{font-size:28px;font-weight:700;color:var(--text);line-height:1;}
+.stat-sub{font-size:12px;color:var(--small);margin-top:5px;}
+/* Sections */
+.section-hd{font-size:14px;font-weight:600;color:var(--text);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+.section-link{font-size:12px;font-weight:500;color:var(--accent);text-decoration:none;}
+.section-link:hover{text-decoration:underline;}
+/* Exam cards */
+.exam-cards{display:flex;flex-direction:column;gap:10px;margin-bottom:28px;}
+.exam-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;display:flex;align-items:center;gap:14px;transition:box-shadow 0.15s;}
+.exam-card:hover{box-shadow:0 2px 12px rgba(0,0,0,0.06);}
+.exam-icon{width:38px;height:38px;border-radius:10px;background:var(--accent-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.exam-icon svg{width:18px;height:18px;fill:none;stroke:var(--accent);stroke-width:1.8;}
+.exam-info{flex:1;min-width:0;}
+.exam-name{font-size:14px;font-weight:600;color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.exam-meta{font-size:12px;color:var(--muted);margin-top:3px;}
+.exam-meta span{margin-right:12px;}
+.exam-countdown{font-size:11px;font-weight:600;color:var(--amber);}
+.exam-actions{flex-shrink:0;}
+.btn-start{padding:7px 16px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:600;border:none;border-radius:8px;cursor:pointer;color:#fff;background:var(--accent);white-space:nowrap;}
+.btn-start:hover{opacity:0.88;}
+.btn-start:disabled{opacity:0.4;cursor:not-allowed;background:var(--muted);}
+/* Results table */
+.results-list{display:flex;flex-direction:column;gap:8px;margin-bottom:28px;}
+.result-row{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;display:flex;align-items:center;gap:12px;}
+.result-score{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;}
+.result-score.pass{background:var(--green-light);color:var(--green);}
+.result-score.fail{background:var(--red-light);color:var(--red);}
+.result-score.pending{background:var(--amber-light);color:var(--amber);}
+.result-info{flex:1;min-width:0;}
+.result-name{font-size:13px;font-weight:500;color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.result-date{font-size:11px;color:var(--small);margin-top:2px;}
+.result-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:999px;flex-shrink:0;}
+.rb-pass{background:var(--green-light);color:var(--green);}
+.rb-fail{background:var(--red-light);color:var(--red);}
+.rb-pending{background:var(--amber-light);color:var(--amber);}
+.empty-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;text-align:center;color:var(--small);font-size:13px;margin-bottom:28px;}
+.toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;color:#fff;z-index:9999;display:none;}
+.toast.success{background:var(--green);}
+.toast.error{background:var(--red);}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-brand">
+    <svg viewBox="0 0 24 24"><path d="M12 3L2 8l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+    <div><div class="nav-brand-name">EduLearn</div><div class="nav-brand-sub">Student Portal</div></div>
+  </div>
+  <div class="nav-scroll">
+    <div class="nav-section">My Learning</div>
+    <a class="nav-item active" href="/student/dashboard.html">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
+    </a>
+    <a class="nav-item" href="/student/exams.html">
+      <svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>My Exams<span class="nav-badge" id="activeExamBadge" style="display:none"></span>
+    </a>
+    <a class="nav-item" href="/student/results.html">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>My Results
+    </a>
+    <div class="nav-section">Communication</div>
+    <a class="nav-item" href="/student/announcements.html">
+      <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Announcements
+    </a>
+  </div>
+  <div class="nav-bottom">
+    <div class="nav-user" onclick="toggleUserMenu()">
+      <div class="nav-avatar" id="navAvatar">ST</div>
+      <div style="min-width:0"><div class="nav-user-name" id="navName">Student</div><div class="nav-user-role">Student</div></div>
+    </div>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <div class="breadcrumb">Student <b>Dashboard</b></div>
+    <div class="topbar-right">
+      <div style="position:relative">
+        <button class="tb-icon-btn" id="notifBtn" onclick="toggleNotif()">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="notif-dot" id="notifDot"></span>
+        </button>
+        <div class="notif-panel" id="notifPanel">
+          <div class="np-header"><span class="np-title">Notifications</span><button class="np-clear" onclick="clearNotifs()">Mark all read</button></div>
+          <div id="notifList"><div class="np-empty">Loading…</div></div>
+        </div>
+      </div>
+      <div class="tb-divider"></div>
+      <div style="position:relative">
+        <div class="user-pill" id="userPill" onclick="toggleUserMenu()">
+          <div class="user-avatar" id="topbarAvatar">ST</div>
+          <div><div class="user-pill-name" id="topbarName">Student</div><div class="user-pill-role">Student</div></div>
+          <svg class="user-pill-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="dropdown" id="userDropdown">
+          <div class="dd-header"><div class="dd-name" id="ddName">Student</div><div class="dd-email" id="ddEmail"></div><div class="dd-role-chip">Student</div></div>
+          <div class="dd-sep"></div>
+          <div class="dd-item danger" onclick="logout()">
+            <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="greeting" id="greetingText">Good morning</div>
+    <div class="greeting-sub">Here's your study activity today.</div>
+
+    <!-- Stat cards -->
+    <div class="stats">
+      <div class="stat"><div class="stat-lbl">Available Exams</div><div class="stat-val" id="statAvailable">—</div><div class="stat-sub">ready to start</div><div class="stat-bar" style="background:var(--accent)"></div></div>
+      <div class="stat"><div class="stat-lbl">Exams Taken</div><div class="stat-val" id="statTaken">—</div><div class="stat-sub">submitted attempts</div><div class="stat-bar" style="background:var(--green)"></div></div>
+      <div class="stat"><div class="stat-lbl">Average Score</div><div class="stat-val" id="statAvg">—</div><div class="stat-sub">across all attempts</div><div class="stat-bar" style="background:#8b5cf6"></div></div>
+      <div class="stat"><div class="stat-lbl">Pass Rate</div><div class="stat-val" id="statPass">—</div><div class="stat-sub">of marked exams</div><div class="stat-bar" style="background:#f59e0b"></div></div>
+    </div>
+
+    <!-- Upcoming exams -->
+    <div class="section-hd">
+      <span>Upcoming &amp; Active Exams</span>
+      <a class="section-link" href="/student/exams.html">View all →</a>
+    </div>
+    <div id="upcomingSection"><div class="empty-card">Loading…</div></div>
+
+    <!-- Recent results -->
+    <div class="section-hd">
+      <span>Recent Results</span>
+      <a class="section-link" href="/student/results.html">View all →</a>
+    </div>
+    <div id="resultsSection"><div class="empty-card">Loading…</div></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="/js/auth.js"></script>
+<script src="/js/api.js"></script>
+<script>
+if (!requireAuth('STUDENT')) { throw new Error('auth'); }
+const uname = getName();
+const initials = (uname||'ST').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+document.getElementById('topbarName').textContent = uname||'Student';
+document.getElementById('ddName').textContent = uname||'Student';
+document.getElementById('topbarAvatar').textContent = initials;
+document.getElementById('navAvatar').textContent = initials;
+document.getElementById('navName').textContent = uname||'Student';
+
+// Greeting based on time
+const hr = new Date().getHours();
+const greet = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
+document.getElementById('greetingText').textContent = greet + (uname ? ', ' + uname.split(' ')[0] : '');
+
+function toggleUserMenu(){document.getElementById('userDropdown').classList.toggle('show');document.getElementById('userPill').classList.toggle('open');}
+function toggleNotif(){document.getElementById('notifPanel').classList.toggle('show');if(document.getElementById('notifPanel').classList.contains('show'))loadNotifs();}
+document.addEventListener('click',e=>{if(!e.target.closest('#userPill')&&!e.target.closest('#userDropdown')){document.getElementById('userDropdown').classList.remove('show');document.getElementById('userPill').classList.remove('open');}if(!e.target.closest('#notifBtn')&&!e.target.closest('#notifPanel'))document.getElementById('notifPanel').classList.remove('show');});
+async function loadNotifs(){const list=document.getElementById('notifList');try{const r=await apiGet('/notifications?page=0&size=10');const items=r?.data||[];list.innerHTML=items.length?items.map(n=>`<div class="np-item ${n.read?'':'unread'}"><span class="np-dot ${n.read?'read':''}"></span><div><div class="np-msg">${esc(n.message)}</div><div class="np-time">${timeAgo(n.createdAt)}</div></div></div>`).join(''):'<div class="np-empty">No notifications</div>';}catch(e){list.innerHTML='<div class="np-empty">Could not load</div>';}}
+async function clearNotifs(){try{await apiPut('/notifications/read-all',{});}catch(e){}}
+
+function showToast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';setTimeout(()=>{t.style.display='none';},3000);}
+function esc(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function timeAgo(iso){if(!iso)return '';const diff=Date.now()-new Date(iso).getTime();const m=Math.floor(diff/60000);if(m<1)return 'just now';if(m<60)return m+' min ago';const h=Math.floor(m/60);if(h<24)return h+' hr ago';return Math.floor(h/24)+' d ago';}
+function fmtDate(iso){if(!iso)return '—';return new Date(iso).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}
+function fmtDateTime(iso){if(!iso)return '—';return new Date(iso).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});}
+
+async function loadDashboard(){
+  try{
+    const r = await apiGet('/student/dashboard');
+    const d = r?.data || {};
+    document.getElementById('statAvailable').textContent = d.availableExams ?? '0';
+    document.getElementById('statTaken').textContent = d.examsTaken ?? '0';
+    document.getElementById('statAvg').textContent = d.averagePercentage != null ? Math.round(d.averagePercentage) + '%' : '—';
+    document.getElementById('statPass').textContent = d.passRate != null ? Math.round(d.passRate) + '%' : '—';
+
+    // Active exam badge
+    if(d.availableExams > 0){const b=document.getElementById('activeExamBadge');b.textContent=d.availableExams;b.style.display='';}
+
+    renderUpcoming(d.upcomingExams || []);
+    renderResults(d.recentResults || []);
+  }catch(e){
+    document.getElementById('upcomingSection').innerHTML = '<div class="empty-card">Could not load dashboard data</div>';
+    document.getElementById('resultsSection').innerHTML = '<div class="empty-card">Could not load results</div>';
+  }
+}
+
+function renderUpcoming(exams){
+  const sec = document.getElementById('upcomingSection');
+  if(!exams.length){sec.innerHTML='<div class="empty-card">No upcoming exams — enjoy your break!</div>';return;}
+  sec.innerHTML = '<div class="exam-cards">' + exams.map(e=>{
+    const now = new Date();
+    const start = new Date(e.startAt);
+    const end = new Date(e.endAt);
+    const isActive = e.scheduleStatus === 'ACTIVE' && now >= start && now <= end;
+    const isInProgress = e.attemptStatus === 'IN_PROGRESS';
+    const canStart = isActive && !isInProgress;
+    const canResume = isInProgress;
+    let actionBtn;
+    if(canResume) actionBtn = `<button class="btn-start" onclick="resumeExam('${e.attemptId}')">Continue →</button>`;
+    else if(canStart) actionBtn = `<button class="btn-start" onclick="startExam('${e.scheduleId}')">Start exam →</button>`;
+    else actionBtn = `<button class="btn-start" disabled>${e.scheduleStatus === 'UPCOMING' ? 'Not started' : 'Closed'}</button>`;
+
+    let meta = `<span>${e.timeLimitMins} min</span><span>${e.questionCount || 0} questions</span>`;
+    if(isActive) meta += `<span class="exam-countdown">● Live now</span>`;
+    else meta += `<span>${fmtDateTime(e.startAt)}</span>`;
+    return `<div class="exam-card">
+      <div class="exam-icon"><svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div>
+      <div class="exam-info"><div class="exam-name">${esc(e.examName)}</div><div class="exam-meta">${meta}</div></div>
+      <div class="exam-actions">${actionBtn}</div>
+    </div>`;
+  }).join('') + '</div>';
+}
+
+function renderResults(results){
+  const sec = document.getElementById('resultsSection');
+  if(!results.length){sec.innerHTML='<div class="empty-card">No results yet — your scores will appear here after you complete an exam.</div>';return;}
+  sec.innerHTML = '<div class="results-list">' + results.map(r=>{
+    const pct = r.percentage != null ? Math.round(r.percentage) : null;
+    const isPassed = r.isPassed;
+    const cls = pct == null ? 'pending' : isPassed ? 'pass' : 'fail';
+    const badge = pct == null ? 'Marking' : isPassed ? '✓ Pass' : '✗ Fail';
+    const badgeCls = pct == null ? 'rb-pending' : isPassed ? 'rb-pass' : 'rb-fail';
+    return `<div class="result-row">
+      <div class="result-score ${cls}">${pct != null ? pct + '%' : '—'}</div>
+      <div class="result-info">
+        <div class="result-name">${esc(r.examName)}</div>
+        <div class="result-date">Submitted ${fmtDate(r.submittedAt)}</div>
+      </div>
+      <span class="result-badge ${badgeCls}">${badge}</span>
+    </div>`;
+  }).join('') + '</div>';
+}
+
+async function startExam(scheduleId){
+  if(!confirm('Ready to start? The timer begins immediately.'))return;
+  try{
+    const r = await apiPost('/student/attempts',{scheduleId});
+    const id = r?.data?.id;
+    if(id){sessionStorage.setItem('currentAttemptId',id);window.location.href='/student/exam.html?attemptId='+id;}
+    else showToast('Could not start exam','error');
+  }catch(e){showToast('Error: '+(e.message||'Could not start'),'error');}
+}
+
+function resumeExam(attemptId){
+  sessionStorage.setItem('currentAttemptId',attemptId);
+  window.location.href='/student/exam.html?attemptId='+attemptId;
+}
+
+loadDashboard();
+</script>
+</body>
+</html>

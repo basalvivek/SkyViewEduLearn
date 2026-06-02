@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EduLearn — Demo Data</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --nav:#1a3a5c;--nav-hover:rgba(255,255,255,0.1);--nav-active:rgba(255,255,255,0.18);
+  --accent:#2563a8;--accent-light:#e8f0fc;
+  --green:#0f5940;--green-light:#e4f5ee;
+  --amber:#92400e;--amber-light:#fef3c7;
+  --purple:#4c1d95;--purple-light:#ede9fe;
+  --red:#991b1b;--red-light:#fee2e2;
+  --teal:#0e7490;--teal-light:#e0f7fa;
+  --surface:#ffffff;--bg:#f4f6fa;--border:#e2e6ee;
+  --text:#1a1f2e;--muted:#6b7385;--small:#9399a8;
+  --radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);display:flex;height:100vh;overflow:hidden;}
+nav{width:220px;background:var(--nav);display:flex;flex-direction:column;flex-shrink:0;height:100vh;}
+.nav-brand{display:flex;align-items:center;gap:10px;padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.nav-brand svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.8;}
+.nav-brand-name{font-family:'DM Serif Display',serif;font-size:17px;color:#fff;line-height:1;}
+.nav-brand-sub{font-size:10px;color:rgba(255,255,255,0.4);margin-top:1px;}
+.nav-section{padding:14px 14px 4px;font-size:10px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:rgba(255,255,255,0.3);}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 14px;margin:1px 8px;border-radius:9px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.65);border:none;background:transparent;width:calc(100% - 16px);text-align:left;font-family:'DM Sans',sans-serif;transition:background 0.15s,color 0.15s;text-decoration:none;}
+.nav-item svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;flex-shrink:0;}
+.nav-item:hover{background:var(--nav-hover);color:#fff;}
+.nav-item.active{background:var(--nav-active);color:#fff;font-weight:500;}
+.nav-scroll{flex:1;overflow-y:auto;}
+.nav-scroll::-webkit-scrollbar{width:3px;}
+.nav-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px;}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;}
+.breadcrumb{font-size:13px;color:var(--muted);}
+.breadcrumb b{color:var(--text);font-weight:500;}
+.topbar-right{display:flex;align-items:center;gap:6px;}
+.tb-icon-btn{width:36px;height:36px;border-radius:9px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);position:relative;transition:background 0.15s,color 0.15s;}
+.tb-icon-btn:hover{background:var(--bg);color:var(--text);}
+.tb-icon-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;}
+.notif-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;background:#ef4444;border-radius:50%;border:1.5px solid #fff;display:none;}
+.tb-divider{width:1px;height:24px;background:var(--border);margin:0 4px;}
+.user-pill{display:flex;align-items:center;gap:8px;padding:5px 10px 5px 6px;border-radius:999px;border:1px solid var(--border);background:var(--surface);cursor:pointer;position:relative;transition:background 0.15s;}
+.user-pill:hover{background:var(--bg);}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;}
+.user-pill-name{font-size:13px;font-weight:500;color:var(--text);}
+.user-pill-role{font-size:10px;color:var(--muted);}
+.user-pill-chevron{width:14px;height:14px;fill:none;stroke:var(--small);stroke-width:2;flex-shrink:0;transition:transform 0.15s;}
+.user-pill.open .user-pill-chevron{transform:rotate(180deg);}
+.dropdown{position:absolute;top:calc(100% + 8px);right:0;width:220px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,0.1);z-index:999;display:none;overflow:hidden;}
+.dropdown.show{display:block;}
+.dd-header{padding:12px 14px;border-bottom:1px solid var(--border);}
+.dd-name{font-size:13px;font-weight:600;color:var(--text);}
+.dd-email{font-size:11px;color:var(--small);margin-top:1px;}
+.dd-role-chip{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--accent-light);color:var(--accent);margin-top:6px;}
+.dd-item{display:flex;align-items:center;gap:10px;padding:9px 14px;font-size:13px;color:var(--text);cursor:pointer;transition:background 0.12s;}
+.dd-item:hover{background:var(--bg);}
+.dd-item svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;color:var(--muted);}
+.dd-sep{height:1px;background:var(--border);margin:4px 0;}
+.dd-item.danger{color:var(--red);}
+.dd-item.danger svg{color:var(--red);}
+.dd-item.danger:hover{background:var(--red-light);}
+.notif-panel{position:absolute;top:calc(100% + 8px);right:0;width:320px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,0.1);z-index:999;display:none;}
+.notif-panel.show{display:block;}
+.np-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border);}
+.np-title{font-size:13px;font-weight:600;color:var(--text);}
+.np-clear{font-size:11px;color:var(--accent);cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;}
+.np-item{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.12s;}
+.np-item:last-child{border-bottom:none;}
+.np-item:hover{background:var(--bg);}
+.np-item.unread{background:#fafbff;}
+.np-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:4px;}
+.np-dot.read{background:transparent;border:1.5px solid var(--border);}
+.np-msg{font-size:12px;color:var(--text);line-height:1.5;}
+.np-time{font-size:11px;color:var(--small);margin-top:2px;}
+.np-empty{padding:20px;text-align:center;font-size:12px;color:var(--small);}
+.content{flex:1;overflow-y:auto;padding:28px 32px;}
+.content::-webkit-scrollbar{width:4px;}
+.content::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+.page-title{font-family:'DM Serif Display',serif;font-size:22px;color:var(--text);margin-bottom:4px;}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:24px;}
+.info-banner{background:var(--teal-light);border:1px solid #b2ebf2;border-radius:var(--radius);padding:14px 18px;margin-bottom:24px;display:flex;gap:12px;align-items:flex-start;}
+.info-banner svg{flex-shrink:0;width:18px;height:18px;stroke:var(--teal);fill:none;stroke-width:1.8;margin-top:1px;}
+.info-banner-body{font-size:13px;color:#0e4f5e;line-height:1.6;}
+.info-banner-body b{font-weight:600;}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-bottom:28px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;transition:background 0.3s,border-color 0.3s,transform 0.3s;}
+.stat-val{font-size:26px;font-weight:700;color:var(--accent);line-height:1;}
+.stat-lbl{font-size:11px;font-weight:500;color:var(--muted);margin-top:4px;text-transform:capitalize;}
+@keyframes statFlash{0%{background:var(--surface);border-color:var(--border);transform:scale(1)}40%{background:var(--accent-light);border-color:var(--accent);transform:scale(1.04)}100%{background:var(--surface);border-color:var(--border);transform:scale(1)}}
+.stat-flash{animation:statFlash 0.7s ease-out;}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:20px;}
+.section-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.section-sub{font-size:12px;color:var(--muted);margin-bottom:18px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px;}
+.form-group{display:flex;flex-direction:column;gap:4px;}
+.form-label{font-size:12px;font-weight:500;color:var(--muted);}
+.form-label span{font-size:10px;color:var(--small);font-weight:400;}
+.form-input{height:38px;padding:0 12px;font-size:14px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);outline:none;transition:border-color 0.15s;}
+.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,168,0.08);}
+.calc-preview{background:var(--accent-light);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.calc-preview svg{width:14px;height:14px;stroke:var(--accent);fill:none;stroke-width:2;flex-shrink:0;}
+.btn-generate{padding:10px 24px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;border:none;border-radius:9px;cursor:pointer;color:#fff;background:var(--accent);display:flex;align-items:center;gap:8px;transition:opacity 0.15s;}
+.btn-generate:hover{opacity:0.88;}
+.btn-generate:disabled{opacity:0.5;cursor:not-allowed;}
+.btn-generate svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2;}
+.result-card{border-radius:var(--radius);padding:16px 20px;margin-top:16px;display:none;}
+.result-card.success{background:var(--green-light);border:1px solid #6ee7b7;}
+.result-card.error{background:var(--red-light);border:1px solid #fca5a5;}
+.result-title{font-size:13px;font-weight:600;margin-bottom:8px;}
+.result-title.success{color:var(--green);}
+.result-title.error{color:var(--red);}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;}
+.result-item{background:rgba(255,255,255,0.6);border-radius:8px;padding:10px 12px;text-align:center;}
+.result-item-val{font-size:20px;font-weight:700;color:var(--green);}
+.result-item-lbl{font-size:11px;color:var(--muted);margin-top:2px;text-transform:capitalize;}
+.danger-zone{background:var(--surface);border:1.5px solid #fca5a5;border-radius:var(--radius);padding:22px;margin-bottom:20px;}
+.danger-title{font-size:15px;font-weight:600;color:var(--red);margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.danger-title svg{width:16px;height:16px;stroke:var(--red);fill:none;stroke-width:2;}
+.danger-sub{font-size:12px;color:var(--muted);margin-bottom:16px;}
+.danger-lists{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
+.dl-box{border-radius:8px;padding:12px 14px;}
+.dl-box.delete{background:var(--red-light);}
+.dl-box.keep{background:var(--green-light);}
+.dl-box-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.dl-box.delete .dl-box-title{color:var(--red);}
+.dl-box.keep .dl-box-title{color:var(--green);}
+.dl-list{font-size:12px;color:var(--text);list-style:none;display:flex;flex-direction:column;gap:4px;}
+.dl-list li::before{content:'• ';color:var(--muted);}
+.btn-clear{padding:10px 24px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;border:1.5px solid #fca5a5;border-radius:9px;cursor:pointer;color:var(--red);background:transparent;display:flex;align-items:center;gap:8px;transition:background 0.15s;}
+.btn-clear:hover{background:var(--red-light);}
+.btn-clear:disabled{opacity:0.5;cursor:not-allowed;}
+.btn-clear svg{width:15px;height:15px;stroke:var(--red);fill:none;stroke-width:2;}
+.delete-result{margin-top:12px;display:none;}
+.delete-result table{width:100%;border-collapse:collapse;font-size:12px;}
+.delete-result td{padding:4px 8px;border-bottom:1px solid var(--border);}
+.delete-result td:first-child{color:var(--muted);text-transform:capitalize;}
+.delete-result td:last-child{font-weight:600;text-align:right;color:var(--red);}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spin 0.6s linear infinite;vertical-align:middle;}
+.spinner.dark{border-color:rgba(0,0,0,0.15);border-top-color:var(--red);}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;color:#fff;z-index:9999;display:none;box-shadow:0 4px 16px rgba(0,0,0,0.15);}
+.toast.success{background:#0f5940;}
+.toast.error{background:#991b1b;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <svg viewBox="0 0 24 24"><path d="M12 3L2 8l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+    <div><div class="nav-brand-name">EduLearn</div><div class="nav-brand-sub">Admin Portal</div></div>
+  </div>
+  <div class="nav-scroll">
+    <div class="nav-section">Main</div>
+    <a class="nav-item" href="/admin/dashboard.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+    <a class="nav-item" href="/admin/courses.html"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Courses</a>
+    <a class="nav-item" href="/admin/courses.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Approvals</a>
+    <div class="nav-section">Manage</div>
+    <a class="nav-item" href="/admin/exams.html"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Exams</a>
+    <a class="nav-item" href="/admin/schedules.html"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Schedules</a>
+    <a class="nav-item" href="/admin/students.html"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Students</a>
+    <div class="nav-section">System</div>
+    <a class="nav-item" href="/admin/dashboard.html"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Organisation</a>
+    <a class="nav-item active" href="/admin/demo-data.html"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/></svg>Demo Data</a>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <div class="breadcrumb">Admin <b>Demo Data</b></div>
+    <div class="topbar-right">
+      <div style="position:relative">
+        <button class="tb-icon-btn" id="notifBtn" onclick="toggleNotif()">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="notif-dot" id="notifDot"></span>
+        </button>
+        <div class="notif-panel" id="notifPanel">
+          <div class="np-header"><span class="np-title">Notifications</span><button class="np-clear" onclick="clearNotifs()">Mark all read</button></div>
+          <div id="notifList"><div class="np-empty">Loading…</div></div>
+        </div>
+      </div>
+      <div class="tb-divider"></div>
+      <div style="position:relative">
+        <div class="user-pill" id="userPill" onclick="toggleUserMenu()">
+          <div class="user-avatar" id="topbarAvatar">AD</div>
+          <div><div class="user-pill-name" id="topbarName">Admin</div><div class="user-pill-role">Administrator</div></div>
+          <svg class="user-pill-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="dropdown" id="userDropdown">
+          <div class="dd-header"><div class="dd-name" id="ddName">Admin</div><div class="dd-email" id="ddEmail"></div><div class="dd-role-chip">Administrator</div></div>
+          <div class="dd-sep"></div>
+          <div class="dd-item danger" onclick="logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-title">Demo Data Manager</div>
+    <div class="page-sub">Generate realistic sample content for testing, or wipe all data to start fresh.</div>
+
+    <!-- Info banner -->
+    <div class="info-banner">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <div class="info-banner-body">
+        Generated data follows the full content hierarchy: <b>Category → Subject → Topic → Question</b>.
+        All content is created as <b>APPROVED</b> so it is immediately usable for exam building and scheduling.
+        Questions include a mix of MCQ Single, MCQ Multiple, True/False, Short Answer and Essay types.
+        <br>User accounts and Organisation Settings are <b>never</b> affected by either action.
+      </div>
+    </div>
+
+    <!-- Current stats -->
+    <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px;">Current Database State</div>
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card"><div class="stat-val" id="st-categories">—</div><div class="stat-lbl">Categories</div></div>
+      <div class="stat-card"><div class="stat-val" id="st-subjects">—</div><div class="stat-lbl">Subjects</div></div>
+      <div class="stat-card"><div class="stat-val" id="st-topics">—</div><div class="stat-lbl">Topics</div></div>
+      <div class="stat-card"><div class="stat-val" id="st-questions">—</div><div class="stat-lbl">Questions</div></div>
+      <div class="stat-card"><div class="stat-val" id="st-exams">—</div><div class="stat-lbl">Exams</div></div>
+      <div class="stat-card"><div class="stat-val" id="st-classrooms">—</div><div class="stat-lbl">Classrooms</div></div>
+      <div class="stat-card"><div class="stat-val" id="st-schedules">—</div><div class="stat-lbl">Schedules</div></div>
+    </div>
+
+    <!-- Generate section -->
+    <div class="section">
+      <div class="section-title">Generate Demo Data</div>
+      <div class="section-sub">Specify how much data to create. Each category gets 2–4 subjects automatically based on the year group.</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Number of categories <span>(max 6)</span></label>
+          <input class="form-input" id="numCategories" type="number" value="3" min="1" max="6" oninput="updatePreview()"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Topics per subject <span>(max 10)</span></label>
+          <input class="form-input" id="topicsPerSubject" type="number" value="3" min="1" max="10" oninput="updatePreview()"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Questions per topic <span>(max 20)</span></label>
+          <input class="form-input" id="questionsPerTopic" type="number" value="5" min="1" max="20" oninput="updatePreview()"/>
+        </div>
+      </div>
+
+      <div class="calc-preview" id="calcPreview">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <span id="previewText">Calculating…</span>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="btn-generate" id="btnGenerate" onclick="generateData()">
+          <svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+          Generate Demo Data
+        </button>
+        <span id="genStatus" style="font-size:12px;color:var(--muted)"></span>
+      </div>
+
+      <div class="result-card" id="genResult">
+        <div class="result-title success" id="genResultTitle">Demo data generated successfully</div>
+        <div class="result-grid" id="genResultGrid"></div>
+      </div>
+    </div>
+
+    <!-- Danger zone -->
+    <div class="danger-zone">
+      <div class="danger-title">
+        <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Danger Zone — Clear All Data
+      </div>
+      <div class="danger-sub">This action permanently removes all content from the database. It cannot be undone. User accounts and organisation settings are preserved.</div>
+
+      <div class="danger-lists">
+        <div class="dl-box delete">
+          <div class="dl-box-title">Will be deleted</div>
+          <ul class="dl-list">
+            <li>Categories, Subjects, Topics</li>
+            <li>Questions &amp; Question Options</li>
+            <li>Exams &amp; Exam Questions</li>
+            <li>Classrooms &amp; Schedules</li>
+            <li>Exam Attempts &amp; Answers</li>
+            <li>Notifications &amp; Approval Log</li>
+          </ul>
+        </div>
+        <div class="dl-box keep">
+          <div class="dl-box-title">Will be preserved</div>
+          <ul class="dl-list">
+            <li>All user accounts (Admin, Teacher, Student)</li>
+            <li>Organisation settings &amp; logo</li>
+            <li>Uploaded avatars</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="btn-clear" id="btnClear" onclick="clearData()">
+          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          Delete All Data
+        </button>
+        <span id="clearStatus" style="font-size:12px;color:var(--muted)"></span>
+      </div>
+
+      <div class="delete-result" id="deleteResult">
+        <div style="font-size:12px;font-weight:600;color:var(--red);margin-bottom:8px;">Records deleted per table:</div>
+        <table id="deleteTable"></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="/js/auth.js"></script>
+<script src="/js/api.js"></script>
+<script>
+if (!requireAuth('ADMIN')) {}
+const name = getName();
+document.getElementById('topbarName').textContent = name || 'Admin';
+document.getElementById('ddName').textContent = name || 'Admin';
+const initials = (name||'AD').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+document.getElementById('topbarAvatar').textContent = initials;
+
+function toggleUserMenu(){document.getElementById('userDropdown').classList.toggle('show');document.getElementById('userPill').classList.toggle('open');}
+function toggleNotif(){document.getElementById('notifPanel').classList.toggle('show');if(document.getElementById('notifPanel').classList.contains('show'))loadNotifs();}
+document.addEventListener('click',e=>{if(!e.target.closest('#userPill')&&!e.target.closest('#userDropdown')){document.getElementById('userDropdown').classList.remove('show');document.getElementById('userPill').classList.remove('open');}if(!e.target.closest('#notifBtn')&&!e.target.closest('#notifPanel'))document.getElementById('notifPanel').classList.remove('show');});
+async function loadNotifs(){const list=document.getElementById('notifList');try{const r=await apiGet('/notifications?page=0&size=10');const items=r?.data||[];list.innerHTML=items.length?items.map(n=>`<div class="np-item ${n.read?'':'unread'}"><span class="np-dot ${n.read?'read':''}"></span><div><div class="np-msg">${esc(n.message)}</div><div class="np-time">${timeAgo(n.createdAt)}</div></div></div>`).join(''):'<div class="np-empty">No notifications</div>';}catch(e){list.innerHTML='<div class="np-empty">Could not load</div>';}}
+async function clearNotifs(){try{await apiPut('/notifications/read-all',{});}catch(e){}}
+
+function showToast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';setTimeout(()=>{t.style.display='none';},3500);}
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function timeAgo(iso){if(!iso)return'';const diff=Date.now()-new Date(iso).getTime();const m=Math.floor(diff/60000);if(m<1)return'just now';if(m<60)return m+' min ago';const h=Math.floor(m/60);if(h<24)return h+' hr ago';return Math.floor(h/24)+' d ago';}
+
+// Subject counts per category index (mirrors SUBS in Java)
+const SUBS_COUNT = [2, 3, 3, 4, 4, 3];
+const CAT_NAMES = ['Year 7','Year 8','Year 9','Year 10 (GCSE)','Year 11 (GCSE)','Year 12 (A-Level)'];
+
+function updatePreview() {
+  const cats     = Math.max(1, Math.min(parseInt(document.getElementById('numCategories').value) || 0, 6));
+  const topics   = Math.max(1, Math.min(parseInt(document.getElementById('topicsPerSubject').value) || 0, 10));
+  const qPerTopic = Math.max(1, Math.min(parseInt(document.getElementById('questionsPerTopic').value) || 0, 20));
+
+  let subs = 0;
+  for (let i = 0; i < cats; i++) subs += SUBS_COUNT[i] || 2;
+  const totalTopics = subs * topics;
+  const totalQ = totalTopics * qPerTopic;
+
+  const catList = CAT_NAMES.slice(0, cats).join(', ');
+  document.getElementById('previewText').textContent =
+    `Will create: ${cats} categor${cats===1?'y':'ies'} (${catList}), ${subs} subjects, ${totalTopics} topics, ${totalQ} questions`;
+}
+
+async function loadStats(highlight = false) {
+  try {
+    const r = await apiGet('/admin/demo/stats');
+    const d = r?.data || {};
+    ['categories','subjects','topics','questions','exams','classrooms','schedules'].forEach(k => {
+      const el = document.getElementById('st-' + k);
+      if (!el) return;
+      const card = el.closest('.stat-card');
+      const prev = el.textContent;
+      el.textContent = d[k] ?? '0';
+      if (highlight && String(d[k] ?? '0') !== prev && card) {
+        card.classList.remove('stat-flash');
+        void card.offsetWidth; // force reflow so animation restarts
+        card.classList.add('stat-flash');
+        card.addEventListener('animationend', () => card.classList.remove('stat-flash'), {once: true});
+      }
+    });
+    if (highlight) {
+      document.getElementById('statsRow').scrollIntoView({behavior:'smooth', block:'nearest'});
+    }
+  } catch(e) {}
+}
+
+
+async function generateData() {
+  const cats     = parseInt(document.getElementById('numCategories').value) || 3;
+  const topics   = parseInt(document.getElementById('topicsPerSubject').value) || 3;
+  const qPerTopic = parseInt(document.getElementById('questionsPerTopic').value) || 5;
+
+  if (cats < 1 || topics < 1 || qPerTopic < 1) {
+    showToast('All fields must be at least 1', 'error'); return;
+  }
+
+  const btn = document.getElementById('btnGenerate');
+  const status = document.getElementById('genStatus');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Generating…';
+  status.textContent = 'This may take a few seconds…';
+  document.getElementById('genResult').style.display = 'none';
+
+  try {
+    const r = await apiPost('/admin/demo/generate', {
+      numCategories: cats,
+      topicsPerSubject: topics,
+      questionsPerTopic: qPerTopic,
+    });
+    const d = r?.data || {};
+    const grid = document.getElementById('genResultGrid');
+    grid.innerHTML = Object.entries(d).map(([k, v]) => `
+      <div class="result-item">
+        <div class="result-item-val">${v}</div>
+        <div class="result-item-lbl">${k.replace(/([A-Z])/g,' $1').toLowerCase()}</div>
+      </div>`).join('');
+    document.getElementById('genResult').style.display = 'block';
+    showToast('Demo data generated successfully');
+    await loadStats(true);
+  } catch(e) {
+    showToast('Generation failed — check server logs', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg> Generate Demo Data`;
+    status.textContent = '';
+  }
+}
+
+async function clearData() {
+  const confirmed = confirm(
+    '⚠ Delete ALL content data?\n\n' +
+    'This will permanently remove:\n' +
+    '• Categories, Subjects, Topics, Questions\n' +
+    '• Exams, Schedules, Classrooms\n' +
+    '• Exam Attempts, Answers\n' +
+    '• Notifications, Approval Log\n\n' +
+    'User accounts and Organisation Settings will be preserved.\n\n' +
+    'This cannot be undone. Continue?'
+  );
+  if (!confirmed) return;
+
+  const btn = document.getElementById('btnClear');
+  const status = document.getElementById('clearStatus');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner dark"></span> Deleting…';
+  status.textContent = 'Please wait…';
+  document.getElementById('deleteResult').style.display = 'none';
+
+  try {
+    const r = await apiDelete('/admin/demo/clear');
+    const d = r?.data || {};
+    const rows = Object.entries(d)
+      .filter(([,v]) => v > 0)
+      .map(([k,v]) => `<tr><td>${k.replace(/_/g,' ')}</td><td>${v} row${v!==1?'s':''} deleted</td></tr>`)
+      .join('');
+    document.getElementById('deleteTable').innerHTML = rows || '<tr><td colspan="2" style="color:var(--muted);text-align:center">Nothing to delete — database was already empty</td></tr>';
+    document.getElementById('deleteResult').style.display = 'block';
+    showToast('All data cleared successfully');
+    await loadStats(true);
+  } catch(e) {
+    showToast('Clear failed — check server logs', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:var(--red);fill:none;stroke-width:2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg> Delete All Data`;
+    status.textContent = '';
+  }
+}
+
+updatePreview();
+loadStats();
+</script>
+</body>
+</html>

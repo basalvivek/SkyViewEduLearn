@@ -18,8 +18,11 @@ import com.edulearn.exception.ValidationException;
 import com.edulearn.repository.QuestionRepository;
 import com.edulearn.repository.TopicRepository;
 import com.edulearn.repository.UserRepository;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -174,6 +177,36 @@ public class QuestionService {
         Question q = findById(id);
         approvalService.reject(q, admin, req != null ? req.note() : null);
         return toResponse(questionRepo.save(q));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<QuestionResponse> searchQuestions(ContentStatus status, UUID topicId, UUID subjectId,
+            UUID categoryId, String type, String difficulty, int page, int size) {
+        final QuestionType qType;
+        if (type != null && !type.isBlank()) {
+            QuestionType parsed = null;
+            try { parsed = QuestionType.valueOf(type); } catch (IllegalArgumentException ignored) {}
+            qType = parsed;
+        } else {
+            qType = null;
+        }
+        Specification<Question> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.get("status"), status));
+            if (topicId != null)
+                predicates.add(cb.equal(root.get("topic").get("id"), topicId));
+            if (subjectId != null)
+                predicates.add(cb.equal(root.get("topic").get("subject").get("id"), subjectId));
+            if (categoryId != null)
+                predicates.add(cb.equal(root.get("topic").get("subject").get("category").get("id"), categoryId));
+            if (qType != null)
+                predicates.add(cb.equal(root.get("questionType"), qType));
+            if (difficulty != null && !difficulty.isBlank())
+                predicates.add(cb.equal(cb.lower(root.get("topic").get("difficulty")), difficulty.toLowerCase()));
+            if (query != null) query.orderBy(cb.desc(root.get("createdAt")));
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+        return questionRepo.findAll(spec, PageRequest.of(page, size)).map(this::toResponse);
     }
 
     @Transactional(readOnly = true)

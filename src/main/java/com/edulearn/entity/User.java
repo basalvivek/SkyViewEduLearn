@@ -59,6 +59,9 @@ public class User {
     @Column(name = "last_login_at")
     private OffsetDateTime lastLoginAt;
 
+    @Column(name = "must_change_password", nullable = false)
+    private boolean mustChangePassword = false;
+
     @Column(name = "is_active", nullable = false)
     private boolean isActive = true;
 

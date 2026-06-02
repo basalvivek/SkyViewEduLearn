@@ -9,51 +9,57 @@
 :root{
   --admin:#1a3a5c;--admin-mid:#2563a8;--admin-light:#e8f0fc;
   --teacher:#0f5940;--teacher-mid:#1a8a5a;--teacher-light:#e4f5ee;
+  --student:#0e7490;--student-mid:#0891b2;--student-light:#ecfeff;
   --surface:#ffffff;--bg:#f4f6fa;--border:#e2e6ee;
   --text:#1a1f2e;--muted:#6b7385;--small:#9399a8;
   --radius:12px;--transition:0.22s cubic-bezier(.4,0,.2,1);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
-.card{display:flex;width:860px;min-height:540px;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.12);}
-.panel-left{width:42%;padding:48px 40px;display:flex;flex-direction:column;justify-content:space-between;transition:background var(--transition);}
+.card{display:flex;width:900px;min-height:560px;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.12);}
+.panel-left{width:40%;padding:44px 38px;display:flex;flex-direction:column;justify-content:space-between;transition:background var(--transition);}
 .panel-left.admin-theme{background:linear-gradient(145deg,var(--admin) 0%,var(--admin-mid) 100%);}
 .panel-left.teacher-theme{background:linear-gradient(145deg,var(--teacher) 0%,var(--teacher-mid) 100%);}
-.brand{display:flex;align-items:center;gap:10px;margin-bottom:40px;}
-.brand-icon{width:40px;height:40px;background:rgba(255,255,255,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;}
-.brand-icon svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.8;}
-.brand-name{font-family:'DM Serif Display',serif;font-size:22px;color:#fff;letter-spacing:0.3px;}
-.panel-title{font-family:'DM Serif Display',serif;font-size:28px;color:#fff;line-height:1.3;margin-bottom:12px;}
-.panel-sub{font-size:14px;color:rgba(255,255,255,0.65);line-height:1.7;margin-bottom:32px;}
-.feature-list{display:flex;flex-direction:column;gap:14px;}
-.feature{display:flex;align-items:flex-start;gap:12px;}
-.feature-dot{width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
-.feature-dot svg{width:14px;height:14px;fill:none;stroke:rgba(255,255,255,0.85);stroke-width:2;}
-.feature-text{font-size:13px;color:rgba(255,255,255,0.72);line-height:1.5;}
-.panel-footer{font-size:11px;color:rgba(255,255,255,0.35);margin-top:auto;padding-top:32px;}
-.panel-right{flex:1;background:var(--surface);padding:48px 44px;display:flex;flex-direction:column;justify-content:center;}
-.role-toggle{display:flex;gap:8px;margin-bottom:32px;background:var(--bg);border-radius:10px;padding:4px;}
-.role-btn{flex:1;padding:8px 0;font-size:13px;font-weight:500;border:none;border-radius:8px;cursor:pointer;background:transparent;color:var(--muted);transition:all var(--transition);font-family:'DM Sans',sans-serif;}
+.panel-left.student-theme{background:linear-gradient(145deg,var(--student) 0%,var(--student-mid) 100%);}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:36px;}
+.brand-icon{width:38px;height:38px;background:rgba(255,255,255,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.brand-icon svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:1.8;}
+.brand-name{font-family:'DM Serif Display',serif;font-size:20px;color:#fff;letter-spacing:0.3px;}
+.panel-title{font-family:'DM Serif Display',serif;font-size:26px;color:#fff;line-height:1.3;margin-bottom:10px;}
+.panel-sub{font-size:13px;color:rgba(255,255,255,0.65);line-height:1.7;margin-bottom:28px;}
+.feature-list{display:flex;flex-direction:column;gap:12px;}
+.feature{display:flex;align-items:flex-start;gap:11px;}
+.feature-dot{width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.feature-dot svg{width:13px;height:13px;fill:none;stroke:rgba(255,255,255,0.85);stroke-width:2;}
+.feature-text{font-size:12px;color:rgba(255,255,255,0.72);line-height:1.5;}
+.panel-footer{font-size:11px;color:rgba(255,255,255,0.35);margin-top:auto;padding-top:28px;}
+.panel-right{flex:1;background:var(--surface);padding:44px 40px;display:flex;flex-direction:column;justify-content:center;}
+.role-toggle{display:flex;gap:6px;margin-bottom:28px;background:var(--bg);border-radius:10px;padding:4px;}
+.role-btn{flex:1;padding:7px 4px;font-size:12px;font-weight:500;border:none;border-radius:8px;cursor:pointer;background:transparent;color:var(--muted);transition:all var(--transition);font-family:'DM Sans',sans-serif;white-space:nowrap;}
 .role-btn.active-admin{background:var(--admin);color:#fff;box-shadow:0 2px 8px rgba(26,58,92,0.25);}
 .role-btn.active-teacher{background:var(--teacher);color:#fff;box-shadow:0 2px 8px rgba(15,89,64,0.25);}
-.role-chip{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;letter-spacing:0.4px;text-transform:uppercase;padding:4px 12px;border-radius:999px;margin-bottom:16px;}
+.role-btn.active-student{background:var(--student);color:#fff;box-shadow:0 2px 8px rgba(14,116,144,0.25);}
+.role-chip{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;letter-spacing:0.4px;text-transform:uppercase;padding:4px 12px;border-radius:999px;margin-bottom:14px;}
 .role-chip.admin{background:var(--admin-light);color:var(--admin);}
 .role-chip.teacher{background:var(--teacher-light);color:var(--teacher);}
+.role-chip.student{background:var(--student-light);color:var(--student);}
 .role-chip svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;}
-.form-heading{font-family:'DM Serif Display',serif;font-size:24px;color:var(--text);margin-bottom:4px;}
-.form-sub{font-size:13px;color:var(--muted);margin-bottom:28px;}
-.form-group{margin-bottom:16px;}
-.form-label{font-size:12px;font-weight:500;color:var(--muted);display:block;margin-bottom:6px;letter-spacing:0.2px;}
+.form-heading{font-family:'DM Serif Display',serif;font-size:22px;color:var(--text);margin-bottom:4px;}
+.form-sub{font-size:13px;color:var(--muted);margin-bottom:24px;}
+.form-group{margin-bottom:14px;}
+.form-label{font-size:12px;font-weight:500;color:var(--muted);display:block;margin-bottom:5px;letter-spacing:0.2px;}
 .input-wrap{position:relative;}
 .input-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;fill:none;stroke:var(--small);stroke-width:1.8;pointer-events:none;}
 .form-input{width:100%;height:44px;padding:0 12px 0 38px;font-size:14px;font-family:'DM Sans',sans-serif;border:1.5px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--text);outline:none;transition:border-color var(--transition);}
 .form-input:focus{background:#fff;border-color:var(--focus-color,var(--admin-mid));box-shadow:0 0 0 3px var(--focus-glow,rgba(37,99,168,0.12));}
-.error-msg{font-size:12px;color:#b91c1c;margin-bottom:12px;display:none;}
-.submit-btn{width:100%;height:46px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;border:none;border-radius:var(--radius);color:#fff;cursor:pointer;transition:opacity var(--transition);}
+.error-msg{font-size:12px;color:#b91c1c;margin-bottom:10px;display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:8px 12px;}
+.submit-btn{width:100%;height:46px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;border:none;border-radius:var(--radius);color:#fff;cursor:pointer;transition:opacity var(--transition);margin-top:4px;}
 .submit-btn:hover{opacity:0.9;}
 .submit-btn:disabled{opacity:0.6;cursor:not-allowed;}
 .submit-btn.admin-btn{background:linear-gradient(135deg,var(--admin),var(--admin-mid));}
 .submit-btn.teacher-btn{background:linear-gradient(135deg,var(--teacher),var(--teacher-mid));}
+.submit-btn.student-btn{background:linear-gradient(135deg,var(--student),var(--student-mid));}
+.login-footer{font-size:11px;color:var(--small);margin-top:16px;text-align:center;}
 </style>
 </head>
 <body>
@@ -66,11 +72,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh;disp
       </div>
       <div class="panel-title" id="panelTitle">Welcome back,<br/>Admin</div>
       <div class="panel-sub" id="panelSub">Manage your institution, courses, and platform settings from one place.</div>
-      <div class="feature-list">
-        <div class="feature"><div class="feature-dot"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><span class="feature-text" id="f1">Manage teachers, students and staff accounts</span></div>
-        <div class="feature"><div class="feature-dot"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><span class="feature-text" id="f2">Platform analytics and performance reports</span></div>
-        <div class="feature"><div class="feature-dot"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/></svg></div><span class="feature-text" id="f3">Approve and publish teacher content</span></div>
-        <div class="feature"><div class="feature-dot"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span class="feature-text" id="f4">Role-based access control and permissions</span></div>
+      <div class="feature-list" id="featureList">
+        <div class="feature"><div class="feature-dot"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><span class="feature-text">Manage teachers, students and staff accounts</span></div>
+        <div class="feature"><div class="feature-dot"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><span class="feature-text">Platform analytics and performance reports</span></div>
+        <div class="feature"><div class="feature-dot"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/></svg></div><span class="feature-text">Approve and publish teacher content</span></div>
+        <div class="feature"><div class="feature-dot"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span class="feature-text">Role-based access control and permissions</span></div>
       </div>
     </div>
     <div class="panel-footer">EduLearn &copy; 2025 &bull; localhost:8080</div>
@@ -79,12 +85,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh;disp
   <div class="panel-right">
     <div class="role-toggle">
       <button class="role-btn active-admin" id="btnAdmin" onclick="switchRole('admin')">
-        <svg style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;vertical-align:-2px;margin-right:5px" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Admin
+        <svg style="width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;vertical-align:-2px;margin-right:4px" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Admin
       </button>
       <button class="role-btn" id="btnTeacher" onclick="switchRole('teacher')">
-        <svg style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;vertical-align:-2px;margin-right:5px" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Teacher
+        <svg style="width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;vertical-align:-2px;margin-right:4px" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Teacher
+      </button>
+      <button class="role-btn" id="btnStudent" onclick="switchRole('student')">
+        <svg style="width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;vertical-align:-2px;margin-right:4px" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>Student
       </button>
     </div>
+
     <div class="role-chip admin" id="roleChip">
       <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       <span id="chipLabel">Administrator</span>
@@ -107,14 +117,65 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh;disp
       </div>
     </div>
     <button class="submit-btn admin-btn" id="submitBtn" onclick="handleLogin()">Sign in as Admin</button>
+    <div class="login-footer" id="loginFooter">© EduLearn 2025</div>
   </div>
 </div>
 
 <script>
 let cur = 'admin';
+
 const cfg = {
-  admin: { panelClass:'admin-theme', panelTitle:'Welcome back,<br/>Admin', panelSub:'Manage your institution, courses, and platform settings from one place.', chipClass:'admin', chipLabel:'Administrator', formSub:'Sign in to your admin account', placeholder:'admin@localhost', btnLabel:'Sign in as Admin', submitClass:'admin-btn', features:['Manage teachers, students and staff','Platform analytics and reports','Approve and publish teacher content','Role-based access control'] },
-  teacher: { panelClass:'teacher-theme', panelTitle:'Welcome back,<br/>Teacher', panelSub:'Create lessons, manage your courses and add questions for students.', chipClass:'teacher', chipLabel:'Teacher', formSub:'Sign in to your teacher account', placeholder:'teacher@localhost', btnLabel:'Sign in as Teacher', submitClass:'teacher-btn', features:['Build and manage course content','Create questions and assessments','Monitor student performance','Schedule lessons and deadlines'] }
+  admin: {
+    panelClass: 'admin-theme',
+    panelTitle: 'Welcome back,<br/>Admin',
+    panelSub: 'Manage your institution, courses, and platform settings from one place.',
+    chipClass: 'admin', chipLabel: 'Administrator',
+    formSub: 'Sign in to your admin account',
+    placeholder: 'admin@localhost',
+    btnLabel: 'Sign in as Admin', submitClass: 'admin-btn',
+    focusColor: 'var(--admin-mid)', focusGlow: 'rgba(37,99,168,0.12)',
+    footer: '© EduLearn 2025',
+    features: [
+      {icon:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>', text:'Manage teachers, students and staff accounts'},
+      {icon:'<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>', text:'Platform analytics and performance reports'},
+      {icon:'<circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/>', text:'Approve and publish teacher content'},
+      {icon:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>', text:'Role-based access control and permissions'}
+    ]
+  },
+  teacher: {
+    panelClass: 'teacher-theme',
+    panelTitle: 'Welcome back,<br/>Teacher',
+    panelSub: 'Create lessons, manage your courses and add questions for students.',
+    chipClass: 'teacher', chipLabel: 'Teacher',
+    formSub: 'Sign in to your teacher account',
+    placeholder: 'teacher@localhost',
+    btnLabel: 'Sign in as Teacher', submitClass: 'teacher-btn',
+    focusColor: 'var(--teacher-mid)', focusGlow: 'rgba(26,138,90,0.12)',
+    footer: '© EduLearn 2025',
+    features: [
+      {icon:'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>', text:'Build and manage course content'},
+      {icon:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>', text:'Create questions and assessments'},
+      {icon:'<polyline points="20 6 9 17 4 12"/>', text:'Mark essays and short answers'},
+      {icon:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/>', text:'Schedule exams for your classes'}
+    ]
+  },
+  student: {
+    panelClass: 'student-theme',
+    panelTitle: 'Welcome back,<br/>Student',
+    panelSub: 'View your exams, track your progress, and see your results.',
+    chipClass: 'student', chipLabel: 'Student',
+    formSub: 'Sign in to your student account',
+    placeholder: 'student@school.edu',
+    btnLabel: 'Sign in as Student', submitClass: 'student-btn',
+    focusColor: 'var(--student-mid)', focusGlow: 'rgba(8,145,178,0.12)',
+    footer: 'Need help? Contact your teacher',
+    features: [
+      {icon:'<path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>', text:'My exams — active, upcoming and completed'},
+      {icon:'<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>', text:'My results — detailed scores and feedback'},
+      {icon:'<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>', text:'Announcements from your teachers'},
+      {icon:'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>', text:'My profile — update your details'}
+    ]
+  }
 };
 
 function switchRole(role) {
@@ -129,16 +190,27 @@ function switchRole(role) {
   document.getElementById('emailInput').placeholder = c.placeholder;
   document.getElementById('submitBtn').className = 'submit-btn ' + c.submitClass;
   document.getElementById('submitBtn').textContent = c.btnLabel;
+  document.getElementById('loginFooter').textContent = c.footer;
+  // Update focus color
+  document.documentElement.style.setProperty('--focus-color', c.focusColor);
+  document.documentElement.style.setProperty('--focus-glow', c.focusGlow);
+  // Role buttons
   document.getElementById('btnAdmin').className = 'role-btn' + (role === 'admin' ? ' active-admin' : '');
   document.getElementById('btnTeacher').className = 'role-btn' + (role === 'teacher' ? ' active-teacher' : '');
-  c.features.forEach((f, i) => { const el = document.getElementById('f'+(i+1)); if(el) el.textContent = f; });
+  document.getElementById('btnStudent').className = 'role-btn' + (role === 'student' ? ' active-student' : '');
+  // Features
+  const fl = document.getElementById('featureList');
+  fl.innerHTML = c.features.map(f => `
+    <div class="feature">
+      <div class="feature-dot"><svg viewBox="0 0 24 24">${f.icon}</svg></div>
+      <span class="feature-text">${f.text}</span>
+    </div>`).join('');
   document.getElementById('errMsg').style.display = 'none';
 }
 
 async function handleLogin() {
   const email = document.getElementById('emailInput').value.trim();
   const pass = document.getElementById('passInput').value;
-  const errEl = document.getElementById('errMsg');
   if (!email || !pass) { showError('Please enter email and password.'); return; }
 
   const btn = document.getElementById('submitBtn');
@@ -153,12 +225,23 @@ async function handleLogin() {
     });
     const data = await res.json();
     if (data.status === 'success') {
-      sessionStorage.setItem('edu_token', data.data.token);
-      sessionStorage.setItem('edu_role', data.data.role);
-      sessionStorage.setItem('edu_name', data.data.name);
-      window.location.href = data.data.role === 'ADMIN' ? '/admin/dashboard.html' : '/teacher/dashboard.html';
+      const { token, role, name, mustChangePassword } = data.data;
+      sessionStorage.setItem('edu_token', token);
+      sessionStorage.setItem('edu_role', role);
+      sessionStorage.setItem('edu_name', name);
+      if (mustChangePassword) {
+        window.location.href = '/student/change-password.html';
+      } else if (role === 'ADMIN') {
+        window.location.href = '/admin/dashboard.html';
+      } else if (role === 'TEACHER') {
+        window.location.href = '/teacher/dashboard.html';
+      } else if (role === 'STUDENT') {
+        window.location.href = '/student/dashboard.html';
+      } else {
+        window.location.href = '/admin/dashboard.html';
+      }
     } else {
-      showError(data.message || 'Login failed.');
+      showError(data.message || 'Login failed. Check your email and password.');
     }
   } catch (e) {
     showError('Cannot reach server. Is the application running?');
