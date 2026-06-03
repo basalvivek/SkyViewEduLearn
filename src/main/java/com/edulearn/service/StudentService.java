@@ -64,6 +64,7 @@ public class StudentService {
                 .email(request.email())
                 .passwordHash(passwordEncoder.encode(password))
                 .role(UserRole.STUDENT)
+                .yearGroup(request.yearGroup())
                 .mustChangePassword(true)
                 .isActive(true)
                 .build();
@@ -87,6 +88,7 @@ public class StudentService {
         User student = findStudentById(id);
         student.setFullName(request.fullName());
         student.setEmail(request.email());
+        student.setYearGroup(request.yearGroup());
         if (request.temporaryPassword() != null && !request.temporaryPassword().isBlank()) {
             student.setPasswordHash(passwordEncoder.encode(request.temporaryPassword()));
         }
@@ -219,9 +221,9 @@ public class StudentService {
     }
 
     private StudentResponse toResponse(User student) {
-        List<String> classes = studentClassRepo.findByStudent(student).stream()
+        List<StudentResponse.ClassInfo> classes = studentClassRepo.findByStudent(student).stream()
                 .filter(StudentClass::isActive)
-                .map(sc -> sc.getClassroom().getName())
+                .map(sc -> new StudentResponse.ClassInfo(sc.getClassroom().getId(), sc.getClassroom().getName()))
                 .collect(Collectors.toList());
         return new StudentResponse(
                 student.getId(),
@@ -230,6 +232,7 @@ public class StudentService {
                 student.getDisplayName(),
                 student.isActive(),
                 student.getCreatedAt(),
+                student.getYearGroup(),
                 classes
         );
     }

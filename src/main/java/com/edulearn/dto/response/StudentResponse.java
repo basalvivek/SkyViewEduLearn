@@ -11,5 +11,8 @@ public record StudentResponse(
     String displayName,
     boolean isActive,
     OffsetDateTime createdAt,
-    List<String> classes
-) {}
+    String yearGroup,
+    List<ClassInfo> classes
+) {
+    public record ClassInfo(UUID id, String name) {}
+}

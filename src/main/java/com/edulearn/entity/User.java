@@ -56,6 +56,9 @@ public class User {
     @Column(length = 30)
     private String phone;
 
+    @Column(name = "year_group", length = 20)
+    private String yearGroup;
+
     @Column(name = "last_login_at")
     private OffsetDateTime lastLoginAt;
 
