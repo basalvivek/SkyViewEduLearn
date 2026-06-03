@@ -60,7 +60,6 @@ public class ScheduleController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> cancel(
             @PathVariable UUID id,
             @AuthenticationPrincipal UserDetails user) {
@@ -145,7 +144,6 @@ public class ScheduleController {
     }
 
     @DeleteMapping("/series/{seriesId}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteSeries(
             @PathVariable UUID seriesId,
             @AuthenticationPrincipal UserDetails user) {

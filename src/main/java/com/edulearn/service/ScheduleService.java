@@ -78,8 +78,10 @@ public class ScheduleService {
         User actor = getUser(email);
         Exam exam = examRepo.findById(request.examId())
                 .orElseThrow(() -> new ResourceNotFoundException("Exam not found: " + request.examId()));
-        Classroom classroom = classroomRepo.findById(request.classId())
-                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found: " + request.classId()));
+        Classroom classroom = request.classId() != null
+                ? classroomRepo.findById(request.classId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Classroom not found: " + request.classId()))
+                : null;
         User assignedTo = resolveAssignedTo(request.teacherId(), actor);
 
         ExamSchedule schedule = ExamSchedule.builder()
@@ -108,8 +110,10 @@ public class ScheduleService {
         ExamSchedule schedule = findById(id);
         Exam exam = examRepo.findById(request.examId())
                 .orElseThrow(() -> new ResourceNotFoundException("Exam not found: " + request.examId()));
-        Classroom classroom = classroomRepo.findById(request.classId())
-                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found: " + request.classId()));
+        Classroom classroom = request.classId() != null
+                ? classroomRepo.findById(request.classId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Classroom not found: " + request.classId()))
+                : null;
 
         schedule.setScheduleType(ScheduleType.EXAM);
         schedule.setExam(exam);
@@ -126,10 +130,13 @@ public class ScheduleService {
 
     public void cancelSchedule(UUID id, String email) {
         User actor = getUser(email);
-        if (actor.getRole() != UserRole.ADMIN) throw new ForbiddenException("Admin only");
         ExamSchedule schedule = findById(id);
-        schedule.setStatus(ScheduleStatus.CANCELLED);
-        scheduleRepo.save(schedule);
+        if (actor.getRole() != UserRole.ADMIN) {
+            boolean isCreator = schedule.getCreatedBy() != null && schedule.getCreatedBy().getId().equals(actor.getId());
+            boolean isAssigned = schedule.getAssignedTo() != null && schedule.getAssignedTo().getId().equals(actor.getId());
+            if (!isCreator && !isAssigned) throw new ForbiddenException("Cannot delete another user's event");
+        }
+        scheduleRepo.delete(schedule);
     }
 
     public ScheduleResponse toResponse(ExamSchedule schedule) {
@@ -312,7 +319,9 @@ public class ScheduleService {
     public void moveSchedule(UUID id, MoveScheduleRequest req, String email) {
         User actor = getUser(email);
         ExamSchedule ev = findById(id);
-        if (actor.getRole() != UserRole.ADMIN && (ev.getCreatedBy() == null || !ev.getCreatedBy().getId().equals(actor.getId()))) {
+        boolean isCreator = ev.getCreatedBy() != null && ev.getCreatedBy().getId().equals(actor.getId());
+        boolean isAssigned = ev.getAssignedTo() != null && ev.getAssignedTo().getId().equals(actor.getId());
+        if (actor.getRole() != UserRole.ADMIN && !isCreator && !isAssigned) {
             throw new ForbiddenException("Cannot move another user's event");
         }
         long offsetDays = ChronoUnit.DAYS.between(ev.getStartAt().toLocalDate(), req.newDate());
@@ -347,9 +356,14 @@ public class ScheduleService {
 
     public void deleteSeries(UUID seriesId, String email) {
         User actor = getUser(email);
-        if (actor.getRole() != UserRole.ADMIN) throw new ForbiddenException("Admin only");
-        scheduleRepo.findBySeriesIdOrderByStartAtAsc(seriesId)
-                .forEach(scheduleRepo::delete);
+        List<ExamSchedule> events = scheduleRepo.findBySeriesIdOrderByStartAtAsc(seriesId);
+        if (actor.getRole() != UserRole.ADMIN && !events.isEmpty()) {
+            ExamSchedule first = events.get(0);
+            boolean isCreator = first.getCreatedBy() != null && first.getCreatedBy().getId().equals(actor.getId());
+            boolean isAssigned = first.getAssignedTo() != null && first.getAssignedTo().getId().equals(actor.getId());
+            if (!isCreator && !isAssigned) throw new ForbiddenException("Cannot delete another user's series");
+        }
+        events.forEach(scheduleRepo::delete);
     }
 
     // ── Helpers ────────────────────────────────────────────────

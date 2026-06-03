@@ -82,7 +82,12 @@ public class ExamService {
                 ? examRepo.findByStatus(statusFilter)
                 : examRepo.findAll();
         } else {
-            exams = examRepo.findByCreatedByOrderByCreatedAtDesc(actor);
+            // Teachers see all APPROVED exams (for scheduling) plus their own exams in any status
+            List<Exam> approved = examRepo.findByStatus(ExamStatus.APPROVED);
+            List<Exam> own = examRepo.findByCreatedByOrderByCreatedAtDesc(actor);
+            exams = java.util.stream.Stream.concat(approved.stream(), own.stream())
+                    .distinct()
+                    .collect(Collectors.toList());
             if (statusFilter != null) {
                 exams = exams.stream().filter(e -> e.getStatus() == statusFilter).collect(Collectors.toList());
             }

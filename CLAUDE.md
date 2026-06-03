@@ -12,6 +12,26 @@ Users: **Admin** and **Teacher**. No student-facing UI in this phase.
 
 ---
 
+## Development Environment
+
+**PostgreSQL runs in Docker** — no local `psql` is installed. Always connect via:
+```
+docker exec -i edulearn-postgres psql -U edulearn_user -d edulearn -c "<SQL>"
+docker exec -i edulearn-postgres psql -U edulearn_user -d edulearn -f sql/<file>.sql
+```
+Container name: `edulearn-postgres` · Port: `5433` · DB: `edulearn` · User: `edulearn_user` · Password: `changeme`
+
+**Dev seed credentials** (from `sql/init-seed.sql`):
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | `admin@localhost` | `Admin@123` |
+| Teacher | `teacher@localhost` | `Teacher@123` |
+| Student | `student@localhost` | (check seed file) |
+
+**Maven**: no wrapper (`mvnw`) present — use system `mvn` directly: `mvn spring-boot:run`
+
+---
+
 ## Exact Tech Stack
 
 | Layer | Choice |
@@ -72,9 +92,11 @@ com.edulearn
 ├── config/          SecurityConfig, WebMvcConfig, JwtProperties
 ├── controller/      Auth, Category, Subject, Topic, Question, Approval,
 │                    OrgSettings [P1], Profile [P2], Submission [P2],
+│                    StudentDashboard [student-portal correction],
 │                    Exam, Classroom, Schedule, Student, StudentExam, Marking [P3]
 ├── service/         Auth, ContentApproval (shared), Category, Subject, Topic, Question,
 │                    OrgSettings [P1], Profile [P2], Submission [P2],
+│                    StudentDashboard [student-portal correction],
 │                    Exam, Classroom, Schedule, Student, ExamAttempt,
 │                    AutoMarking, Marking [P3]
 ├── repository/      one per entity + ApprovalLog + OrgSettings [P1]
@@ -97,11 +119,14 @@ com.edulearn
 │                    OrgSettingsResponse [P1],
 │                    ProfileResponse, SubmissionSummaryResponse [P2],
 │                    ExamResponse, ExamSummaryResponse, ClassroomResponse,
-│                    ScheduleResponse, StudentResponse, AttemptResponse,
+│                    ScheduleResponse, CalendarEntryResponse [amendment],
+│                    RangeScheduleRequest, RecurringScheduleRequest, MoveScheduleRequest,
+│                    SeriesCreatedResponse [drag-drop & recurring amendment], StudentResponse, AttemptResponse,
 │                    AttemptResultResponse, MarkingQueueResponse,
 │                    AttemptMarkingResponse [P3]
 ├── enums/           UserRole, ContentStatus, QuestionType, CodeLanguage, OrgType [P1],
-│                    ExamStatus, ScheduleStatus, AttemptStatus [P3],
+│                    ExamStatus, ScheduleStatus, AttemptStatus, ScheduleType [P3 amendment],
+│                    RecurrenceType, SeriesMoveScope [drag-drop & recurring amendment],
 │                    ImageAnswerType [correction — WRITTEN or MCQ],
 │                    NotificationType, AnnouncementAudience, AnnouncementPriority [P5],
 │                    AuditAction [P6]
@@ -181,6 +206,15 @@ All responses use:
 - `GET  /api/v1/marking/queue` — manual marking queue (Teacher/Admin)
 - `PUT  /api/v1/marking/attempts/{aid}/answers/{qid}` — award marks + feedback
 - `POST /api/v1/marking/attempts/{id}/finalise` — complete marking, compute final score
+- `GET  /api/v1/schedules/teachers` — list all teachers (id + name) for assignment dropdown (authenticated)
+- `GET  /api/v1/schedules/calendar?year=&month=&classId=` — calendar month feed; TEACHER role sees only their assigned events [amendment]
+- `POST /api/v1/schedules/class-event` — create CLASS/EVENT/HOLIDAY entry without exam_id [amendment]
+- `POST /api/v1/schedules/range` — create daily sessions across a date range [drag-drop amendment]
+- `POST /api/v1/schedules/recurring` — create weekly/fortnightly/monthly series [drag-drop amendment]
+- `PUT  /api/v1/schedules/{id}/move` — drag-drop reschedule; body: { newDate, applyTo: THIS|THIS_AND_FORWARD|ALL }
+- `PUT  /api/v1/schedules/series/{seriesId}/move` — shift entire series by date offset
+- `GET  /api/v1/schedules/series/{seriesId}` — get all events in a series
+- `DELETE /api/v1/schedules/series/{seriesId}` — delete entire recurring series
 
 ### Phase 4 — Reporting & Analytics
 - `GET /api/v1/student/results` — student's own attempt list
@@ -235,7 +269,7 @@ static/
 │   ├── dashboard.html           # stats, pending approvals, quick actions (provided)
 │   ├── courses.html             # tree sidebar + detail panel (adapt from provided)
 │   ├── exams.html               # [NEW P3] exam builder + approval queue
-│   ├── schedules.html           # [NEW P3] schedule management table
+│   ├── schedules.html           # [NEW P3] calendar view — month grid, right-click menu, quick-add modal [amended: doc 14]
 │   ├── students.html            # [NEW P3] student list + add/bulk import
 │   ├── reports.html             # [NEW P4] class reports + teacher activity + question analytics (tabbed)
 │   ├── announcements.html       # [NEW P5] create + manage announcements
@@ -249,7 +283,9 @@ static/
 │   ├── schedules.html           # [NEW P3] schedule management
 │   └── marking.html             # [NEW P3] marking queue + per-student marking screen
 └── student/
-    ├── dashboard.html           # [NEW P3] available exams list
+    ├── change-password.html     # [NEW student-portal] forced first-login password change
+    ├── dashboard.html           # [NEW student-portal] full dashboard — nav, stat cards, upcoming exams, results
+    ├── exams.html               # [NEW student-portal] My Exams — Active/Upcoming/Completed tabs
     ├── exam.html                # [NEW P3] exam attempt screen with timer + navigator
     ├── results.html             # [NEW P4] attempt history + result detail
     └── announcements.html       # [NEW P5] view announcements
@@ -285,6 +321,8 @@ All errors use the standard `ApiResponse` envelope.
 - Do NOT use `ddl-auto=create` or `update` — schema is pre-created via DDL.
 - Do NOT use `spring.web.resources.add-mappings=true` without the SPA fallback.
 - Do NOT store JWT in localStorage — use sessionStorage.
+- Do NOT forget the Student role route in login.html — must redirect to `/student/dashboard.html` (see `docs/13-correction-student-portal.md`)
+- Do NOT allow students to access `/admin/` or `/teacher/` routes — enforce in JS auth guard on every page load.
 - Do NOT add cloud/Docker/Kubernetes config — localhost only.
 - Do NOT use Lombok (keep plain Java for clarity, or add Lombok if preferred but state it).
 
@@ -343,6 +381,25 @@ Follow this order to avoid compilation errors:
 40. Create `admin/exams.html`, `admin/schedules.html`, `admin/students.html`
 41. Create `teacher/exams.html`, `teacher/schedules.html`, `teacher/marking.html`
 42. Create `student/dashboard.html`, `student/exam.html` (with timer + auto-save)
+42a. Run `sql/10-module8-calendar-amendment.sql`
+42a2. Run `sql/11-drag-drop-recurring-schema.sql` — series_id, recurrence_type, recurrence_days, series_start, series_end
+      Create `RecurrenceType`, `SeriesMoveScope` enums
+      Add series fields to `ExamSchedule` entity
+      Create `RangeScheduleRequest`, `RecurringScheduleRequest`, `MoveScheduleRequest`, `SeriesCreatedResponse` DTOs
+      Add `createRange()`, `createRecurring()`, `moveSchedule()`, `moveSeries()`, `deleteSeries()` to ScheduleService
+      Add 6 new endpoints to ScheduleController (range, recurring, move, series GET/DELETE)
+      Wire HTML5 drag events in schedules.html: ondragstart, ondragover, ondragleave, ondrop
+      Add series-move dialog (THIS / THIS_AND_FORWARD / ALL) for recurring event drops
+      Add booking-type selector (Single / Date Range / Recurring) to quick-add modal
+      See `docs/15-amendment-drag-drop-recurring.md` for full spec — adds schedule_type, title, nullable exam_id, date-range index
+     Create `ScheduleType` enum, `CalendarEntryResponse` DTO
+     Add `getCalendar()` + `createClassEvent()` to `ScheduleController` + `ScheduleService`
+     Replace list-based `schedules.html` with calendar grid + right-click context menu + quick-add modal
+     See `docs/14-amendment-module8-calendar.md` for full UI spec and role rules
+42a3. Run `sql/12-schedule-teacher-assignment.sql` — adds `assigned_to UUID REFERENCES users(id)` + index to `exam_schedules`
+      **CRITICAL behaviour:** `ScheduleService.resolveAssignedTo(teacherId, actor)` auto-assigns the
+      logged-in user as `assigned_to` when actor is TEACHER and no `teacherId` supplied. This is required
+      so the teacher calendar (`findByAssignedTo...` queries) shows their events. Do NOT revert to null.
 43. Test full flow: create exam → schedule → student attempts → auto-mark → manual mark
 
 ### Corrections (apply to Phase 1 and Phase 3 before testing)
@@ -358,7 +415,20 @@ Follow this order to avoid compilation errors:
 50. Update `AutoMarkingService` — add IMAGE_BASED branch (MCQ path or manual marking)
     and MCQ_MULTIPLE partial marking logic
 
-### Phase 4 additions (after Phase 3 is working)
+### Student Portal (insert AFTER Phase 3, BEFORE Phase 4)
+42b. Run `sql/09-student-portal-additions.sql` — adds `must_change_password` column
+42c. Update `User` entity — add `mustChangePassword` field
+42d. Update `AuthService.login()` — return `PASSWORD_CHANGE_REQUIRED` status if flag set
+42e. Update `StudentService.create()` — set `mustChangePassword=TRUE` for admin-created temp passwords
+42f. Create `StudentDashboardController` + `StudentDashboardService`
+     (GET /student/dashboard, /student/exams/active|upcoming|completed)
+42g. Add Student tab (teal `#0e7490`) to `login.html` — third pill, own left panel, routes to /student/dashboard.html
+42h. Create `student/change-password.html` — forced password change on first login
+42i. Create `student/dashboard.html` — full shell: teal nav, stat cards, upcoming exam cards, recent results, announcements
+42j. Create `student/exams.html` — Active / Upcoming / Completed tabbed view
+42k. Test full flow: admin creates student → student logs in → forced password change → dashboard loads correct data
+
+### Phase 4 additions (after Phase 3 + Student Portal is working)
 51. Run `sql/06-phase4-schema-additions.sql` — analytics views + question flag columns
 52. Create `StudentResultController`, `ResultService` (topic breakdown from attempt data)
 53. Create `ReportController`, `ReportService`, `TeacherReportService`, `ReportExportService`
@@ -412,9 +482,53 @@ Follow this order to avoid compilation errors:
 | `sql/04-phase3-schema-additions.sql` | Phase 3 DB tables — exams, exam_questions, classes, exam_schedules, student_classes, exam_attempts, attempt_answers |
 | `docs/09-correction-question-answer-capture.md` | **CORRECTION** — type-specific question builder fields, student answer inputs, partial marking logic, updated DTOs |
 | `sql/05-question-answer-corrections.sql` | Adds `answer_explanation`, `marking_scheme`, `word_limit`, `image_answer_type` to questions; `partial_marks` to options; `partial_marking` to exam_questions |
+| `docs/13-correction-student-portal.md` | **CORRECTION** — Student login tab, forced password change, full dashboard design, My Exams page, navigation structure, student profile |
+| `sql/09-student-portal-additions.sql` | Adds `must_change_password` column + index to `users` table |
+
+| `sql/10-module8-calendar-amendment.sql` | Adds `schedule_type` enum, `title` column, makes `exam_id` nullable, adds date-range index to `exam_schedules` |
 | `docs/10-phase4-reporting-analytics.md` | Student Results, Class Reports, Teacher Reports, Question Analytics — full UI, DB views, API, Spring Boot classes |
 | `sql/06-phase4-schema-additions.sql` | Phase 4 DB — `attempt_topic_scores` view, `question_analytics` view, question flag columns |
 | `docs/11-phase5-communications.md` | In-App Notifications (full event matrix + service pattern), Announcement Board — DB, API, Spring Boot |
 | `sql/07-phase5-schema-additions.sql` | Phase 5 DB — `notifications`, `announcements`, `announcement_dismissals` tables |
 | `docs/12-phase6-polish-operations.md` | Audit Log, Bulk Import (CSV/Excel), Settings & Config, Backup & Export — full spec |
 | `sql/08-phase6-schema-additions.sql` | Phase 6 DB — `audit_log` (immutable JSONB), `platform_settings` with seed data |
+| `sql/12-schedule-teacher-assignment.sql` | Adds `assigned_to UUID` column + index to `exam_schedules` — enables per-teacher calendar filtering |
+
+---
+
+## Bug Fixes & Behavioural Rules Applied (2026-06-03)
+
+### Calendar — other-month cells (admin/schedules.html + teacher/schedules.html)
+- Overflow days from previous/next month use `.cal-cell.other-month` CSS class
+- Style: `background:#f0f2f8`, date number `color:#9aa3b8`, `cursor:default; pointer-events:none`
+- JS: click, dragover, dragleave, drop handlers are gated with `if(!otherMonth)` — never fire
+
+### Schedule Add Event — Class field is optional
+- `ScheduleRequest.java`: `classId` has **no** `@NotNull` — null is valid
+- `ScheduleService.createSchedule` + `updateSchedule`: classroom lookup is conditional (`req.classId() != null ? ... : null`)
+- Frontend dropdowns default to `— all classes —` and pass `null` when unselected
+
+### Schedule Add Event — "Assign to teacher" label
+- Label in `admin/schedules.html` modal reads **"Assign to teacher"** (no "(optional)" qualifier)
+- Teacher is always required / meaningful for assignment
+
+### Teacher drag permission — assigned events
+- `ScheduleService.moveSchedule`: teachers can drag if they are `createdBy` **OR** `assignedTo` the event
+- Admin-created events assigned to a teacher are draggable by that teacher
+
+### Teacher exam dropdown — shows all approved exams
+- `ExamService.listExams`: for TEACHER role, returns union of all `APPROVED` exams (any creator) + own exams in any status, deduplicated
+- Ensures admin-created approved exams appear in the teacher schedule "Assign exam" dropdown
+
+### Teacher schedule delete privilege
+- `SecurityConfig`: `DELETE /api/v1/schedules/**` requires only `authenticated()` — specific rule placed **above** the blanket `DELETE /api/v1/**` → ADMIN rule
+- `ScheduleController`: `DELETE /{id}` and `DELETE /series/{seriesId}` have no `@PreAuthorize` — ownership enforced in service
+- `ScheduleService.cancelSchedule`: teacher may delete if `createdBy == actor` OR `assignedTo == actor`; calls `scheduleRepo.delete(schedule)` (triggers `@SQLDelete` soft-delete) — **do NOT use `setStatus(CANCELLED)`**, that leaves the record visible
+- `ScheduleService.deleteSeries`: same ownership check on first event in series
+- `teacher/schedules.html` context menu: red **Delete** item (single events) and red **Delete series** item (recurring events only, shown instead of Delete)
+
+### Teacher schedule modal — creator attribution
+- `CalendarEntryResponse` includes `createdByName` field (mapped from `schedule.getCreatedBy().getFullName()`)
+- `teacher/schedules.html` modal header shows:
+  - Editing an existing event → `Created by <strong>[name]</strong>`
+  - Adding a new event → `Scheduling as <strong>[teacher name]</strong>`

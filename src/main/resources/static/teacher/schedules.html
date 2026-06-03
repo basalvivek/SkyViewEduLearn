@@ -99,8 +99,8 @@ nav{width:220px;background:var(--nav);display:flex;flex-direction:column;flex-sh
 .cal-dow{background:var(--surface);padding:8px 10px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);text-align:center;}
 .cal-cell{background:var(--surface);min-height:110px;padding:6px 8px;cursor:pointer;position:relative;transition:background 0.1s;}
 .cal-cell:hover{background:#f8faf8;}
-.cal-cell.other-month{background:#fafbff;}
-.cal-cell.other-month .cal-date{color:var(--border);}
+.cal-cell.other-month{background:#f0f2f8;cursor:default;pointer-events:none;}
+.cal-cell.other-month .cal-date{color:#9aa3b8;}
 .cal-cell.today{background:#f0faf5;}
 .cal-cell.today .cal-date{background:var(--accent);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;}
 .cal-cell.drag-over{background:#e4f5ee!important;outline:2px dashed var(--accent);}
@@ -225,10 +225,13 @@ nav{width:220px;background:var(--nav);display:flex;flex-direction:column;flex-sh
   <div class="cal-wrap">
     <!-- Toolbar -->
     <div class="cal-toolbar">
-      <div class="cal-nav">
-        <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
-        <div class="cal-month-label" id="calTitle">Loading…</div>
-        <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;background:#d1fae5;color:#065f46;letter-spacing:0.3px;">Teacher Schedules</span>
+        <div class="cal-nav">
+          <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+          <div class="cal-month-label" id="calTitle">Loading…</div>
+          <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+        </div>
       </div>
       <select class="cal-class-select" id="classFilter" onchange="loadCalendar()">
         <option value="">All Classes</option>
@@ -257,10 +260,12 @@ nav{width:220px;background:var(--nav);display:flex;flex-direction:column;flex-sh
   </div>
 </div>
 
-<!-- Context menu (no delete for teachers) -->
+<!-- Context menu -->
 <div class="ctx-menu" id="ctxMenu">
   <div class="ctx-item" onclick="ctxEdit()"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</div>
   <div class="ctx-item" onclick="ctxViewSeries()" id="ctxSeriesItem" style="display:none"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>View series</div>
+  <div class="ctx-item" onclick="ctxDeleteSeries()" id="ctxDeleteSeriesItem" style="display:none;color:#e53e3e"><svg viewBox="0 0 24 24" stroke="#e53e3e"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>Delete series</div>
+  <div class="ctx-item" onclick="ctxDelete()" id="ctxDeleteItem" style="color:#e53e3e"><svg viewBox="0 0 24 24" stroke="#e53e3e"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>Delete</div>
 </div>
 
 <!-- Add/Edit Modal -->
@@ -270,6 +275,7 @@ nav{width:220px;background:var(--nav);display:flex;flex-direction:column;flex-sh
       <div class="modal-title" id="modalTitle">Add Event</div>
       <button class="modal-close" onclick="closeAddModal()">×</button>
     </div>
+    <div id="modalMeta" style="padding:8px 20px 0;font-size:13px;color:var(--muted);"></div>
     <div class="modal-body">
       <!-- Booking type tabs -->
       <div class="booking-tabs" id="bookingTabs">
@@ -419,6 +425,7 @@ initUserDisplay();
 const _n = getName();
 document.getElementById('topbarName').textContent = _n || 'Teacher';
 document.getElementById('ddName').textContent = _n || 'Teacher';
+document.getElementById('modalMeta').innerHTML = `Scheduling as <strong>${_n || 'Teacher'}</strong>`;
 document.getElementById('topbarAvatar').textContent = (_n||'Teacher').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
 
 function toggleUserMenu(){const d=document.getElementById('userDropdown'),p=document.getElementById('userPill');d.classList.toggle('show');p.classList.toggle('open');}
@@ -539,14 +546,14 @@ function makeCell(date, otherMonth, isToday){
     cell.appendChild(more);
   }
 
-  cell.addEventListener('click', e => {
+  if(!otherMonth) cell.addEventListener('click', e => {
     if(e.target.classList.contains('event-pill') || e.target.closest('.event-pill')) return;
     openAddModal(iso);
   });
 
-  cell.addEventListener('dragover', e => { e.preventDefault(); cell.classList.add('drag-over'); });
-  cell.addEventListener('dragleave', () => cell.classList.remove('drag-over'));
-  cell.addEventListener('drop', e => {
+  if(!otherMonth) cell.addEventListener('dragover', e => { e.preventDefault(); cell.classList.add('drag-over'); });
+  if(!otherMonth) cell.addEventListener('dragleave', () => cell.classList.remove('drag-over'));
+  if(!otherMonth) cell.addEventListener('drop', e => {
     e.preventDefault(); cell.classList.remove('drag-over');
     const id = e.dataTransfer.getData('text/plain');
     const ev = calEvents.find(x => x.id === id);
@@ -593,6 +600,8 @@ function makePill(ev){
 function showCtxMenu(x, y, ev){
   const m = document.getElementById('ctxMenu');
   document.getElementById('ctxSeriesItem').style.display = ev.seriesId ? 'flex' : 'none';
+  document.getElementById('ctxDeleteSeriesItem').style.display = ev.seriesId ? 'flex' : 'none';
+  document.getElementById('ctxDeleteItem').style.display = ev.seriesId ? 'none' : 'flex';
   m.style.left = x + 'px'; m.style.top = y + 'px';
   m.classList.add('show');
 }
@@ -605,6 +614,28 @@ async function ctxEdit(){
 function ctxViewSeries(){
   hideCtxMenu();
   if(ctxEvent?.seriesId) window.open(`/teacher/schedules.html?series=${ctxEvent.seriesId}`, '_self');
+}
+async function ctxDelete(){
+  hideCtxMenu();
+  if(!ctxEvent) return;
+  if(!confirm(`Delete "${ctxEvent.title || 'this event'}"?`)) return;
+  try{
+    const r = await apiDelete('/schedules/' + ctxEvent.id);
+    if(r?.status !== 'success'){ showToast(r?.message || 'Delete failed', 'error'); return; }
+    showToast('Event deleted');
+    loadCalendar();
+  }catch(e){ showToast('Delete failed', 'error'); }
+}
+async function ctxDeleteSeries(){
+  hideCtxMenu();
+  if(!ctxEvent?.seriesId) return;
+  if(!confirm(`Delete all events in this series?`)) return;
+  try{
+    const r = await apiDelete('/schedules/series/' + ctxEvent.seriesId);
+    if(r?.status !== 'success'){ showToast(r?.message || 'Delete failed', 'error'); return; }
+    showToast('Series deleted');
+    loadCalendar();
+  }catch(e){ showToast('Delete failed', 'error'); }
 }
 
 // ── Drag-drop move ─────────────────────────────────────────────
@@ -641,6 +672,13 @@ function openAddModal(date, existingEvent){
   document.getElementById('saveEventBtn').textContent = existingEvent ? 'Save changes' : 'Create event';
   document.getElementById('bookingTabs').style.display = existingEvent ? 'none' : 'flex';
   setBookingMode('single', document.querySelector('.booking-tab'));
+
+  const meta = document.getElementById('modalMeta');
+  if(existingEvent?.createdByName){
+    meta.innerHTML = `Created by <strong>${esc(existingEvent.createdByName)}</strong>`;
+  } else {
+    meta.innerHTML = `Scheduling as <strong>${esc(_n || 'Teacher')}</strong>`;
+  }
 
   if(existingEvent){
     const typeBtn = document.querySelector(`.type-pill[data-t="${existingEvent.scheduleType||'EXAM'}"]`);

@@ -49,6 +49,7 @@ public class SecurityConfig {
                                  "/api/v1/questions/**").permitAll()
                 .requestMatchers("/api/v1/student/**").hasRole("STUDENT")
                 .requestMatchers("/api/v1/approvals/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/schedules/**").authenticated()
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )

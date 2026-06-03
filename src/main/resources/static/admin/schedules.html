@@ -85,8 +85,8 @@ nav{width:220px;background:var(--nav);display:flex;flex-direction:column;flex-sh
 .cal-dow{background:var(--surface);padding:8px 10px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);text-align:center;}
 .cal-cell{background:var(--surface);min-height:110px;padding:6px 8px;cursor:pointer;position:relative;transition:background 0.1s;}
 .cal-cell:hover{background:#f8f9fd;}
-.cal-cell.other-month{background:#fafbff;}
-.cal-cell.other-month .cal-date{color:var(--border);}
+.cal-cell.other-month{background:#f0f2f8;cursor:default;pointer-events:none;}
+.cal-cell.other-month .cal-date{color:#9aa3b8;}
 .cal-cell.today{background:#f0f5ff;}
 .cal-cell.today .cal-date{background:var(--accent);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;}
 .cal-cell.drag-over{background:#e8f0fc!important;outline:2px dashed var(--accent);}
@@ -215,10 +215,13 @@ nav{width:220px;background:var(--nav);display:flex;flex-direction:column;flex-sh
   <div class="cal-wrap">
     <!-- Toolbar -->
     <div class="cal-toolbar">
-      <div class="cal-nav">
-        <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
-        <div class="cal-month-label" id="calTitle">Loading…</div>
-        <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;background:#e8eeff;color:#3b5bdb;letter-spacing:0.3px;">Admin Schedules</span>
+        <div class="cal-nav">
+          <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+          <div class="cal-month-label" id="calTitle">Loading…</div>
+          <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+        </div>
       </div>
       <select class="cal-class-select" id="classFilter" onchange="loadCalendar()">
         <option value="">All Classes</option>
@@ -301,7 +304,7 @@ nav{width:220px;background:var(--nav);display:flex;flex-direction:column;flex-sh
 
       <!-- Assign to teacher -->
       <div class="form-group">
-        <label class="form-label">Assign to teacher <span style="font-weight:400;color:var(--small)">(optional)</span></label>
+        <label class="form-label">Assign to teacher</label>
         <select class="form-select" id="fTeacher"><option value="">— unassigned —</option></select>
       </div>
 
@@ -546,16 +549,16 @@ function makeCell(date, otherMonth, isToday){
     cell.appendChild(more);
   }
 
-  // Click to add event
-  cell.addEventListener('click', e => {
+  // Click to add event (disabled for other-month cells)
+  if(!otherMonth) cell.addEventListener('click', e => {
     if(e.target.classList.contains('event-pill') || e.target.closest('.event-pill')) return;
     openAddModal(iso);
   });
 
-  // Drag target
-  cell.addEventListener('dragover', e => { e.preventDefault(); cell.classList.add('drag-over'); });
-  cell.addEventListener('dragleave', () => cell.classList.remove('drag-over'));
-  cell.addEventListener('drop', e => {
+  // Drag target (disabled for other-month cells)
+  if(!otherMonth) cell.addEventListener('dragover', e => { e.preventDefault(); cell.classList.add('drag-over'); });
+  if(!otherMonth) cell.addEventListener('dragleave', () => cell.classList.remove('drag-over'));
+  if(!otherMonth) cell.addEventListener('drop', e => {
     e.preventDefault(); cell.classList.remove('drag-over');
     const id = e.dataTransfer.getData('text/plain');
     const ev = calEvents.find(x => x.id === id);

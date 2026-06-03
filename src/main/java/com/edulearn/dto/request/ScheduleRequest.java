@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public record ScheduleRequest(
     @NotNull UUID examId,
-    @NotNull UUID classId,
+    UUID classId,
     @NotNull OffsetDateTime startAt,
     @NotNull OffsetDateTime endAt,
     int maxAttempts,
