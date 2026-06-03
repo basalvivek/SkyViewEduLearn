@@ -112,6 +112,10 @@ public class StudentService {
         userRepo.save(student);
     }
 
+    public void deleteStudent(UUID id) {
+        userRepo.delete(findStudentById(id));
+    }
+
     public String resetPassword(UUID id) {
         User student = findStudentById(id);
         String newPassword = generateTempPassword();

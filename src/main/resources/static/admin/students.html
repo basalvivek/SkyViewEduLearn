@@ -304,6 +304,7 @@ async function loadStudents(){
           <button class="btn-xs" onclick="editStudent(${JSON.stringify(s).replace(/"/g,'&quot;')})">Edit</button>
           <button class="btn-xs" onclick="resetPassword('${s.id}')">Reset pw</button>
           <button class="btn-xs danger" onclick="deactivateStudent('${s.id}')">Deactivate</button>
+          <button class="btn-xs danger" onclick="deleteStudent('${s.id}','${esc(s.fullName||s.name)}')">Delete</button>
         </td>
       </tr>`;
     }).join('');
@@ -356,6 +357,16 @@ async function resetPassword(id){
 async function deactivateStudent(id){
   if(!confirm('Deactivate this student account?'))return;
   try{await apiPut('/students/'+id+'/deactivate',{});showToast('Student deactivated');loadStudents();}catch(e){showToast('Failed','error');}
+}
+
+async function deleteStudent(id, name){
+  if(!confirm(`Permanently delete student "${name}"?\n\nThis cannot be undone.`))return;
+  try{
+    const r=await apiDelete('/students/'+id);
+    if(r?.status!=='success'){showToast(r?.message||'Delete failed','error');return;}
+    showToast('Student deleted');
+    loadStudents();
+  }catch(e){showToast('Delete failed','error');}
 }
 
 let selectedFile = null;

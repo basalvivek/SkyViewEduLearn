@@ -55,4 +55,10 @@ public class TeacherController {
         teacherService.deactivateTeacher(id);
         return ResponseEntity.ok(ApiResponse.success("Deactivated", null));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable UUID id) {
+        teacherService.deleteTeacher(id);
+        return ResponseEntity.ok(ApiResponse.success("Deleted", null));
+    }
 }

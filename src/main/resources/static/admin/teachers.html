@@ -247,6 +247,7 @@ async function loadTeachers(){
         <button class="btn-xs" onclick="editTeacher(${JSON.stringify(t).replace(/"/g,'&quot;')})">Edit</button>
         <button class="btn-xs" onclick="resetPassword('${t.id}')">Reset pw</button>
         <button class="btn-xs danger" onclick="deactivateTeacher('${t.id}')">Deactivate</button>
+        <button class="btn-xs danger" onclick="deleteTeacher('${t.id}','${esc(t.fullName)}')">Delete</button>
       </td>
     </tr>`).join('');
   }catch(e){tbody.innerHTML='<tr><td colspan="6" class="empty-msg">Could not load teachers</td></tr>';}
@@ -295,6 +296,16 @@ async function resetPassword(id){
 async function deactivateTeacher(id){
   if(!confirm('Deactivate this teacher account?'))return;
   try{await apiPut('/teachers/'+id+'/deactivate',{});showToast('Teacher deactivated');loadTeachers();}catch(e){showToast('Failed','error');}
+}
+
+async function deleteTeacher(id, name){
+  if(!confirm(`Permanently delete teacher "${name}"?\n\nThis cannot be undone.`))return;
+  try{
+    const r=await apiDelete('/teachers/'+id);
+    if(r?.status!=='success'){showToast(r?.message||'Delete failed','error');return;}
+    showToast('Teacher deleted');
+    loadTeachers();
+  }catch(e){showToast('Delete failed','error');}
 }
 
 loadTeachers();

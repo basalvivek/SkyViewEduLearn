@@ -60,6 +60,12 @@ public class StudentController {
         return ResponseEntity.ok(ApiResponse.success("Deactivated", null));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable UUID id) {
+        studentService.deleteStudent(id);
+        return ResponseEntity.ok(ApiResponse.success("Deleted", null));
+    }
+
     @PutMapping("/{id}/reset-password")
     public ResponseEntity<ApiResponse<Map<String, String>>> resetPassword(@PathVariable UUID id) {
         String newPassword = studentService.resetPassword(id);

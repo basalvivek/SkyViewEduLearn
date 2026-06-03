@@ -78,6 +78,10 @@ public class TeacherService {
         userRepo.save(teacher);
     }
 
+    public void deleteTeacher(UUID id) {
+        userRepo.delete(findById(id));
+    }
+
     private User findById(UUID id) {
         return userRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Teacher not found: " + id));
