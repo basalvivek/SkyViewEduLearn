@@ -215,10 +215,10 @@ tr:hover td{background:#fafbff;}
         <select class="form-select-full" id="studentClass"><option value="">Select class…</option></select>
       </div>
     </div>
-    <div class="form-group"><label class="form-label">Temporary password <span style="color:#ef4444">*</span></label><input class="form-input" id="studentPassword" type="text" placeholder="Leave blank to auto-generate"/></div>
+    <div class="form-group"><label class="form-label">Temporary password <span style="font-weight:400;color:var(--small)">(leave blank to auto-generate)</span></label><input class="form-input" id="studentPassword" type="text" placeholder="Set temporary password…"/></div>
     <div class="form-actions">
       <button class="btn-secondary" onclick="closeStudentModal()">Cancel</button>
-      <button class="btn-primary" onclick="saveStudent()">Add Student</button>
+      <button class="btn-primary" onclick="saveStudent()" id="saveStudentBtn">Add Student</button>
     </div>
   </div>
 </div>
@@ -298,7 +298,7 @@ async function loadStudents(){
         <td><div class="stu-cell"><div class="stu-avatar">${initials(s.fullName||s.name)}</div><div><div class="stu-name">${esc(s.fullName||s.name||'—')}</div><div class="stu-email">${esc(s.email)}</div></div></div></td>
         <td>${cls||'<span style="color:var(--small);font-size:11px">No class</span>'}</td>
         <td>${esc(s.yearGroup||'—')}</td>
-        <td><span style="font-size:11px;font-weight:600;color:${s.active!==false?'var(--green)':'var(--muted)'}">${s.active!==false?'Active':'Inactive'}</span></td>
+        <td><span style="font-size:11px;font-weight:600;color:${s.isActive!==false?'var(--green)':'var(--muted)'}">${s.isActive!==false?'Active':'Inactive'}</span></td>
         <td>${fmtDate(s.createdAt)}</td>
         <td>
           <button class="btn-xs" onclick="editStudent(${JSON.stringify(s).replace(/"/g,'&quot;')})">Edit</button>
@@ -320,6 +320,7 @@ function openStudentModal(s){
   const firstClass=s?.classes?.[0];
   document.getElementById('studentClass').value=firstClass?.id||'';
   document.getElementById('studentModalTitle').textContent=s?'Edit Student':'Add Student';
+  document.getElementById('saveStudentBtn').textContent=s?'Save changes':'Add Student';
   document.getElementById('studentModalBg').classList.add('show');
 }
 function closeStudentModal(e){if(!e||e.target===document.getElementById('studentModalBg'))document.getElementById('studentModalBg').classList.remove('show');}

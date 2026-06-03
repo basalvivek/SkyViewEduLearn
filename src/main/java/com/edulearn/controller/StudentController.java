@@ -29,8 +29,10 @@ public class StudentController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<StudentResponse>>> list() {
-        return ResponseEntity.ok(ApiResponse.success(studentService.listStudents()));
+    public ResponseEntity<ApiResponse<List<StudentResponse>>> list(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) UUID classId) {
+        return ResponseEntity.ok(ApiResponse.success(studentService.listStudents(search, classId)));
     }
 
     @PostMapping

@@ -47,11 +47,22 @@ public class StudentService {
     }
 
     @Transactional(readOnly = true)
-    public List<StudentResponse> listStudents() {
-        return userRepo.findAll().stream()
-                .filter(u -> u.getRole() == UserRole.STUDENT)
-                .map(this::toResponse)
-                .collect(Collectors.toList());
+    public List<StudentResponse> listStudents(String search, UUID classId) {
+        List<User> students = userRepo.findByRole(UserRole.STUDENT);
+        if (search != null && !search.isBlank()) {
+            String q = search.toLowerCase();
+            students = students.stream()
+                    .filter(u -> (u.getFullName() != null && u.getFullName().toLowerCase().contains(q))
+                            || (u.getEmail() != null && u.getEmail().toLowerCase().contains(q)))
+                    .collect(Collectors.toList());
+        }
+        if (classId != null) {
+            students = students.stream()
+                    .filter(u -> studentClassRepo.findByStudent(u).stream()
+                            .anyMatch(sc -> sc.isActive() && sc.getClassroom().getId().equals(classId)))
+                    .collect(Collectors.toList());
+        }
+        return students.stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     public StudentResponse createStudent(StudentCreateRequest request) {
