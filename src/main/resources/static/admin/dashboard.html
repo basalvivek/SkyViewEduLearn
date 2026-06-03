@@ -487,6 +487,12 @@ async function loadDashboard() {
     const cats = await apiGet('/categories?page=0&size=1');
     if (cats) document.getElementById('statCats').textContent = cats.pagination?.total ?? '—';
 
+    const teachers = await apiGet('/teachers');
+    if (teachers?.data) document.getElementById('statTeachers').textContent = teachers.data.filter(t => t.isActive !== false).length;
+
+    const questions = await apiGet('/questions?page=0&size=1');
+    if (questions?.pagination) document.getElementById('statQuestions').textContent = questions.pagination.total ?? '—';
+
     const pending = await apiGet('/approvals/pending?page=0&size=50');
     if (pending?.data) {
       const items = pending.data;

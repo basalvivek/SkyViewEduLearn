@@ -229,6 +229,7 @@ async function handleLogin() {
       sessionStorage.setItem('edu_token', token);
       sessionStorage.setItem('edu_role', role);
       sessionStorage.setItem('edu_name', name);
+      sessionStorage.setItem('edu_email', email);
       if (mustChangePassword) {
         window.location.href = '/student/change-password.html';
       } else if (role === 'ADMIN') {

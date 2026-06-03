@@ -1,10 +1,12 @@
-const AUTH_TOKEN_KEY = 'edu_token';
-const AUTH_ROLE_KEY = 'edu_role';
-const AUTH_NAME_KEY = 'edu_name';
+const AUTH_TOKEN_KEY  = 'edu_token';
+const AUTH_ROLE_KEY   = 'edu_role';
+const AUTH_NAME_KEY   = 'edu_name';
+const AUTH_EMAIL_KEY  = 'edu_email';
 
 function getToken() { return sessionStorage.getItem(AUTH_TOKEN_KEY); }
 function getRole()  { return sessionStorage.getItem(AUTH_ROLE_KEY); }
 function getName()  { return sessionStorage.getItem(AUTH_NAME_KEY); }
+function getEmail() { return sessionStorage.getItem(AUTH_EMAIL_KEY); }
 
 function isLoggedIn() { return !!getToken(); }
 
